@@ -34,6 +34,7 @@ public class MainActivity extends AppCompatActivity {
                 String email = editTextEmail.getText().toString().trim();
                 String password = editTextPassword.getText().toString().trim();
 
+
                 // Validamos que ambos campos no estén vacíos
                 if (email.isEmpty()) {
                     Toast.makeText(MainActivity.this, "Falta ingresar el correo", Toast.LENGTH_SHORT).show();
@@ -55,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
 
 
                 // Simulamos un inicio de sesión exitoso para este ejemplo
-                Toast.makeText(MainActivity.this, "Inicio de sesión exitoso " + email, Toast.LENGTH_SHORT).show();
+//                Toast.makeText(MainActivity.this, "Inicio de sesión exitoso " + email, Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -67,23 +68,25 @@ public class MainActivity extends AppCompatActivity {
             public void onSuccess(String response) {
                 // Manejar el inicio de sesión exitoso
                 Toast.makeText(MainActivity.this, "Inicio de sesión exitoso", Toast.LENGTH_SHORT).show();
+                setContentView(R.layout.home);
             }
 
             @Override
             public void onError(String error) {
                 // Manejar el error durante el inicio de sesión
+                System.out.println(error);
                 Toast.makeText(MainActivity.this, error, Toast.LENGTH_SHORT).show();
             }
         });
 
 
-        /*try {
-            String response = Login.signIn(email, password);
-            System.out.println("Inicio de sesión exitoso: " + response);
-        }catch (LoginException e){
-            System.err.println("Error durante el inicio de sesión: " + e.getMessage());
-            Toast.makeText(MainActivity.this, "Ocurrio un error al iniciar sesión", Toast.LENGTH_SHORT).show();
-        }*/
+//        try {
+//            String response = Login.signIn(email, password);
+//            System.out.println("Inicio de sesión exitoso: " + response);
+//        }catch (LoginException e){
+//            System.err.println("Error durante el inicio de sesión: " + e.getMessage());
+//            Toast.makeText(MainActivity.this, "Ocurrio un error al iniciar sesión", Toast.LENGTH_SHORT).show();
+//        }
 
     }
 }

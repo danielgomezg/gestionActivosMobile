@@ -1,30 +1,59 @@
 package com.example.sca_app_v1.login_app;
 
-import android.content.Context;
-import android.util.Log;
+ import android.content.Context;
+ import android.util.Log;
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
+ import com.android.volley.Request;
+ import com.android.volley.RequestQueue;
+ import com.android.volley.Response;
+ import com.android.volley.VolleyError;
+ import com.android.volley.toolbox.JsonObjectRequest;
+ import com.android.volley.toolbox.StringRequest;
+ import com.android.volley.toolbox.Volley;
 
-import java.util.HashMap;
-import java.util.Map;
+ import org.json.JSONException;
+ import org.json.JSONObject;
 
-public class Login {
+ import java.util.HashMap;
+ import java.util.Map;
 
-    public static void signIn(Context context, String email, String password, final LoginCallback callback) {
-        String url = "http://127.0.0.1:9000/login"; // Reemplaza con la URL de tu servidor
+ public class Login {
+
+     public static void signIn(Context context, String email, String password, final LoginCallback callback) {
+        String url = "http://10.0.2.2:9000/login"; // Reemplaza con la URL de tu servidor
         RequestQueue queue = Volley.newRequestQueue(context);
+         
+        // Crear el objeto JSON para enviar en el cuerpo de la solicitud
+        JSONObject jsonBody = new JSONObject();
+        try {
+            jsonBody.put("email", email);
+            jsonBody.put("password", password);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
 
-        StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
-                new Response.Listener<String>() {
+        JsonObjectRequest jsonRequest = new JsonObjectRequest(Request.Method.POST, url, jsonBody,
+                new Response.Listener<JSONObject>() {
                     @Override
-                    public void onResponse(String response) {
+                    public void onResponse(JSONObject response) {
                         // Se llamó a la devolución de llamada en caso de éxito
-                        callback.onSuccess(response);
+                        String code = null;
+                        try {
+                            code = response.getString("code");
+                            System.out.println(response.toString());
+                        
+                            if (code.equals("201")) {
+                                callback.onSuccess(response.toString()); 
+                            }
+                            else {
+                                callback.onError("Error durante el inicio de sesión: ");
+                            }
+
+                        } catch (JSONException e) {
+                            throw new RuntimeException(e);
+                        }
+
+                        
                     }
                 }, new Response.ErrorListener() {
             @Override
@@ -32,74 +61,82 @@ public class Login {
                 // Se llamó a la devolución de llamada en caso de error
                 callback.onError("Error durante el inicio de sesión: " + error.getMessage());
             }
-        }) {
-            // Se pueden agregar parámetros de la solicitud, si es necesario
-            @Override
-            protected Map<String, String> getParams() {
-                Map<String, String> params = new HashMap<>();
-                params.put("email", email);
-                params.put("password", password);
-                return params;
-            }
-        };
+        });
 
         // Agregar la solicitud a la cola
-        queue.add(stringRequest);
-    }
+        queue.add(jsonRequest);
+     }
 
-    // Interfaz para la devolución de llamada de inicio de sesión
-    public interface LoginCallback {
-        void onSuccess(String response);
-        void onError(String error);
-    }
-}
+     // Interfaz para la devolución de llamada de inicio de sesión
+     public interface LoginCallback {
+         void onSuccess(String response);
+         void onError(String error);
+     }
+ }
 
-/*
 
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
-
-import javax.security.auth.login.LoginException;
-public class Login {
-
-    public static String signIn(String email, String password) throws LoginException {
-
-        try{
-            // URL del servidor
-            URL url = new URL("http://127.0.0.1:9000/login");
-
-            // conexión HTTP
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestMethod("POST");
-
-            // Parámetros de la solicitud
-            String params = "email=" + email + "&password=" + password;
-
-            // Habilitar el envío de datos en la solicitud
-            connection.setDoOutput(true);
-
-            // Escribir los parámetros en el cuerpo de la solicitud
-            DataOutputStream out = new DataOutputStream(connection.getOutputStream());
-            out.writeBytes(params);
-            out.flush();
-            out.close();
-
-            // Leer la respuesta del servidor
-            BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-            StringBuilder response = new StringBuilder();
-            String inputLine;
-            while ((inputLine = in.readLine()) != null){
-                response.append(inputLine);
-            }
-            in.close();
-
-            return response.toString();
-        }catch (IOException e){
-            throw new LoginException("Error durante el inicio de sesión: " + e.getMessage());
-        }
-    }
-}*/
+//
+//import java.io.BufferedReader;
+//import java.io.DataOutputStream;
+//import java.io.IOException;
+//import java.io.InputStreamReader;
+//import java.net.HttpURLConnection;
+//import java.net.URL;
+//
+//import javax.security.auth.login.LoginException;
+//public class Login {
+//
+//    public static String signIn(String email, String password) throws LoginException {
+//
+//        try{
+//            // Parámetros de la solicitud
+//            String params = "email=" + email + "&password=" + password;
+//            byte[] postData = params.getBytes(StandardCharsets.UTF_8);
+//
+//            // URL del servidor
+//            URI uri = new URI("http://127.0.0.1:9000/login");
+//            URL url = uri.toURL();
+//
+//            // conexión HTTP
+//            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+//            connection.setDoOutput(true);
+//            connection.setRequestMethod("POST");
+//            connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+//            connection.setRequestProperty("charset", "utf-8");
+//            connection.setRequestProperty("Content-Length", Integer.toString(params.getBytes().length));
+//
+//            try (OutputStream out = connection.getOutputStream()) {
+//                out.write(postData);
+//                out.flush();
+//            }
+//
+//            if (connection.getResponseCode() == 200) {
+//                System.out.println("Respuesta del servidor: " + connection.getResponseMessage());
+//            } else {
+//                // throw new LoginException("Error durante el inicio de sesión: " + connection.getResponseMessage());
+//                System.out.println("Error durante el inicio de sesión: " + connection.getResponseMessage());
+//            }
+//
+//
+//            // // Habilitar el envío de datos en la solicitud
+//            // OutputStream out = new DataOutputStream(connection.getOutputStream());
+//
+//            // // Escribir los parámetros en el cuerpo de la solicitud
+//            // out.close();
+//
+//
+//            // Leer la respuesta del servidor
+//            // BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+//            // StringBuilder response = new StringBuilder();
+//            // String inputLine;
+//            // while ((inputLine = in.readLine()) != null){
+//            //     response.append(inputLine);
+//            // }
+//            // in.close();
+//
+//            // return response.toString();
+//        }catch (IOException e){
+//            throw new LoginException("Error durante el inicio de sesión: " + e.getMessage());
+//        }
+//    }
+//}
