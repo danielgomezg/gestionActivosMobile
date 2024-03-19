@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- NO SE UTILIZA -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="?attr/actionBarSize"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:background="@color/purple_500">
+
+    <!-- Imagen -->
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/sca_logo_3"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp" />
+
+    <!-- Título -->
+    <TextView
+        android:id="@+id/textViewTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Título"
+        android:textColor="@android:color/white"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+
+</LinearLayout>

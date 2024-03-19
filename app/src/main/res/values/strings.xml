@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">SCA</string>
     <string name="select_company">Compañia</string>
+    <string name="nav_header_desc">Navigation header</string>
 </resources>

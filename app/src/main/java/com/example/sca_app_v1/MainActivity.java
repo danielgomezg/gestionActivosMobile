@@ -9,10 +9,9 @@ import android.widget.Toast;
 
 import com.example.sca_app_v1.home.HomeActivity;
 import com.example.sca_app_v1.login_app.*;
+import com.example.sca_app_v1.home_app.*;
 
 import androidx.appcompat.app.AppCompatActivity;
-
-import javax.security.auth.login.LoginException;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -23,6 +22,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login);
+        //getSupportActionBar().hide();
 
         // Vinculamos los elementos del diseño con las variables Java
         editTextEmail = findViewById(R.id.correo_user);

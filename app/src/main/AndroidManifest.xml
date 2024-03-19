@@ -33,6 +33,8 @@
 
         <activity android:name=".home.HomeActivity" />
 
+        <activity android:name=".home_app.HomeActivity" />
+
     </application>
 
 

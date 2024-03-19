@@ -2,6 +2,7 @@ package com.example.sca_app_v1.login_app;
 
  import android.content.Context;
  import android.content.SharedPreferences;
+ import android.content.SharedPreferences;
  import android.util.Log;
 
  import com.android.volley.Request;
@@ -41,7 +42,7 @@ package com.example.sca_app_v1.login_app;
                         String code = null;
                         try {
                             code = response.getString("code");
-                            System.out.println(response.toString());
+                            System.out.println(response);
                         
                             if (code.equals("201")) {
                                 JSONObject result = response.getJSONObject("result");
