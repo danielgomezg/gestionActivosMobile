@@ -23,4 +23,11 @@
         app:headerLayout="@layout/nav_header_main"
         app:menu="@menu/drawer_menu" />
 
+    <include
+        android:id="@+id/select_company"
+        layout="@layout/home"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        />
+
 </androidx.drawerlayout.widget.DrawerLayout>

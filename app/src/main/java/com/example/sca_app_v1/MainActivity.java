@@ -7,7 +7,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.example.sca_app_v1.home.HomeActivity;
+//import com.example.sca_app_v1.home.HomeActivity;
+import com.example.sca_app_v1.home_app.HomeActivity;
 import com.example.sca_app_v1.login_app.*;
 import com.example.sca_app_v1.home_app.*;
 

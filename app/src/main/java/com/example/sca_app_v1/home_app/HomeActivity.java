@@ -1,11 +1,13 @@
 package com.example.sca_app_v1.home_app;
 
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.View;
-import android.widget.TextView;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -14,18 +16,39 @@ import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.example.sca_app_v1.R;
 import com.example.sca_app_v1.databinding.ActivityMainBinding;
+import com.example.sca_app_v1.home_app.company.Company;
+import com.example.sca_app_v1.home_app.company.CompanyAdapter;
+import com.example.sca_app_v1.home_app.company.CompanyItem;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class HomeActivity extends AppCompatActivity {
 
     private AppBarConfiguration mAppBarConfiguration;
     private ActivityMainBinding binding;
+
+    String[] items = { "Funa", "Savory", "Trendy", "Bresler" };
+
+    AutoCompleteTextView companySelect;
+//    ArrayAdapter<String> adapterItems;
+    CompanyAdapter adapterItems;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,6 +58,36 @@ public class HomeActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         setSupportActionBar(binding.appBarMain.toolbar);
+
+        SharedPreferences sharedPreferences = getSharedPreferences("session", MODE_PRIVATE);
+        String token = sharedPreferences.getString("accessToken", null);
+
+        companySelect = findViewById(R.id.company_select);
+        Company.getCompanyList(this, token, new Company.CompanyListCallback() {
+            public void onSuccess(List<CompanyItem> companies) {
+                System.out.println("response in on success: " + companies);
+//                adapterItems = new ArrayAdapter<String>(HomeActivity.this, R.layout.list_item, companies);
+//              companySelect.setAdapter(adapterItems);
+                adapterItems = new CompanyAdapter(HomeActivity.this, companies);
+                companySelect.setAdapter(adapterItems);
+            }
+
+            @Override
+            public void onError(String error) {
+                System.out.println(error);
+            }
+        });
+
+        companySelect.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                // String item = parent.getItemAtPosition(position).toString();
+                // Toast.makeText(getApplicationContext(), "Item: "+item, Toast.LENGTH_SHORT).show();
+                CompanyItem item = (CompanyItem) parent.getItemAtPosition(position);
+                Toast.makeText(getApplicationContext(), "ID: "+item.getId(), Toast.LENGTH_SHORT).show();
+            }
+        });
+
         binding.appBarMain.fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -69,6 +122,53 @@ public class HomeActivity extends AppCompatActivity {
                 || super.onSupportNavigateUp();
     }
 
+    private void getCompanyList() {
+        System.out.println("get company List");
+        SharedPreferences sharedPreferences = getSharedPreferences("session", MODE_PRIVATE);
+        String token = sharedPreferences.getString("accessToken", null);
+        String url = "http://10.0.2.2:9000/companiesIdName";
+        System.out.println("token: " + token);
+        RequestQueue queue = Volley.newRequestQueue(this);
+        JsonObjectRequest jsonRequest = new JsonObjectRequest(Request.Method.GET, url, null,
+
+            new Response.Listener<JSONObject>() {
+                @Override
+                public void onResponse(JSONObject response) {
+                    System.out.println(response.toString());
+
+                    try {
+                        String code = response.getString("code");
+                        if (code.equals("200")) {
+                            JSONArray result = response.getJSONArray("result");
+                            System.out.println(result);
+                            companySelect = findViewById(R.id.company_select);
+                        }
+
+                    } catch (JSONException e) {
+                        throw new RuntimeException(e);
+                    }
+
+                }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    System.out.println("Error: "+error);
+                }
+            }
+
+
+        ) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<>();
+                headers.put("Content-Type", "application/json");
+                headers.put("Authorization", "Bearer " + token); // Reemplaza 'token' con tu token de autenticación
+                return headers;
+            }
+        };
+        queue.add(jsonRequest);
+
+    }
 
     /*private TextView userName;
 
