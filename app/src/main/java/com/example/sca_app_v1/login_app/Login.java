@@ -62,7 +62,7 @@ package com.example.sca_app_v1.login_app;
                                 SharedPreferences.Editor editor = sharedPreferences.edit();
                                 editor.putString("accessToken", (String) result.get("access_token"));
                                 editor.putInt("company_id", (Integer) user.get("company_id"));
-
+                                editor.apply();
                                 callback.onSuccess(response.toString()); 
                             }
                             else {
