@@ -1,6 +1,7 @@
 package com.example.sca_app_v1.login_app;
 
  import android.content.Context;
+ import android.content.SharedPreferences;
  import android.util.Log;
 
  import com.android.volley.Request;
@@ -43,6 +44,24 @@ package com.example.sca_app_v1.login_app;
                             System.out.println(response.toString());
                         
                             if (code.equals("201")) {
+                                JSONObject result = response.getJSONObject("result");
+                                JSONObject user = result.getJSONObject("user");
+                                System.out.println("token > " + result.get("access_token"));
+
+                                System.out.println("email > " + user.get("email"));
+                                System.out.println("fistName > " + user.get("firstName"));
+                                System.out.println("lastName > " + user.get("lastName"));
+                                System.out.println("secondName > " + user.get("secondName"));
+                                System.out.println("secondLastName > " + user.get("secondLastName"));
+                                System.out.println("rut > " + user.get("rut"));
+                                System.out.println("companyID > " + user.get("company_id"));
+                                System.out.println("profileID > " + user.get("profile_id"));
+
+                                SharedPreferences sharedPreferences = context.getSharedPreferences("session", Context.MODE_PRIVATE);
+                                SharedPreferences.Editor editor = sharedPreferences.edit();
+                                editor.putString("accessToken", (String) result.get("access_token"));
+                                editor.putInt("company_id", (Integer) user.get("company_id"));
+
                                 callback.onSuccess(response.toString()); 
                             }
                             else {
