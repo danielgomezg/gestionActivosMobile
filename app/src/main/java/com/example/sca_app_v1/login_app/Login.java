@@ -1,6 +1,7 @@
 package com.example.sca_app_v1.login_app;
 
  import android.content.Context;
+ import android.content.SharedPreferences;
  import android.util.Log;
 
  import com.android.volley.Request;
@@ -40,10 +41,21 @@ package com.example.sca_app_v1.login_app;
                         String code = null;
                         try {
                             code = response.getString("code");
-                            System.out.println(response.toString());
+                            System.out.println(response);
                         
                             if (code.equals("201")) {
-                                callback.onSuccess(response.toString()); 
+                                JSONObject info_session = response.getJSONObject("result");
+                                //String info_session = response.getString("result");
+                                System.out.println(info_session);
+                                String tkn = info_session.getString("access_token");
+                                System.out.println(tkn);
+                                String info_user = info_session.getJSONObject("user").toString();
+                                System.out.println(info_user);
+                                
+                                SharedPreferences.Editor editor = context.getSharedPreferences("prefs_name", Context.MODE_PRIVATE).edit();
+                                editor.putString("token", tkn);
+                                editor.putString("user", info_user);
+                                editor.apply();                                                                                                callback.onSuccess(response.toString());
                             }
                             else {
                                 callback.onError("Error durante el inicio de sesión: ");
