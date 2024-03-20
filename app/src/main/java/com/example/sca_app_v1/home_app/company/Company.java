@@ -39,6 +39,7 @@ public class Company {
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
+                        System.out.println("RESPONSE GET");
                         System.out.println(response.toString());
 
                         try {
@@ -60,6 +61,7 @@ public class Company {
                                     String id = company.getString("id");
                                     companies.add(new CompanyItem(id, name));
                                 }
+
                                 callback.onSuccess(companies);
                             }
 

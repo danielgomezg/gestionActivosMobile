@@ -46,6 +46,8 @@ package com.example.sca_app_v1.login_app;
                         
                             if (code.equals("201")) {
                                 JSONObject result = response.getJSONObject("result");
+                                String info_user = result.getJSONObject("user").toString();
+
                                 JSONObject user = result.getJSONObject("user");
                                 System.out.println("token > " + result.get("access_token"));
 
@@ -61,7 +63,12 @@ package com.example.sca_app_v1.login_app;
                                 SharedPreferences sharedPreferences = context.getSharedPreferences("session", Context.MODE_PRIVATE);
                                 SharedPreferences.Editor editor = sharedPreferences.edit();
                                 editor.putString("accessToken", (String) result.get("access_token"));
-                                editor.putInt("company_id", (Integer) user.get("company_id"));
+                                editor.putString("user", info_user);
+                                editor.putInt("profile_id", (Integer) user.get("profile_id"));
+                                if((Integer) user.get("profile_id") == 2){
+                                    editor.putInt("company_id", (Integer) user.get("company_id"));
+                                }
+
                                 editor.apply();
                                 callback.onSuccess(response.toString()); 
                             }
