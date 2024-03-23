@@ -1,6 +1,7 @@
 package com.example.sca_app_v1.home_app.bdLocal;
 
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
 import android.widget.AutoCompleteTextView;
 
 import com.android.volley.AuthFailureError;
@@ -13,6 +14,8 @@ import com.android.volley.toolbox.Volley;
 import com.example.sca_app_v1.databinding.ActivityMainBinding;
 import com.example.sca_app_v1.home_app.company.Company;
 import com.example.sca_app_v1.home_app.company.CompanyItem;
+
+import com.example.sca_app_v1.home_app.bdLocal.DatabaseHelper;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -41,16 +44,44 @@ public class GetLocalBD {
                     public void onResponse(JSONObject response) {
                         System.out.println("RESPONSE GET");
                         System.out.println(response.toString());
-
+                        DatabaseHelper dbHelper = null;
                         try {
                             String code = response.getString("code");
                             if (code.equals("200")) {
+
+
                                 JSONObject result = response.getJSONObject("result");
                                 System.out.println("result all bd" + result);
+
+                                dbHelper = new DatabaseHelper(context);
+                                SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+                                
+                                String selectSql = "SELECT * FROM compania";
+                                List<Map<String, String>> results = dbHelper.executeSqlQuery(selectSql);
+                                System.out.println(results.size());
+                                for (Map<String, String> row : results) {
+                                    System.out.println("---");
+                                    System.out.println(row);
+                                }
+                                
+                                String dbPath = db.getPath();
+                                System.out.println("La base de datos se almacena en: " + dbPath);
+
+
+                                JSONObject company = result.getJSONObject("company");
+                                System.out.println("company: " + company);
+                                boolean companyInsetStatus = dbHelper.insertCompanyData((int) company.get("id"), (String) company.get("name"), company.get("rut").toString(), company.get("country").toString(), company.get("contact_name").toString(), company.get("contact_email").toString(), company.get("contact_phone").toString(), (int) company.get("removed"), company.get("name_db").toString());
+                                System.out.println("companyInsetStatus > " + companyInsetStatus);
                             }
 
                         } catch (JSONException e) {
                             throw new RuntimeException(e);
+                        } finally {
+                            System.out.println("FINALLY");
+                             if (dbHelper != null) {
+                                 dbHelper.close();
+                             }
                         }
 
                     }

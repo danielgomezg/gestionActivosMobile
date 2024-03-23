@@ -1,10 +1,16 @@
 package com.example.sca_app_v1.home_app.bdLocal;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteStatement;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
 public class DatabaseHelper extends SQLiteOpenHelper {
@@ -15,6 +21,27 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     // Constructor
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
+    }
+
+    public List<Map<String, String>> executeSqlQuery(String sql) {
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.rawQuery(sql, null);
+    
+        List<Map<String, String>> results = new ArrayList<>();
+        if (cursor.moveToFirst()) {
+            do {
+                Map<String, String> row = new HashMap<>();
+                for (int i = 0; i < cursor.getColumnCount(); i++) {
+                    row.put(cursor.getColumnName(i), cursor.getString(i));
+                }
+                results.add(row);
+            } while (cursor.moveToNext());
+        }
+    
+        cursor.close();
+        db.close();
+    
+        return results;
     }
 
     // Método para crear la tabla
@@ -111,172 +138,260 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     // Método para insertar datos de compañía
-    private void insertCompanyData(int id, String name, String rut, String country, String contactName, String contactEmail, String contactPhone, int removed, String nameDb) {
+    public boolean insertCompanyData(int id, String name, String rut, String country, String contactName, String contactEmail, String contactPhone, int removed, String nameDb) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
-        values.put("id", id);
-        values.put("name", name);
-        values.put("rut", rut);
-        values.put("country", country);
-        values.put("contact_name", contactName);
-        values.put("contact_email", contactEmail);
-        values.put("contact_phone", contactPhone);
-        values.put("removed", removed);
-        values.put("name_db", nameDb);
-        // Aquí puedes continuar insertando otros campos de la compañía si es necesario
-        long result = db.insert("compania", null, values);
-        if (result == -1) {
-            //Toast.makeText(context, "Error al insertar datos en la tabla de compañía", Toast.LENGTH_SHORT).show();
-            System.out.println("Error al insertar datos en la tabla compania");
-        }else {
-            // La inserción fue exitosa
-            System.out.println("Datos insertados correctamente en la tabla compania");
+
+        try {
+
+            // Verificar si ya existe una compañía con ese ID
+            Cursor cursor = db.rawQuery(
+                "SELECT * FROM compania WHERE id = ?",
+                new String[] {String.valueOf(id)}
+            );
+            boolean exists = (cursor.getCount() > 0);
+            cursor.close();
+
+            // Si la compañía ya existe, no insertarla
+            if (exists) {
+                return false;
+            }
+
+            values.put("id", id);
+            values.put("name", name);
+            values.put("rut", rut);
+            values.put("country", country);
+            values.put("contact_name", contactName);
+            values.put("contact_email", contactEmail);
+            values.put("contact_phone", contactPhone);
+            values.put("removed", removed);
+            values.put("name_db", nameDb);
+            // Aquí puedes continuar insertando otros campos de la compañía si es necesario
+            long result = db.insert("compania", null, values);
+            if (result == -1) {
+                //Toast.makeText(context, "Error al insertar datos en la tabla de compañía", Toast.LENGTH_SHORT).show();
+                System.out.println("Error al insertar datos en la tabla compania");
+                return false;
+            }else {
+                // La inserción fue exitosa
+                System.out.println("Datos insertados correctamente en la tabla compania");
+                return true;
+            }
+        } catch (Exception e) {
+            System.out.println("Error al insertar datos: " + e.getMessage());
+            return false;
+        } finally {
+            db.close();
         }
-        db.close();
     }
 
     // Método para insertar datos de sucursal
-    public void insertSucursalData(int id, String description, String number, String address, String region, String city, String commune, int removed, int companyId) {
+    public boolean insertSucursalData(int id, String description, String number, String address, String region, String city, String commune, int removed, int companyId) {
         SQLiteDatabase db = this.getWritableDatabase();
-        String sql = "INSERT INTO sucursal (id, description, number, address, region, city, commune, removed, company_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        db.beginTransaction();
 
-        SQLiteStatement statement = db.compileStatement(sql);
-        statement.bindLong(1, id);
-        statement.bindString(2, description);
-        statement.bindString(3, number);
-        statement.bindString(4, address);
-        statement.bindString(5, region);
-        statement.bindString(6, city);
-        statement.bindString(7, commune);
-        statement.bindLong(8, removed);
-        statement.bindLong(9, companyId);
+        try {
 
-        long result = statement.executeInsert();
+            String sql = "INSERT INTO sucursal (id, description, number, address, region, city, commune, removed, company_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-        if (result == -1) {
-            System.out.println("Error al insertar datos en la tabla sucursal");
-        }else {
-            // La inserción fue exitosa
-            System.out.println("Datos insertados correctamente en la tabla sucursal");
+            SQLiteStatement statement = db.compileStatement(sql);
+            statement.bindLong(1, id);
+            statement.bindString(2, description);
+            statement.bindString(3, number);
+            statement.bindString(4, address);
+            statement.bindString(5, region);
+            statement.bindString(6, city);
+            statement.bindString(7, commune);
+            statement.bindLong(8, removed);
+            statement.bindLong(9, companyId);
+
+            long result = statement.executeInsert();
+
+            if (result == -1) {
+                System.out.println("Error al insertar datos en la tabla sucursal");
+                return false;
+            } else {
+                // La inserción fue exitosa
+                System.out.println("Datos insertados correctamente en la tabla sucursal");
+                db.setTransactionSuccessful();
+                return true;
+            }
+
+        } catch (Exception e) {
+            System.out.println("Error al insertar datos: " + e.getMessage());
+            return false;
+        } finally {
+            db.endTransaction();
+            db.close();
         }
-        db.close();
+
     }
 
     // Método para insertar datos de oficina
-    public void insertOfficeData(int id, String description, int floor, String nameInCharge, int removed, int sucursalId) {
+    public boolean insertOfficeData(int id, String description, int floor, String nameInCharge, int removed, int sucursalId) {
         SQLiteDatabase db = this.getWritableDatabase();
+        db.beginTransaction();
 
-        String sql = "INSERT INTO oficina (id, description, floor, name_in_charge, removed, sucursal_id) VALUES (?, ?, ?, ?, ?, ?)";
+        try {
 
-        SQLiteStatement statement = db.compileStatement(sql);
+            String sql = "INSERT INTO oficina (id, description, floor, name_in_charge, removed, sucursal_id) VALUES (?, ?, ?, ?, ?, ?)";
 
-        statement.bindLong(1, id);
-        statement.bindString(2, description);
-        statement.bindLong(3, floor);
-        statement.bindString(4, nameInCharge);
-        statement.bindLong(5, removed);
-        statement.bindLong(6, sucursalId);
+            SQLiteStatement statement = db.compileStatement(sql);
 
-        long result = statement.executeInsert();
+            statement.bindLong(1, id);
+            statement.bindString(2, description);
+            statement.bindLong(3, floor);
+            statement.bindString(4, nameInCharge);
+            statement.bindLong(5, removed);
+            statement.bindLong(6, sucursalId);
 
-        // Verifica si la inserción fue exitosa
-        if (result == -1) {
-            System.out.println("Error al insertar datos en la tabla de oficina");
-        } else {
-            // La inserción fue exitosa
-            System.out.println("Datos insertados correctamente en la tabla de oficina");
+            long result = statement.executeInsert();
+
+            // Verifica si la inserción fue exitosa
+            if (result == -1) {
+                System.out.println("Error al insertar datos en la tabla de oficina");
+                return false;
+            } else {
+                // La inserción fue exitosa
+                System.out.println("Datos insertados correctamente en la tabla de oficina");
+                db.setTransactionSuccessful();
+                return true;
+            }
+        } catch (Exception e) {
+            System.out.println("Error al insertar datos: " + e.getMessage());
+            return false;
+        } finally {
+            db.endTransaction();
+            db.close();
         }
-        db.close();
+        
     }
 
-    public void insertCategoryData(int id, String description, int parentId, int removed) {
+    public boolean insertCategoryData(int id, String description, int parentId, int removed) {
         SQLiteDatabase db = this.getWritableDatabase();
+        db.beginTransaction();
 
-        String sql = "INSERT INTO categoria (id, description, parent_id, removed) VALUES (?, ?, ?, ?)";
+        try {
 
-        SQLiteStatement statement = db.compileStatement(sql);
+            String sql = "INSERT INTO categoria (id, description, parent_id, removed) VALUES (?, ?, ?, ?)";
 
-        statement.bindLong(1, id);
-        statement.bindString(2, description);
-        statement.bindLong(3, parentId);
-        statement.bindLong(4, removed);
+            SQLiteStatement statement = db.compileStatement(sql);
 
-        long result = statement.executeInsert();
+            statement.bindLong(1, id);
+            statement.bindString(2, description);
+            statement.bindLong(3, parentId);
+            statement.bindLong(4, removed);
 
-        // Verifica si la inserción fue exitosa
-        if (result == -1) {
-            System.out.println("Error al insertar datos en la tabla de categoría");
-        } else {
-            System.out.println("Datos insertados correctamente en la tabla de categoría");
+            long result = statement.executeInsert();
+
+            // Verifica si la inserción fue exitosa
+            if (result == -1) {
+                System.out.println("Error al insertar datos en la tabla de categoría");
+                return false;
+            } else {
+                System.out.println("Datos insertados correctamente en la tabla de categoría");
+                db.setTransactionSuccessful();
+                return true;
+            }
+
+        } catch (Exception e) {
+            System.out.println("Error al insertar datos: " + e.getMessage());
+            return false;
+        } finally {
+            db.endTransaction();
+            db.close();
         }
-        db.close();
+        
     }
 
-    public void insertArticleData(int id, String name, String description, String code, String photo, int countActive, String creationDate, int removed,
+    public boolean insertArticleData(int id, String name, String description, String code, String photo, int countActive, String creationDate, int removed,
                                   int companyId, int categoryId) {
         SQLiteDatabase db = this.getWritableDatabase();
+        db.beginTransaction();
+        try {
 
-        String sql = "INSERT INTO articulo (id, name, description, code, photo, count_active, creation_date, removed, company_id, category_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            String sql = "INSERT INTO articulo (id, name, description, code, photo, count_active, creation_date, removed, company_id, category_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-        SQLiteStatement statement = db.compileStatement(sql);
+            SQLiteStatement statement = db.compileStatement(sql);
 
-        statement.bindLong(1, id);
-        statement.bindString(2, name);
-        statement.bindString(3, description);
-        statement.bindString(4, code);
-        statement.bindString(5, photo);
-        statement.bindLong(6, countActive);
-        statement.bindString(7, creationDate);
-        statement.bindLong(8, removed);
-        statement.bindLong(9, companyId);
-        statement.bindLong(10, categoryId);
+            statement.bindLong(1, id);
+            statement.bindString(2, name);
+            statement.bindString(3, description);
+            statement.bindString(4, code);
+            statement.bindString(5, photo);
+            statement.bindLong(6, countActive);
+            statement.bindString(7, creationDate);
+            statement.bindLong(8, removed);
+            statement.bindLong(9, companyId);
+            statement.bindLong(10, categoryId);
 
-        long result = statement.executeInsert();
+            long result = statement.executeInsert();
 
-        // Verifica si la inserción fue exitosa
-        if (result == -1) {
-            System.out.println("Error al insertar datos en la tabla de artículo");
-        } else {
-            System.out.println("Datos insertados correctamente en la tabla de artículo");
+            // Verifica si la inserción fue exitosa
+            if (result == -1) {
+                System.out.println("Error al insertar datos en la tabla de artículo");
+                return false;
+            } else {
+                System.out.println("Datos insertados correctamente en la tabla de artículo");
+                db.setTransactionSuccessful();
+                return true;
+            }
+
+        } catch (Exception e) {
+            System.out.println("Error al insertar datos: " + e.getMessage());
+            return false;
+        } finally {
+            db.endTransaction();
+            db.close();
         }
-        db.close();
+
     }
 
-    public void insertActiveData(String barCode, String comment, String acquisitionDate, String accountingDocument, String accountingRecordNumber,
+    public boolean insertActiveData(String barCode, String comment, String acquisitionDate, String accountingDocument, String accountingRecordNumber,
                                  String nameInChargeActive, String rutInChargeActive, String serie, String model, String state, String creationDate,
                                  int removed, int officeId, int articleId) {
         SQLiteDatabase db = this.getWritableDatabase();
+        db.beginTransaction();
+        try {
 
-        String sql = "INSERT INTO activo (bar_code, comment, acquisition_date, accounting_document, accounting_record_number, name_in_charge_active, rut_in_charge_active, serie, model, state, creation_date, removed, office_id, article_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            String sql = "INSERT INTO activo (bar_code, comment, acquisition_date, accounting_document, accounting_record_number, name_in_charge_active, rut_in_charge_active, serie, model, state, creation_date, removed, office_id, article_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-        SQLiteStatement statement = db.compileStatement(sql);
+            SQLiteStatement statement = db.compileStatement(sql);
 
-        statement.bindString(1, barCode);
-        statement.bindString(2, comment);
-        statement.bindString(3, acquisitionDate);
-        statement.bindString(4, accountingDocument);
-        statement.bindString(5, accountingRecordNumber);
-        statement.bindString(6, nameInChargeActive);
-        statement.bindString(7, rutInChargeActive);
-        statement.bindString(8, serie);
-        statement.bindString(9, model);
-        statement.bindString(10, state);
-        statement.bindString(11, creationDate);
-        statement.bindLong(12, removed);
-        statement.bindLong(13, officeId);
-        statement.bindLong(14, articleId);
+            statement.bindString(1, barCode);
+            statement.bindString(2, comment);
+            statement.bindString(3, acquisitionDate);
+            statement.bindString(4, accountingDocument);
+            statement.bindString(5, accountingRecordNumber);
+            statement.bindString(6, nameInChargeActive);
+            statement.bindString(7, rutInChargeActive);
+            statement.bindString(8, serie);
+            statement.bindString(9, model);
+            statement.bindString(10, state);
+            statement.bindString(11, creationDate);
+            statement.bindLong(12, removed);
+            statement.bindLong(13, officeId);
+            statement.bindLong(14, articleId);
 
-        long result = statement.executeInsert();
+            long result = statement.executeInsert();
 
-        // Verifica si la inserción fue exitosa
-        if (result == -1) {
-            System.out.println("Error al insertar datos en la tabla de activo");
-        } else {
-            System.out.println("Datos insertados correctamente en la tabla de activo");
+            // Verifica si la inserción fue exitosa
+            if (result == -1) {
+                System.out.println("Error al insertar datos en la tabla de activo");
+                return false;
+            } else {
+                System.out.println("Datos insertados correctamente en la tabla de activo");
+                db.setTransactionSuccessful();
+                return true;
+            }
+        } catch (Exception e) {
+            System.out.println("Error al insertar datos: " + e.getMessage());
+            return false;
+        } finally {
+            db.endTransaction();
+            db.close();
         }
 
-        // Cierra la base de datos
-        db.close();
     }
 
 
