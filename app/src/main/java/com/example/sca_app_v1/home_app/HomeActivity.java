@@ -31,6 +31,8 @@ import com.example.sca_app_v1.home_app.company.CompanyItem;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 
+import com.example.sca_app_v1.home_app.bdLocal.GetLocalBD;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -44,9 +46,8 @@ public class HomeActivity extends AppCompatActivity {
     private AppBarConfiguration mAppBarConfiguration;
     private ActivityMainBinding binding;
 
-    //String[] items = { "Funa", "Savory", "Trendy", "Bresler" };
-    AutoCompleteTextView companySelect;
-    CompanyAdapter adapterItems;
+    //AutoCompleteTextView companySelect;
+    //CompanyAdapter adapterItems;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,8 +58,13 @@ public class HomeActivity extends AppCompatActivity {
 
         SharedPreferences sharedPreferences = getSharedPreferences("session", MODE_PRIVATE);
         String token = sharedPreferences.getString("accessToken", null);
+        Integer company_id = sharedPreferences.getInt("company_id", 0);
 
-        companySelect = findViewById(R.id.company_select);
+        GetLocalBD.getAllDB(this, token, company_id);
+
+
+
+        /*companySelect = findViewById(R.id.company_select);
         Company.getCompanyList(this, token, new Company.CompanyListCallback() {
             public void onSuccess(List<CompanyItem> companies) {
                 System.out.println("response in on success: " + companies);
@@ -79,6 +85,8 @@ public class HomeActivity extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), "ID: "+item.getId(), Toast.LENGTH_SHORT).show();
             }
         });
+
+         */
 
         setSupportActionBar(binding.appBarMain.toolbar);
         binding.appBarMain.fab.setOnClickListener(new View.OnClickListener() {
@@ -114,81 +122,5 @@ public class HomeActivity extends AppCompatActivity {
         return NavigationUI.navigateUp(navController, mAppBarConfiguration)
                 || super.onSupportNavigateUp();
     }
-
-    /*private void getCompanyList() {
-        System.out.println("get company List");
-        SharedPreferences sharedPreferences = getSharedPreferences("session", MODE_PRIVATE);
-        String token = sharedPreferences.getString("accessToken", null);
-        String url = "http://10.0.2.2:9000/companiesIdName";
-        System.out.println("token: " + token);
-        RequestQueue queue = Volley.newRequestQueue(this);
-        JsonObjectRequest jsonRequest = new JsonObjectRequest(Request.Method.GET, url, null,
-
-            new Response.Listener<JSONObject>() {
-                @Override
-                public void onResponse(JSONObject response) {
-                    System.out.println(response.toString());
-
-                    try {
-                        String code = response.getString("code");
-                        if (code.equals("200")) {
-                            JSONArray result = response.getJSONArray("result");
-                            System.out.println(result);
-                            companySelect = findViewById(R.id.company_select);
-                        }
-
-                    } catch (JSONException e) {
-                        throw new RuntimeException(e);
-                    }
-
-                }
-            }, new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    System.out.println("Error: "+error);
-                }
-            }
-
-
-        ) {
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                Map<String, String> headers = new HashMap<>();
-                headers.put("Content-Type", "application/json");
-                headers.put("Authorization", "Bearer " + token); // Reemplaza 'token' con tu token de autenticación
-                return headers;
-            }
-        };
-        queue.add(jsonRequest);
-
-    }*/
-
-    /*private TextView userName;
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.home);
-
-        SharedPreferences prefs = getSharedPreferences("prefs_name", Context.MODE_PRIVATE);
-        String user_name_Json = prefs.getString("user","");
-        System.out.println(user_name_Json);
-
-        JSONObject jsonObject = null;
-        try {
-            jsonObject = new JSONObject(user_name_Json);
-
-            // Acceder al valor del nombre de usuario dentro del objeto JSON
-            String userNameValue = jsonObject.getString("firstName");
-
-            // Mostrar el nombre de usuario en el TextView
-            userName = findViewById(R.id.user_name);
-            userName.setText(userNameValue);
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-    }*/
 
 }

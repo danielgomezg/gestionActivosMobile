@@ -21,8 +21,8 @@ package com.example.sca_app_v1.login_app;
 
  public class Login {
 
-     public static void signIn(Context context, String email, String password, final LoginCallback callback) {
-        String url = "http://10.0.2.2:9000/login"; // Reemplaza con la URL de tu servidor
+     public static void signIn(Context context, String email, String password, String rutCompany, final LoginCallback callback) {
+        String url = "http://10.0.2.2:9000/login/app/android"; // Reemplaza con la URL de tu servidor
         RequestQueue queue = Volley.newRequestQueue(context);
          
         // Crear el objeto JSON para enviar en el cuerpo de la solicitud
@@ -30,6 +30,7 @@ package com.example.sca_app_v1.login_app;
         try {
             jsonBody.put("email", email);
             jsonBody.put("password", password);
+            jsonBody.put("rutCompany", rutCompany);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -46,6 +47,7 @@ package com.example.sca_app_v1.login_app;
                         
                             if (code.equals("201")) {
                                 JSONObject result = response.getJSONObject("result");
+                                System.out.println("result " + result );
                                 String info_user = result.getJSONObject("user").toString();
 
                                 JSONObject user = result.getJSONObject("user");
@@ -65,9 +67,11 @@ package com.example.sca_app_v1.login_app;
                                 editor.putString("accessToken", (String) result.get("access_token"));
                                 editor.putString("user", info_user);
                                 editor.putInt("profile_id", (Integer) user.get("profile_id"));
-                                if((Integer) user.get("profile_id") == 2){
+                                editor.putInt("company_id", (Integer) result.get("company_id"));
+
+                                /*if((Integer) user.get("profile_id") == 2){
                                     editor.putInt("company_id", (Integer) user.get("company_id"));
-                                }
+                                }*/
 
                                 editor.apply();
                                 callback.onSuccess(response.toString()); 

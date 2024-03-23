@@ -17,7 +17,7 @@ import androidx.appcompat.app.AppCompatActivity;
 public class MainActivity extends AppCompatActivity {
 
     private Button buttonLogin;
-    private EditText editTextEmail, editTextPassword;
+    private EditText editTextEmail, editTextPassword, editTextRutCompany;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
         // Vinculamos los elementos del diseño con las variables Java
         editTextEmail = findViewById(R.id.correo_user);
         editTextPassword = findViewById(R.id.pass_user);
+        editTextRutCompany = findViewById(R.id.rut_company_select);
         buttonLogin = findViewById(R.id.buttonLogin);
 
         // Agregamos un OnClickListener al botón de inicio de sesión
@@ -37,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
                 // Obtenemos el correo electrónico y la contraseña ingresados por el usuario
                 String email = editTextEmail.getText().toString().trim();
                 String password = editTextPassword.getText().toString().trim();
+                String rutcompany = editTextRutCompany.getText().toString().trim();
 
 
                 // Validamos que ambos campos no estén vacíos
@@ -50,13 +52,18 @@ public class MainActivity extends AppCompatActivity {
                     return;
                 }
 
+                if (rutcompany.isEmpty()) {
+                    Toast.makeText(MainActivity.this, "Falta ingresar el rut de la compañia", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
                 if(!EmailValidator.validate(email)){
                     Toast.makeText(MainActivity.this, "Correo inválido", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
                 //iniciar sesión
-                login(v, email, password);
+                login(v, email, password, rutcompany);
 
 
                 // Simulamos un inicio de sesión exitoso para este ejemplo
@@ -65,9 +72,9 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    public void login(View v, String email, String password){
+    public void login(View v, String email, String password, String rutCompany){
 
-        Login.signIn(MainActivity.this, email, password, new Login.LoginCallback(){
+        Login.signIn(MainActivity.this, email, password, rutCompany, new Login.LoginCallback(){
             @Override
             public void onSuccess(String response) {
                 // Manejar el inicio de sesión exitoso
