@@ -16,6 +16,7 @@ import com.example.sca_app_v1.home_app.company.Company;
 import com.example.sca_app_v1.home_app.company.CompanyItem;
 
 import com.example.sca_app_v1.home_app.bdLocal.DatabaseHelper;
+import com.example.sca_app_v1.models.Article;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -73,6 +74,47 @@ public class GetLocalBD {
                                 System.out.println("company: " + company);
                                 boolean companyInsetStatus = dbHelper.insertCompanyData((int) company.get("id"), (String) company.get("name"), company.get("rut").toString(), company.get("country").toString(), company.get("contact_name").toString(), company.get("contact_email").toString(), company.get("contact_phone").toString(), (int) company.get("removed"), company.get("name_db").toString());
                                 System.out.println("companyInsetStatus > " + companyInsetStatus);
+                            
+                                JSONArray sucursales = result.getJSONArray("sucursales");
+                                System.out.println("sucursales: " + sucursales);
+
+                                JSONArray offices = result.getJSONArray("offices");
+                                System.out.println("offices: " + offices);
+
+                                JSONArray articles = result.getJSONArray("articles");
+                                System.out.println("articles: " + articles);
+                                List<Article> articlesList = new ArrayList<>();
+                                for (int i = 0; i < articles.length(); i++) {
+                                    JSONObject article = articles.getJSONObject(i);
+
+                                    int categoryId = 0;
+
+
+                                    Article articleItem = new Article(
+                                            (int) article.get("id"),
+                                            article.get("name").toString(),
+                                            article.get("description").toString(),
+                                            article.get("code").toString(),
+                                            article.get("photo").toString(),
+                                            (int) article.get("count_active"),
+                                            article.get("creation_date").toString(),
+                                            (int) article.get("removed"),
+                                            categoryId,
+                                            (int) article.get("company_id")
+                                    );
+                                    articlesList.add(articleItem);
+                                }
+//                                dbHelper.insertArticleTransaction(articlesList);
+
+                                JSONArray actives = result.getJSONArray("actives");
+                                System.out.println("actives: " + actives);
+
+                                JSONArray categories = result.getJSONArray("categories");
+                                System.out.println("categories: " + categories);
+
+
+                                
+
                             }
 
                         } catch (JSONException e) {

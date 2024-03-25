@@ -7,6 +7,9 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteStatement;
 
+import com.example.sca_app_v1.models.Article;
+import com.example.sca_app_v1.models.Company;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -135,6 +138,22 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         // Aquí puedes realizar operaciones de actualización si es necesario
+    }
+
+    public void insertCompany(Company company) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+
+        try {
+
+            
+
+        } catch (Exception e) {
+            System.out.println("Error al insertar datos: " + e.getMessage());
+
+        } finally {
+            db.close();
+        }
     }
 
     // Método para insertar datos de compañía
@@ -302,6 +321,36 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             db.close();
         }
         
+    }
+
+    public void insertArticleTransaction(List<Article> articles) {
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.beginTransaction();
+        try {
+
+            for (Article article : articles) {
+                ContentValues values = new ContentValues();
+                values.put("id", article.getId());
+                values.put("name", article.getName());
+                values.put("description", article.getDescription());
+                values.put("code", article.getCode());
+                values.put("photo", article.getPhoto());
+                values.put("count_active", article.getCount_active());
+                values.put("creation_date", article.getCreation_date());
+                values.put("removed", article.getRemoved());
+                values.put("company_id", article.getCompany_id());
+                values.put("category_id", article.getCategory_id());
+
+                db.insert("articulo", null, values);
+
+            }
+
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
+
     }
 
     public boolean insertArticleData(int id, String name, String description, String code, String photo, int countActive, String creationDate, int removed,
