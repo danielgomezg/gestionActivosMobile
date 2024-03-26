@@ -7,8 +7,8 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteStatement;
 
-import com.example.sca_app_v1.models.Article;
-import com.example.sca_app_v1.models.Company;
+import com.example.sca_app_v1.models.*;
+//import com.example.sca_app_v1.models.Company;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -205,13 +205,46 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     // Método para insertar datos de sucursal
-    public boolean insertSucursalData(int id, String description, String number, String address, String region, String city, String commune, int removed, int companyId) {
+    public void insertSucursalTransaction(List<Store> stores) {
         SQLiteDatabase db = this.getWritableDatabase();
         db.beginTransaction();
 
         try {
 
-            String sql = "INSERT INTO sucursal (id, description, number, address, region, city, commune, removed, company_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            for (Store store : stores){
+                // Verificar si ya existe un articulo con ese ID
+                Cursor cursor = db.rawQuery(
+                        "SELECT * FROM sucursal WHERE id = ?",
+                        new String[] {String.valueOf(store.getId())}
+                );
+                boolean exists = (cursor.getCount() > 0);
+                cursor.close();
+
+                // Si la sucursal ya existe, no insertar
+                if (exists) {
+                    continue;
+                }
+
+                ContentValues values = new ContentValues();
+                values.put("id", store.getId());
+                values.put("description", store.getDescription());
+                values.put("number", store.getNumber());
+                values.put("address", store.getAddress());
+                values.put("region", store.getRegion());
+                values.put("city", store.getCity());
+                values.put("commune", store.getCommune());
+                values.put("removed", store.getRemoved());
+                values.put("company_id", store.getCompany_id());
+
+                db.insert("sucursal", null, values);
+            }
+
+            db.setTransactionSuccessful();
+
+            //return true;
+
+
+            /*String sql = "INSERT INTO sucursal (id, description, number, address, region, city, commune, removed, company_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
             SQLiteStatement statement = db.compileStatement(sql);
             statement.bindLong(1, id);
@@ -234,14 +267,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 System.out.println("Datos insertados correctamente en la tabla sucursal");
                 db.setTransactionSuccessful();
                 return true;
-            }
+            }*/
 
         } catch (Exception e) {
             System.out.println("Error al insertar datos: " + e.getMessage());
-            return false;
+            //return false;
         } finally {
             db.endTransaction();
-            db.close();
+            //db.close();
         }
 
     }
@@ -286,6 +319,47 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         
     }
 
+    public void insertOfficeTransaction(List<Office> offices) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.beginTransaction();
+
+        try {
+
+            for (Office office : offices){
+                // Verificar si ya existe un articulo con ese ID
+                Cursor cursor = db.rawQuery(
+                        "SELECT * FROM oficina WHERE id = ?",
+                        new String[] {String.valueOf(office.getId())}
+                );
+                boolean exists = (cursor.getCount() > 0);
+                cursor.close();
+
+                // Si la oficina ya existe, no insertar
+                if (exists) {
+                    continue;
+                }
+
+                ContentValues values = new ContentValues();
+                values.put("id", office.getId());
+                values.put("description", office.getDescription());
+                values.put("floor", office.getFloor());
+                values.put("name_in_charge", office.getName_in_charge());
+                values.put("removed", office.getRemoved());
+                values.put("sucursal_id", office.getSucursal_id());
+
+                db.insert("oficina", null, values);
+            }
+
+            db.setTransactionSuccessful();
+
+        } catch (Exception e) {
+            System.out.println("Error al insertar datos: " + e.getMessage());
+        } finally {
+            db.endTransaction();
+        }
+
+    }
+
     public boolean insertCategoryData(int id, String description, int parentId, int removed) {
         SQLiteDatabase db = this.getWritableDatabase();
         db.beginTransaction();
@@ -323,6 +397,45 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         
     }
 
+    public void insertCategoryTransaction(List<Category> categories) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.beginTransaction();
+
+        try {
+
+            for (Category category : categories){
+                // Verificar si ya existe un articulo con ese ID
+                Cursor cursor = db.rawQuery(
+                        "SELECT * FROM categoria WHERE id = ?",
+                        new String[] {String.valueOf(category.getId())}
+                );
+                boolean exists = (cursor.getCount() > 0);
+                cursor.close();
+
+                // Si la oficina ya existe, no insertar
+                if (exists) {
+                    continue;
+                }
+
+                ContentValues values = new ContentValues();
+                values.put("id", category.getId());
+                values.put("description", category.getDescription());
+                values.put("parent_id", category.getParent_id());
+                values.put("removed", category.getRemoved());
+
+                db.insert("categoria", null, values);
+            }
+
+            db.setTransactionSuccessful();
+
+        } catch (Exception e) {
+            System.out.println("Error al insertar datos: " + e.getMessage());
+        } finally {
+            db.endTransaction();
+        }
+
+    }
+
     public void insertArticleTransaction(List<Article> articles) {
 
         SQLiteDatabase db = this.getWritableDatabase();
@@ -330,6 +443,19 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         try {
 
             for (Article article : articles) {
+
+                Cursor cursor = db.rawQuery(
+                        "SELECT * FROM articulo WHERE id = ?",
+                        new String[] {String.valueOf(article.getId())}
+                );
+                boolean exists = (cursor.getCount() > 0);
+                cursor.close();
+
+                // Si el articulo ya existe, no insertar
+                if (exists) {
+                    continue;
+                }
+
                 ContentValues values = new ContentValues();
                 values.put("id", article.getId());
                 values.put("name", article.getName());
@@ -439,6 +565,56 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         } finally {
             db.endTransaction();
             db.close();
+        }
+
+    }
+
+    public void insertActiveTransaction(List<Active> actives) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.beginTransaction();
+
+        try {
+
+            for (Active active : actives){
+                // Verificar si ya existe un articulo con ese ID
+                Cursor cursor = db.rawQuery(
+                        "SELECT * FROM activo WHERE id = ?",
+                        new String[] {String.valueOf(active.getId())}
+                );
+                boolean exists = (cursor.getCount() > 0);
+                cursor.close();
+
+                // Si la oficina ya existe, no insertar
+                if (exists) {
+                    continue;
+                }
+
+                ContentValues values = new ContentValues();
+                values.put("id", active.getId());
+                values.put("bar_code", active.getBar_code());
+                values.put("comment", active.getComment());
+                values.put("acquisition_date", active.getAcquisition_date());
+                values.put("accounting_document", active.getAccounting_document());
+                values.put("accounting_record_number", active.getAccounting_record_number());
+                values.put("name_in_charge_active", active.getName_in_charge_active());
+                values.put("rut_in_charge_active", active.getRut_in_charge_active());
+                values.put("serie", active.getSerie());
+                values.put("model", active.getModel());
+                values.put("state", active.getState());
+                values.put("creation_date", active.getCreation_date());
+                values.put("removed", active.getRemoved());
+                values.put("office_id", active.getOffice_id());
+                values.put("article_id", active.getArticle_id());
+
+                db.insert("activo", null, values);
+            }
+
+            db.setTransactionSuccessful();
+
+        } catch (Exception e) {
+            System.out.println("Error al insertar datos: " + e.getMessage());
+        } finally {
+            db.endTransaction();
         }
 
     }
