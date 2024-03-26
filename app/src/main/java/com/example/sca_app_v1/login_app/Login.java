@@ -84,7 +84,6 @@ package com.example.sca_app_v1.login_app;
                             throw new RuntimeException(e);
                         }
 
-                        
                     }
                 }, new Response.ErrorListener() {
             @Override

@@ -103,7 +103,6 @@ public class MainActivity extends AppCompatActivity {
             public void onSuccess(String response) {
                 // Manejar el inicio de sesión exitoso
                 Toast.makeText(MainActivity.this, "Inicio de sesión exitoso", Toast.LENGTH_SHORT).show();
-//                setContentView(R.layout.home);
                 Intent intent = new Intent(MainActivity.this, HomeActivity.class);
                 startActivity(intent);
 
@@ -116,15 +115,6 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(MainActivity.this, error, Toast.LENGTH_SHORT).show();
             }
         });
-
-
-//        try {
-//            String response = Login.signIn(email, password);
-//            System.out.println("Inicio de sesión exitoso: " + response);
-//        }catch (LoginException e){
-//            System.err.println("Error durante el inicio de sesión: " + e.getMessage());
-//            Toast.makeText(MainActivity.this, "Ocurrio un error al iniciar sesión", Toast.LENGTH_SHORT).show();
-//        }
 
     }
 

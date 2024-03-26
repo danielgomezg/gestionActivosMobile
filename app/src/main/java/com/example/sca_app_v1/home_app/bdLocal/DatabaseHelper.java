@@ -157,7 +157,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     // Método para insertar datos de compañía
-    public boolean insertCompanyData(int id, String name, String rut, String country, String contactName, String contactEmail, String contactPhone, int removed, String nameDb) {
+    public boolean insertCompanyData(Company company) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
 
@@ -166,7 +166,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             // Verificar si ya existe una compañía con ese ID
             Cursor cursor = db.rawQuery(
                 "SELECT * FROM compania WHERE id = ?",
-                new String[] {String.valueOf(id)}
+                new String[] {String.valueOf(company.getId())}
             );
             boolean exists = (cursor.getCount() > 0);
             cursor.close();
@@ -176,15 +176,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 return false;
             }
 
-            values.put("id", id);
-            values.put("name", name);
-            values.put("rut", rut);
-            values.put("country", country);
-            values.put("contact_name", contactName);
-            values.put("contact_email", contactEmail);
-            values.put("contact_phone", contactPhone);
-            values.put("removed", removed);
-            values.put("name_db", nameDb);
+            values.put("id", company.getId());
+            values.put("name", company.getName());
+            values.put("rut", company.getRut());
+            values.put("country", company.getCountry());
+            values.put("contact_name", company.getContact_name());
+            values.put("contact_email", company.getContact_email());
+            values.put("contact_phone", company.getContact_phone());
+            values.put("removed", company.getRemoved());
+            values.put("name_db", company.getName_db());
             // Aquí puedes continuar insertando otros campos de la compañía si es necesario
             long result = db.insert("compania", null, values);
             if (result == -1) {

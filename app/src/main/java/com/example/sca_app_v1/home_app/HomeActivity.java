@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
+import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -40,6 +41,8 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class HomeActivity extends AppCompatActivity {
 
@@ -60,33 +63,22 @@ public class HomeActivity extends AppCompatActivity {
         String token = sharedPreferences.getString("accessToken", null);
         Integer company_id = sharedPreferences.getInt("company_id", 0);
 
-        GetLocalBD.getAllDB(this, token, company_id);
+        View progressView = getLayoutInflater().inflate(R.layout.circular_progress, null);
+        binding.getRoot().addView(progressView);
 
+        // GetLocalBD.getAllDB(this, token, company_id);
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        executor.submit(() -> {
+            GetLocalBD.getAllDB(HomeActivity.this, token, company_id).thenRun(() -> {
+                System.out.println("End query 1");
+                binding.getRoot().removeView(progressView);
+            });
 
-
-        /*companySelect = findViewById(R.id.company_select);
-        Company.getCompanyList(this, token, new Company.CompanyListCallback() {
-            public void onSuccess(List<CompanyItem> companies) {
-                System.out.println("response in on success: " + companies);
-                adapterItems = new CompanyAdapter(HomeActivity.this, companies);
-                companySelect.setAdapter(adapterItems);
-            }
-
-            @Override
-            public void onError(String error) {
-                System.out.println(error);
-            }
+            runOnUiThread(() -> {
+                System.out.println("End query 0");
+                // binding.getRoot().removeView(progressView);
+            });
         });
-
-        companySelect.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                CompanyItem item = (CompanyItem) parent.getItemAtPosition(position);
-                Toast.makeText(getApplicationContext(), "ID: "+item.getId(), Toast.LENGTH_SHORT).show();
-            }
-        });
-
-         */
 
         setSupportActionBar(binding.appBarMain.toolbar);
         binding.appBarMain.fab.setOnClickListener(new View.OnClickListener() {

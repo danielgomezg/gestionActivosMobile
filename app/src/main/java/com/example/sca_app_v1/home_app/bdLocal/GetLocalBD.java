@@ -2,6 +2,7 @@ package com.example.sca_app_v1.home_app.bdLocal;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.Looper;
 import android.widget.AutoCompleteTextView;
 
 import com.android.volley.AuthFailureError;
@@ -12,8 +13,6 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.sca_app_v1.databinding.ActivityMainBinding;
-import com.example.sca_app_v1.home_app.company.Company;
-import com.example.sca_app_v1.home_app.company.CompanyItem;
 
 import com.example.sca_app_v1.home_app.bdLocal.DatabaseHelper;
 import com.example.sca_app_v1.models.*;
@@ -26,12 +25,22 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 public class GetLocalBD {
 
     private ActivityMainBinding binding;
     AutoCompleteTextView companySelect;
-    public static void getAllDB(Context context, String token, Integer companyId) {
+    public static CompletableFuture<Void> getAllDB(Context context, String token, Integer companyId) {
+        CompletableFuture<Void> future = new CompletableFuture<>();
+        if (Looper.myLooper() == Looper.getMainLooper()) {
+            // Estás en el hilo principal
+            System.out.println("Estás en el hilo principal");
+        } else {
+            // No estás en el hilo principal
+            System.out.println("No estás en el hilo principal");
+        }
+
         System.out.println("get local bd");
 //        SharedPreferences sharedPreferences = getSharedPreferences("session", MODE_PRIVATE);
 //        String token = sharedPreferences.getString("accessToken", null);
@@ -69,31 +78,20 @@ public class GetLocalBD {
                                 String dbPath = db.getPath();
                                 System.out.println("La base de datos se almacena en: " + dbPath);
 
-
-                                JSONObject company = result.getJSONObject("company");
-                                System.out.println("company: " + company);
-                                boolean companyInsetStatus = dbHelper.insertCompanyData((int) company.get("id"), (String) company.get("name"), company.get("rut").toString(), company.get("country").toString(), company.get("contact_name").toString(), company.get("contact_email").toString(), company.get("contact_phone").toString(), (int) company.get("removed"), company.get("name_db").toString());
-                                System.out.println("companyInsetStatus > " + companyInsetStatus);
-                            
+                                // GET COMPANY
+                                Company companyItem = new Company(result.getJSONObject("company"));
+                                boolean companyInsetStatus = dbHelper.insertCompanyData(companyItem);
+                                
+                                
+                                // GET SUCURSALES
                                 JSONArray sucursales = result.getJSONArray("sucursales");
-                                System.out.println("sucursales: " + sucursales);
                                 List<Store> storeList = new ArrayList<>();
                                 for (int i = 0; i < sucursales.length(); i++){
-                                    JSONObject sucursal = sucursales.getJSONObject(i);
-                                    Store storeItem = new Store(
-                                            (int) sucursal.get("id"),
-                                            sucursal.get("description").toString(),
-                                            sucursal.get("number").toString(),
-                                            sucursal.get("address").toString(),
-                                            sucursal.get("region").toString(),
-                                            sucursal.get("city").toString(),
-                                            sucursal.get("commune").toString(),
-                                            (int) sucursal.get("removed"),
-                                            (int) sucursal.get("company_id")
-                                    );
-                                    storeList.add(storeItem);
-                                    dbHelper.insertSucursalTransaction(storeList);
+                                    Store store = new Store(sucursales.getJSONObject(i));
+                                    storeList.add(store);
                                 }
+                                dbHelper.insertSucursalTransaction(storeList);
+                                
                                 selectSql = "SELECT * FROM sucursal";
                                 List<Map<String, String>> results_suc = dbHelper.executeSqlQuery(selectSql);
                                 System.out.println(results_suc.size());
@@ -102,22 +100,15 @@ public class GetLocalBD {
                                     System.out.println(row);
                                 }
 
+                                // GET OFICINAS
                                 JSONArray offices = result.getJSONArray("offices");
-                                System.out.println("offices: " + offices);
                                 List<Office> officeList = new ArrayList<>();
                                 for (int i = 0; i < offices.length(); i++){
-                                    JSONObject office = offices.getJSONObject(i);
-                                    Office officeItem = new Office(
-                                            (int) office.get("id"),
-                                            office.get("description").toString(),
-                                            (int) office.get("floor"),
-                                            office.get("name_in_charge").toString(),
-                                            (int) office.get("removed"),
-                                            (int) office.get("sucursal_id")
-                                    );
-                                    officeList.add(officeItem);
-                                    dbHelper.insertOfficeTransaction(officeList);
+                                    Office office = new Office(offices.getJSONObject(i));
+                                    officeList.add(office);
                                 }
+                                dbHelper.insertOfficeTransaction(officeList);
+
                                 selectSql = "SELECT * FROM oficina";
                                 List<Map<String, String>> results_off = dbHelper.executeSqlQuery(selectSql);
                                 System.out.println(results_off.size());
@@ -126,12 +117,12 @@ public class GetLocalBD {
                                     System.out.println(row);
                                 }
 
+                                // GET ARTICULOS
                                 JSONArray articles = result.getJSONArray("articles");
-
                                 List<Article> articlesList = new ArrayList<>();
                                 for (int i = 0; i < articles.length(); i++) {
-                                    Article articleItem = new Article(articles.getJSONObject(i));
-                                    articlesList.add(articleItem);
+                                    Article article = new Article(articles.getJSONObject(i));
+                                    articlesList.add(article);
                                 }
                                 dbHelper.insertArticleTransaction(articlesList);
 
@@ -143,31 +134,15 @@ public class GetLocalBD {
                                     System.out.println(row);
                                 }
 
+                                // GET ACTIVOS
                                 JSONArray actives = result.getJSONArray("actives");
-                                System.out.println("actives: " + actives);
                                 List<Active> activeList = new ArrayList<>();
                                 for (int i = 0; i < actives.length(); i++){
-                                    JSONObject active = actives.getJSONObject(i);
-                                    Active activeItem = new Active(
-                                            (int) active.get("id"),
-                                            active.get("bar_code").toString(),
-                                            active.get("comment").toString(),
-                                            active.get("acquisition_date").toString(),
-                                            active.get("accounting_document").toString(),
-                                            active.get("accounting_record_number").toString(),
-                                            active.get("name_in_charge_active").toString(),
-                                            active.get("rut_in_charge_active").toString(),
-                                            active.get("serie").toString(),
-                                            active.get("model").toString(),
-                                            active.get("state").toString(),
-                                            active.get("creation_date").toString(),
-                                            (int) active.get("removed"),
-                                            (int) active.get("office_id"),
-                                            (int) active.get("article_id")
-                                    );
-                                    activeList.add(activeItem);
-                                    dbHelper.insertActiveTransaction(activeList);
+                                    Active active = new Active(actives.getJSONObject(i));
+                                    activeList.add(active);
                                 }
+                                dbHelper.insertActiveTransaction(activeList);
+
                                 selectSql = "SELECT * FROM activo";
                                 List<Map<String, String>> results_act = dbHelper.executeSqlQuery(selectSql);
                                 System.out.println(results_act.size());
@@ -176,20 +151,15 @@ public class GetLocalBD {
                                     System.out.println(row);
                                 }
 
+                                // GET CATEGORIAS
                                 JSONArray categories = result.getJSONArray("categories");
-                                System.out.println("categories: " + categories);
                                 List<Category> categoryList = new ArrayList<>();
                                 for (int i = 0; i < categories.length(); i++){
-                                    JSONObject category = categories.getJSONObject(i);
-                                    Category categoryItem = new Category(
-                                            (int) category.get("id"),
-                                            category.get("description").toString(),
-                                            (int) category.get("parent_id"),
-                                            (int) category.get("removed")
-                                    );
-                                    categoryList.add(categoryItem);
-                                    dbHelper.insertCategoryTransaction(categoryList);
+                                    Category category = new Category(categories.getJSONObject(i));
+                                    categoryList.add(category);
                                 }
+                                dbHelper.insertCategoryTransaction(categoryList);
+
                                 selectSql = "SELECT * FROM categoria";
                                 List<Map<String, String>> results_cat = dbHelper.executeSqlQuery(selectSql);
                                 System.out.println(results_cat.size());
@@ -198,20 +168,20 @@ public class GetLocalBD {
                                     System.out.println(row);
                                 }
 
-
-                                
+                                future.complete(null);
+                                return;
 
                             }
 
                         } catch (JSONException e) {
                             throw new RuntimeException(e);
+                            
                         } finally {
                             System.out.println("FINALLY");
                              if (dbHelper != null) {
                                  dbHelper.close();
                              }
                         }
-
                     }
                 }, new Response.ErrorListener() {
             @Override
@@ -234,6 +204,7 @@ public class GetLocalBD {
         };
         queue.add(jsonRequest);
 
+        return future;
     }
 
 }

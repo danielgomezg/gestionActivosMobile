@@ -1,5 +1,8 @@
 package com.example.sca_app_v1.models;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 public class Category {
 
     private Integer id;
@@ -15,10 +18,10 @@ public class Category {
     }
 
     public Category(JSONObject category) throws JSONException {
-        this.id = (int) category.getInt("id");
-        this.description = category.getString("description");
-        this.parent_id = category.getInt("parent_id");
-        this.removed = (int) category.getInt("removed");
+        this.id =  (int) category.get("id");
+        this.description = category.get("description").toString();
+        this.parent_id = (int) category.get("parent_id");
+        this.removed = (int) category.get("removed");
     }
 
     public Integer getId() {

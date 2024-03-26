@@ -1,5 +1,8 @@
 package com.example.sca_app_v1.models;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 public class Company {
 
     private Integer id;
@@ -24,7 +27,16 @@ public class Company {
         this.name_db = name_db;
     }
 
-    public Company() {
+    public Company(JSONObject company) throws JSONException {
+        this.id = (int) company.getInt("id");
+        this.name = company.getString("name");
+        this.rut = company.getString("rut");
+        this.country = company.getString("country");
+        this.contact_name = company.getString("contact_name");
+        this.contact_email = company.getString("contact_email");
+        this.contact_phone = company.getString("contact_phone");
+        this.removed = (int) company.getInt("removed");
+        this.name_db = company.getString("name_db");
     }
 
     public Integer getId() {

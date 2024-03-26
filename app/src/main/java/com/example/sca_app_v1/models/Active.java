@@ -1,5 +1,8 @@
 package com.example.sca_app_v1.models;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 public class Active {
 
     private Integer id;
@@ -50,7 +53,7 @@ public class Active {
         this.state = active.getString("state");
         this.creation_date = active.getString("creation_date");
         this.removed = (int) active.getInt("removed");
-        this.office_id = active.getInt("office_id");
+        this.office_id = (int) active.getInt("office_id");
         this.article_id = (int) active.getInt("article_id");
     }
 

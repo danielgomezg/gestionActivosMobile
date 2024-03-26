@@ -37,7 +37,7 @@ public class Article {
         this.count_active = (int) article.getInt("count_active");
         this.creation_date = article.getString("creation_date");
         this.removed = (int) article.getInt("removed");
-        this.category_id = article.getInt("category_id");
+        this.category_id = (int) article.get("category_id");
         this.company_id = (int) article.getInt("company_id");
     }
 

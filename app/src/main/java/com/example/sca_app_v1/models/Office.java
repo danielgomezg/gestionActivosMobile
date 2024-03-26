@@ -1,5 +1,8 @@
 package com.example.sca_app_v1.models;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 public class Office {
 
     private Integer id;
@@ -19,12 +22,12 @@ public class Office {
     }
 
     public Office(JSONObject office) throws JSONException {
-        this.id = (int) office.getInt("id");
-        this.description = office.getString("description");
-        this.floor = (int) office.getInt("floor");
-        this.name_in_charge = office.getString("name_in_charge");
-        this.removed = (int) office.getInt("removed");
-        this.sucursal_id = office.getInt("sucursal_id");
+        this.id = (int) office.get("id");
+        this.description = office.get("description").toString();
+        this.floor = (int) office.get("floor");
+        this.name_in_charge = office.get("name_in_charge").toString();
+        this.removed = (int) office.get("removed");
+        this.sucursal_id = (int) office.get("sucursal_id");
     }
 
     public Integer getId() {
