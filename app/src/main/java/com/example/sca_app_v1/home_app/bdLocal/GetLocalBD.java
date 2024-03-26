@@ -59,13 +59,13 @@ public class GetLocalBD {
                             String code = response.getString("code");
                             if (code.equals("200")) {
 
-
                                 JSONObject result = response.getJSONObject("result");
                                 System.out.println("result all bd" + result);
 
                                 dbHelper = new DatabaseHelper(context);
                                 SQLiteDatabase db = dbHelper.getWritableDatabase();
 
+                                dbHelper.deleteAllDataFromDatabase();
                                 
                                 String selectSql = "SELECT * FROM compania";
                                 List<Map<String, String>> results = dbHelper.executeSqlQuery(selectSql);
@@ -81,7 +81,6 @@ public class GetLocalBD {
                                 // GET COMPANY
                                 Company companyItem = new Company(result.getJSONObject("company"));
                                 boolean companyInsetStatus = dbHelper.insertCompanyData(companyItem);
-                                
                                 
                                 // GET SUCURSALES
                                 JSONArray sucursales = result.getJSONArray("sucursales");

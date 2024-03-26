@@ -2,12 +2,14 @@ package com.example.sca_app_v1.home_app;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.Menu;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.FrameLayout;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -59,19 +61,23 @@ public class HomeActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        //Barra
+        ProgressBar loadingSpinner = findViewById(R.id.loading_spinner);
+        loadingSpinner.setVisibility(View.VISIBLE);
+
         SharedPreferences sharedPreferences = getSharedPreferences("session", MODE_PRIVATE);
         String token = sharedPreferences.getString("accessToken", null);
         Integer company_id = sharedPreferences.getInt("company_id", 0);
 
         View progressView = getLayoutInflater().inflate(R.layout.circular_progress, null);
-        binding.getRoot().addView(progressView);
+        //binding.getRoot().addView(progressView);
 
         // GetLocalBD.getAllDB(this, token, company_id);
         ExecutorService executor = Executors.newSingleThreadExecutor();
         executor.submit(() -> {
             GetLocalBD.getAllDB(HomeActivity.this, token, company_id).thenRun(() -> {
                 System.out.println("End query 1");
-                binding.getRoot().removeView(progressView);
+                //binding.getRoot().removeView(progressView);
             });
 
             runOnUiThread(() -> {
@@ -79,6 +85,14 @@ public class HomeActivity extends AppCompatActivity {
                 // binding.getRoot().removeView(progressView);
             });
         });
+
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                loadingSpinner.setVisibility(View.GONE);
+            }
+        }, 5000);
+        //loadingSpinner.setVisibility(View.GONE);
 
         setSupportActionBar(binding.appBarMain.toolbar);
         binding.appBarMain.fab.setOnClickListener(new View.OnClickListener() {
