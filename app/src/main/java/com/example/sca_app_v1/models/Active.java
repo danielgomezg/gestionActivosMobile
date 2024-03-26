@@ -36,6 +36,24 @@ public class Active {
         this.article_id = article_id;
     }
 
+    public Active(JSONObject active) throws JSONException {
+        this.id = (int) active.getInt("id");
+        this.bar_code = active.getString("bar_code");
+        this.comment = active.getString("comment");
+        this.acquisition_date = active.getString("acquisition_date");
+        this.accounting_document = active.getString("accounting_document");
+        this.accounting_record_number = active.getString("accounting_record_number");
+        this.name_in_charge_active = active.getString("name_in_charge_active");
+        this.rut_in_charge_active = active.getString("rut_in_charge_active");
+        this.serie = active.getString("serie");
+        this.model = active.getString("model");
+        this.state = active.getString("state");
+        this.creation_date = active.getString("creation_date");
+        this.removed = (int) active.getInt("removed");
+        this.office_id = active.getInt("office_id");
+        this.article_id = (int) active.getInt("article_id");
+    }
+
     public Integer getId() {
         return id;
     }

@@ -82,29 +82,14 @@ public class GetLocalBD {
                                 System.out.println("offices: " + offices);
 
                                 JSONArray articles = result.getJSONArray("articles");
-                                System.out.println("articles: " + articles);
+
                                 List<Article> articlesList = new ArrayList<>();
                                 for (int i = 0; i < articles.length(); i++) {
-                                    JSONObject article = articles.getJSONObject(i);
-
-                                    int categoryId = 0;
-
-
-                                    Article articleItem = new Article(
-                                            (int) article.get("id"),
-                                            article.get("name").toString(),
-                                            article.get("description").toString(),
-                                            article.get("code").toString(),
-                                            article.get("photo").toString(),
-                                            (int) article.get("count_active"),
-                                            article.get("creation_date").toString(),
-                                            (int) article.get("removed"),
-                                            categoryId,
-                                            (int) article.get("company_id")
-                                    );
+                                    Article articleItem = new Article(articles.getJSONObject(i));
                                     articlesList.add(articleItem);
                                 }
-//                                dbHelper.insertArticleTransaction(articlesList);
+                                System.out.println("articles list: " + articlesList);
+//                              dbHelper.insertArticleTransaction(articlesList);
 
                                 JSONArray actives = result.getJSONArray("actives");
                                 System.out.println("actives: " + actives);

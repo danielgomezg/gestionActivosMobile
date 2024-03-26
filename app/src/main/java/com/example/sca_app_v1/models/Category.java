@@ -14,6 +14,13 @@ public class Category {
         this.removed = removed;
     }
 
+    public Category(JSONObject category) throws JSONException {
+        this.id = (int) category.getInt("id");
+        this.description = category.getString("description");
+        this.parent_id = category.getInt("parent_id");
+        this.removed = (int) category.getInt("removed");
+    }
+
     public Integer getId() {
         return id;
     }

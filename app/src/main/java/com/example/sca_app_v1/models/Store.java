@@ -24,6 +24,18 @@ public class Store {
         this.company_id = company_id;
     }
 
+    public Store(JSONObject store) {
+        this.id = (int) store.getInt("id");
+        this.description = store.getString("description");
+        this.number = store.getString("number");
+        this.address = store.getString("address");
+        this.region = store.getString("region");
+        this.city = store.getString("city");
+        this.commune = store.getString("commune");
+        this.removed = (int) store.getInt("removed");
+        this.company_id = (int) store.getInt("company_id");
+    }
+
     public Integer getId() {
         return id;
     }

@@ -1,5 +1,8 @@
 package com.example.sca_app_v1.models;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 public class Article {
     private Integer id;
     private String name;
@@ -23,6 +26,19 @@ public class Article {
         this.removed = removed;
         this.category_id = category_id;
         this.company_id = company_id;
+    }
+
+    public Article(JSONObject article) throws JSONException {
+        this.id = (int) article.getInt("id");
+        this.name = article.getString("name");
+        this.description = article.getString("description");
+        this.code = article.getString("code");
+        this.photo = article.getString("photo");
+        this.count_active = (int) article.getInt("count_active");
+        this.creation_date = article.getString("creation_date");
+        this.removed = (int) article.getInt("removed");
+        this.category_id = article.getInt("category_id");
+        this.company_id = (int) article.getInt("company_id");
     }
 
     public Integer getId() {

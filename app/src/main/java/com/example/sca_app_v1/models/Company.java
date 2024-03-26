@@ -24,6 +24,9 @@ public class Company {
         this.name_db = name_db;
     }
 
+    public Company() {
+    }
+
     public Integer getId() {
         return id;
     }
