@@ -1,5 +1,6 @@
 package com.example.sca_app_v1.home_app;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
@@ -14,6 +15,8 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -28,6 +31,7 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.sca_app_v1.R;
 import com.example.sca_app_v1.databinding.ActivityMainBinding;
+import com.example.sca_app_v1.home_app.article.ArticleFragment;
 import com.example.sca_app_v1.home_app.company.Company;
 import com.example.sca_app_v1.home_app.company.CompanyAdapter;
 import com.example.sca_app_v1.home_app.company.CompanyItem;
@@ -77,7 +81,8 @@ public class HomeActivity extends AppCompatActivity {
         executor.submit(() -> {
             GetLocalBD.getAllDB(HomeActivity.this, token, company_id).thenRun(() -> {
                 System.out.println("End query 1");
-                //binding.getRoot().removeView(progressView);
+                ArticleFragment articleFragment = new ArticleFragment();
+                articleFragment.showArticles(HomeActivity.this);
             });
 
             runOnUiThread(() -> {

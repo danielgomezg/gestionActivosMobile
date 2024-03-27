@@ -28,23 +28,38 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public List<Map<String, String>> executeSqlQuery(String sql) {
         SQLiteDatabase db = getReadableDatabase();
-        Cursor cursor = db.rawQuery(sql, null);
-    
         List<Map<String, String>> results = new ArrayList<>();
-        if (cursor.moveToFirst()) {
-            do {
-                Map<String, String> row = new HashMap<>();
-                for (int i = 0; i < cursor.getColumnCount(); i++) {
-                    row.put(cursor.getColumnName(i), cursor.getString(i));
-                }
-                results.add(row);
-            } while (cursor.moveToNext());
+
+        try {
+
+            Cursor cursor = db.rawQuery(sql, null);
+    
+            if (cursor.moveToFirst()) {
+                do {
+                    Map<String, String> row = new HashMap<>();
+                    for (int i = 0; i < cursor.getColumnCount(); i++) {
+                        row.put(cursor.getColumnName(i), cursor.getString(i));
+                    }
+                    results.add(row);
+                } while (cursor.moveToNext());
+            }
+        
+            cursor.close();
+            db.close();
+
+            return results;
+             
+        } catch (Exception e) {
+            System.out.println("Error al ejecutar la consulta: " + e.getMessage());
+            e.printStackTrace();
+            return null;
+        } finally {
+            if (db != null) {
+                db.close();
+            }
         }
-    
-        cursor.close();
-        db.close();
-    
-        return results;
+        
+        
     }
 
     // Método para crear la tabla
@@ -429,4 +444,26 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             }
         }
     }
+
+    public Cursor executeQuery(String query) {
+        SQLiteDatabase db = null;
+        Cursor cursor = null;
+        try {
+            // Obtener una instancia de la base de datos en modo lectura
+            db = this.getReadableDatabase();
+            String dbPath = db.getPath();
+            System.out.println("La base de datos se almacena en: " + dbPath);
+    
+            // Ejecutar la consulta y obtener el resultado en un Cursor
+            cursor = db.rawQuery(query, null);
+        } catch (Exception e) {
+            System.out.println("Error al ejecutar la consulta: " + e.getMessage());
+            e.printStackTrace();
+        }
+    
+        // Devolver el Cursor. Nota: no cierres el Cursor aquí, 
+        // deberías cerrarlo después de usarlo en otra parte de tu código
+        return cursor;
+    }
+
 }
