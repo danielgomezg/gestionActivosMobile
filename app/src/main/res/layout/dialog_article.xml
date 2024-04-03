@@ -3,57 +3,73 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:paddingStart="8dp"
+    android:paddingTop="16dp"
+    android:paddingEnd="8dp"
+    android:paddingBottom="16dp">
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Nombre del artículo" />
-
-    <EditText
+    <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/editTextName"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="20dp"
         android:ems="10"
-        android:hint="Ingrese el nombre del artículo"
-        android:paddingLeft="15dp"
-        android:paddingTop="20dp"
-        android:paddingRight="5dp"
-        android:textColor="#000000" />
+        android:hint="Nombre"
+        android:textColor="#000000">
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Código del artículo" />
+        <com.google.android.material.textfield.TextInputEditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
 
-    <EditText
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/editTextCode"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="20dp"
         android:ems="10"
-        android:hint="Ingrese el código del artículo"
-        android:inputType="textPassword"
-        android:paddingLeft="15dp"
-        android:paddingTop="20dp"
-        android:paddingRight="5dp"/>
+        android:hint="Código"
+        android:textColor="#000000">
 
+        <com.google.android.material.textfield.TextInputEditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Descripción del artículo" />
+    </com.google.android.material.textfield.TextInputLayout>
 
-    <EditText
+    <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/editTextDescription"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="20dp"
-        android:hint="Ingrese la description del artículo"
-        android:paddingLeft="15dp"
-        android:paddingTop="20dp"
-        android:paddingRight="5dp"/>
+        android:ems="10"
+        android:hint="Descripción"
+        android:textColor="#000000">
 
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etC"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/textInputLayout"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/category">
+
+        <AutoCompleteTextView
+            android:id="@+id/category_select"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+
+    </com.google.android.material.textfield.TextInputLayout>
 
 </LinearLayout>

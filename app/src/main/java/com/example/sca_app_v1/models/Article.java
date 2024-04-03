@@ -143,25 +143,6 @@ public class Article {
                 '}';
     }
 
-
-    public void getAllArticles(Context context) {
-        System.out.println("IN GET ALL ARTICLES");
-        String sql = "SELECT * FROM articulo";
-
-        try {
-
-            DatabaseHelper dbHelper = new DatabaseHelper(context);
-            List<Map<String, String>> articles = dbHelper.executeSqlQuery(sql);
-            
-        
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-
-
-    }
-
     public List<Article> getArticles(Context context) {
         System.out.println("IN GET ALL ARTICLES");
         String sql = "SELECT * FROM articulo";

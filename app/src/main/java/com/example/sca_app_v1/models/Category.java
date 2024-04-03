@@ -1,7 +1,15 @@
 package com.example.sca_app_v1.models;
 
+import android.content.Context;
+import android.database.Cursor;
+
+import com.example.sca_app_v1.home_app.bdLocal.DatabaseHelper;
+
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Category {
 
@@ -9,6 +17,23 @@ public class Category {
     private String description;
     private Integer parent_id;
     private Integer removed;
+
+    public Category() {
+
+    }
+    public Category(Cursor cursor) {
+        int _idIndex = cursor.getColumnIndex("id");
+        if (_idIndex != -1) this.id = cursor.getInt(_idIndex);
+
+        int _descriptionIndex = cursor.getColumnIndex("description");
+        if (_descriptionIndex != -1) this.description = cursor.getString(_descriptionIndex);
+
+        int _parent_idIndex = cursor.getColumnIndex("parent_id");
+        if (_parent_idIndex != -1) this.parent_id = cursor.getInt(_parent_idIndex);
+
+        int _removedIndex = cursor.getColumnIndex("removed");
+        if (_removedIndex != -1) this.removed = cursor.getInt(_removedIndex);
+    }
 
     public Category(Integer id, String description, Integer parent_id, Integer removed) {
         this.id = id;
@@ -38,6 +63,32 @@ public class Category {
 
     public Integer getRemoved() {
         return removed;
+    }
+
+    public List<Category> getCategories(Context context) {
+        System.out.println("IN GET ALL ARTICLES");
+        String sql = "SELECT * FROM categoria";
+
+        try {
+
+            DatabaseHelper dbHelper = new DatabaseHelper(context);
+            Cursor cursor = dbHelper.executeQuery(sql);
+
+            List<Category> categories = new ArrayList<>();
+
+            if (cursor.moveToFirst()) {
+                do {
+                    categories.add(new Category(cursor));
+                } while (cursor.moveToNext());
+            }
+
+            cursor.close();
+            return categories;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return  null;
+        }
     }
 
 }
