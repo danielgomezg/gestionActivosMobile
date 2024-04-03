@@ -65,6 +65,26 @@ public class Category {
         return removed;
     }
 
+    //Se obtiene la description de la categoria
+    public String getCategoryDescription(int categoryId, List<Category> categoryList) {
+        for (Category category : categoryList) {
+            if (category.getId() == categoryId) {
+                return category.getDescription();
+            }
+        }
+        return null;
+    }
+
+    //Se obtiene el id de la categoria
+    public int getCategoryID(String categoryDescription, List<Category> categoryList) {
+        for (Category category : categoryList) {
+            if (category.getDescription().equals(categoryDescription)) {
+                return category.getId();
+            }
+        }
+        return 0;
+    }
+
     public List<Category> getCategories(Context context) {
         System.out.println("IN GET ALL ARTICLES");
         String sql = "SELECT * FROM categoria";

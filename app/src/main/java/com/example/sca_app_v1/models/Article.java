@@ -1,18 +1,21 @@
 package com.example.sca_app_v1.models;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 
 import com.example.sca_app_v1.home_app.bdLocal.DatabaseHelper;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class Article {
+public class Article implements Serializable {
     private Integer id;
     private String name;
     private String description;
@@ -92,20 +95,40 @@ public class Article {
         return id;
     }
 
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
     public String getName() {
         return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getDescription() {
         return description;
     }
 
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
     public String getCode() {
         return code;
     }
 
+    public void setCode(String code) {
+        this.code = code;
+    }
+
     public String getPhoto() {
         return photo;
+    }
+
+    public void setPhoto(String photo) {
+        this.photo = photo;
     }
 
     public Integer getCount_active() {
@@ -122,6 +145,10 @@ public class Article {
 
     public Integer getCategory_id() {
         return category_id;
+    }
+
+    public void setCategory_id(Integer idCategory) {
+        this.category_id = idCategory;
     }
 
     public Integer getCompany_id() {
@@ -168,6 +195,43 @@ public class Article {
             return  null;
         }
 
+    }
+
+    public boolean updateArticle(Context context) {
+        SQLiteDatabase db = null;
+        try {
+            DatabaseHelper dbHelper = new DatabaseHelper(context);
+            db = dbHelper.getWritableDatabase();
+
+            db.beginTransaction();
+
+            // Crear un ContentValues con los nuevos valores del artículo
+            ContentValues values = new ContentValues();
+            values.put("name", this.name);
+            values.put("description", this.description);
+            values.put("code", this.code);
+            values.put("photo", this.photo);
+            values.put("category_id", this.category_id);
+
+            // Definir la condición WHERE para la actualización (basado en el ID del artículo)
+            String whereClause = "id = ?";
+            String[] whereArgs = {String.valueOf(this.id)}; // El ID del artículo a actualizar
+
+            // Actualizar el registro en la base de datos
+            int rowsAffected = db.update("articulo", values, whereClause, whereArgs);
+
+            db.setTransactionSuccessful();
+
+            return rowsAffected > 0; // Devolver true si se actualizó al menos un registro
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        } finally {
+            if (db != null) {
+                db.endTransaction();
+                db.close();
+            }
+        }
     }
 
 

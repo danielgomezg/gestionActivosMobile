@@ -66,7 +66,7 @@ public class ArticleFragment extends Fragment {
             adapterArticle.notifyItemRangeInserted(articles.size(), 1);
         }
 
-//        adapterArticle.notifyDataSetChanged();
+        //adapterArticle.notifyDataSetChanged();
     }
 
     private class AdapterArticle extends RecyclerView.Adapter<AdapterArticle.AdapterArticleHolder> {
@@ -149,7 +149,7 @@ public class ArticleFragment extends Fragment {
                         if (id == R.id.edit_option_article) {
                             // Acción para editar el artículo
                             Toast.makeText(itemView.getContext(), "Editar artículo seleccionado " + article.getName(), Toast.LENGTH_SHORT).show();
-                            DialogFragmentArticle editDialog = DialogFragmentArticle.newInstance(DialogFragmentArticle.MODE_EDIT);
+                            DialogFragmentArticle editDialog = DialogFragmentArticle.newInstance(DialogFragmentArticle.MODE_EDIT, position, article);
                             editDialog.show(requireActivity().getSupportFragmentManager(), "edit_article_dialog");
                             return true;
                         } else if (id == R.id.delete_option_article) {
@@ -166,5 +166,12 @@ public class ArticleFragment extends Fragment {
             }
         }
 
+    }
+
+    // método para actualizar la lista de artículos
+    public void updateArticleList(int position) {
+        // Volver a cargar la lista de artículos desde la base de datos y notificar al adaptador
+        showArticles(getContext());
+        //adapterArticle.notifyItemChanged(position);
     }
 }

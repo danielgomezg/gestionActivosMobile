@@ -15,6 +15,7 @@ import android.widget.Toast;
 import androidx.fragment.app.DialogFragment;
 
 import com.example.sca_app_v1.R;
+import com.example.sca_app_v1.models.Article;
 import com.example.sca_app_v1.models.Category;
 import com.google.android.material.textfield.TextInputLayout;
 
@@ -28,20 +29,31 @@ public class DialogFragmentArticle extends DialogFragment {
     public static final int MODE_EDIT = 1;
     public static final int MODE_CREATE = 2;
 
+    public static final String ARG_POSITION = "";
+
+    private static final String ARG_ARTICLE = "article";
+
+
     // private String[] items = { "Cargador", "Pila", "Bateria", "Cosito" };
 
     private int mode;
+
+    private int position;
+
+    private Article article;
     private EditText editTextName;
     private EditText editTextDescription;
-    private EditText etCode;
+    private EditText editTextCode;
     private AutoCompleteTextView categorySelect;
     private ArrayAdapter<String> adapterItems;
 
     // Método estático para crear una instancia del DialogFragment con un modo específico
-    public static DialogFragmentArticle newInstance(int mode) {
+    public static DialogFragmentArticle newInstance(int mode, int position, Article article) {
         DialogFragmentArticle fragment = new DialogFragmentArticle();
         Bundle args = new Bundle();
         args.putInt(ARG_MODE, mode);
+        args.putInt(ARG_POSITION, position);
+        args.putSerializable(ARG_ARTICLE, article);
         fragment.setArguments(args);
         return fragment;
     }
@@ -51,6 +63,8 @@ public class DialogFragmentArticle extends DialogFragment {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             mode = getArguments().getInt(ARG_MODE);
+            position = getArguments().getInt(ARG_POSITION);
+            article = (Article) getArguments().getSerializable(ARG_ARTICLE);
         }
     }
 
@@ -67,7 +81,7 @@ public class DialogFragmentArticle extends DialogFragment {
 //        editTextDescription = view.findViewById(R.id.editTextDescription);
 
         TextInputLayout textInputLayoutCode = view.findViewById(R.id.editTextCode);
-        etCode = textInputLayoutCode.getEditText();
+        editTextCode = textInputLayoutCode.getEditText();
 
         categorySelect = view.findViewById(R.id.category_select);
         Category category = new Category();
@@ -78,6 +92,21 @@ public class DialogFragmentArticle extends DialogFragment {
         .collect(Collectors.toList());
         adapterItems = new ArrayAdapter<String>(requireContext(), R.layout.list_item, items);
         categorySelect.setAdapter(adapterItems);
+
+        String selectedCategoryDescription = (article != null && article.getCategory_id() != null) ? category.getCategoryDescription(article.getCategory_id(), categoryList) : null;
+
+        // Desactivar temporalmente el filtrado automático
+        categorySelect.setThreshold(Integer.MAX_VALUE);
+
+        // Si se encontró la descripción de la categoría, establecerla como texto en el AutoCompleteTextView
+        if (selectedCategoryDescription != null) {
+            categorySelect.setText(selectedCategoryDescription);
+            System.out.println("selectedCategoryDescription" +  selectedCategoryDescription);
+        }
+
+        // Volver a activar el filtrado automático
+        categorySelect.setThreshold(1);
+
         categorySelect.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -87,6 +116,14 @@ public class DialogFragmentArticle extends DialogFragment {
                 Toast.makeText(requireContext(), "Item: "+item, Toast.LENGTH_SHORT).show();
             }
         });
+
+        // Verificar si el artículo está presente y establecer los valores de los campos
+        if (article != null) {
+            editTextName.setText(article.getName());
+            editTextCode.setText(article.getCode());
+            editTextDescription.setText(article.getDescription());
+            System.out.println("category " + article.getCategory_id());
+        }
 
         builder.setView(view)
                 .setTitle(mode == MODE_EDIT ? "Editar artículo" : "Crear nuevo artículo")
@@ -98,6 +135,43 @@ public class DialogFragmentArticle extends DialogFragment {
                             // Procesar la edición del artículo
                             String newName = editTextName.getText().toString();
                             String newDescription = editTextDescription.getText().toString();
+                            String newCode = editTextCode.getText().toString();
+                            String selectedCategory = categorySelect.getText().toString();
+                            int idCategory = category.getCategoryID(selectedCategory, categoryList);
+                            System.out.println("newName " + newName);
+                            System.out.println("newDescription " + newDescription);
+                            System.out.println("newCode " + newCode);
+                            System.out.println("selectedCategory " + selectedCategory);
+                            System.out.println("selectedCategory " + idCategory);
+                            System.out.println("position " + position);
+
+                            // Crear un objeto Article con los nuevos valores
+                            Article updatedArticle = new Article();
+                            updatedArticle.setId(article.getId());
+                            updatedArticle.setName(newName);
+                            updatedArticle.setDescription(newDescription);
+                            updatedArticle.setCode(newCode);
+                            updatedArticle.setCategory_id(idCategory);
+
+                            // Actualizar el artículo en la base de datos
+                            boolean updateSuccessful = updatedArticle.updateArticle(getContext());
+                            System.out.println(updateSuccessful);
+
+                            if (updateSuccessful) {
+                                // La actualización fue exitosa
+                                Toast.makeText(getContext(), "Artículo actualizado correctamente", Toast.LENGTH_SHORT).show();
+                                // Actualizar la lista de artículos en el fragmento
+                                if (getParentFragment() instanceof ArticleFragment) {
+                                    System.out.println("ultimo if");
+                                    ((ArticleFragment) getParentFragment()).updateArticleList(position);
+                                }
+
+                                //dismiss();
+                            } else {
+                                // Ocurrió un error durante la actualización
+                                Toast.makeText(getContext(), "Error al actualizar el artículo", Toast.LENGTH_SHORT).show();
+                            }
+
                             // Lógica para guardar los cambios
                         } else if (mode == MODE_CREATE) {
                             // Procesar la creación de un nuevo artículo
