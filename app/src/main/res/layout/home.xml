@@ -12,21 +12,15 @@
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/textInputLayout"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="70dp"
-        android:layout_marginEnd="24dp"
-        android:hint="@string/select_company"
+        android:hint="@string/category"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
         <AutoCompleteTextView
-            android:id="@+id/company_select"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:contentDescription="@string/select_company"
             android:hint="@string/select_company"
             android:inputType="none" />
 

@@ -22,7 +22,7 @@ public class CompanyAdapter extends ArrayAdapter<CompanyItem> {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.list_item, parent, false);
         }
 
-        TextView textViewName = convertView.findViewById(R.id.company_select);
+        TextView textViewName = convertView.findViewById(R.id.category_select);
         CompanyItem company = getItem(position);
 
         if (company != null) {

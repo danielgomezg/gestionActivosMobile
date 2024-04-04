@@ -32,6 +32,7 @@ import com.android.volley.toolbox.Volley;
 import com.example.sca_app_v1.R;
 import com.example.sca_app_v1.databinding.ActivityMainBinding;
 import com.example.sca_app_v1.home_app.article.ArticleFragment;
+import com.example.sca_app_v1.home_app.article.FormCreateArticle;
 import com.example.sca_app_v1.home_app.company.Company;
 import com.example.sca_app_v1.home_app.company.CompanyAdapter;
 import com.example.sca_app_v1.home_app.company.CompanyItem;
@@ -103,8 +104,11 @@ public class HomeActivity extends AppCompatActivity {
         binding.appBarMain.fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Reemplaza with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+//                Snackbar.make(view, "Reemplaza with your own action", Snackbar.LENGTH_LONG)
+//                        .setAction("Action", null).show();
+
+                FormCreateArticle bottomSheet = new FormCreateArticle();
+                bottomSheet.show(getSupportFragmentManager(), "formCreateArticle");
             }
         });
 

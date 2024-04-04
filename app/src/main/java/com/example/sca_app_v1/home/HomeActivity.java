@@ -6,22 +6,10 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Toast;
-import android.content.SharedPreferences;
-import androidx.annotation.Nullable;
+
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.android.volley.AuthFailureError;
-import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
 import com.example.sca_app_v1.R;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.HashMap;
-import java.util.Map;
 
 
 public class HomeActivity extends AppCompatActivity {
@@ -39,7 +27,6 @@ public class HomeActivity extends AppCompatActivity {
 
         getCompanyList();
 
-        companySelect = findViewById(R.id.company_select);
         adapterItems = new ArrayAdapter<String>(this, R.layout.list_item, items);
         companySelect.setAdapter(adapterItems);
 
