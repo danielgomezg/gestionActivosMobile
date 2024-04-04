@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
@@ -35,6 +36,8 @@ public class DialogFragmentArticle extends DialogFragment {
 
 
     // private String[] items = { "Cargador", "Pila", "Bateria", "Cosito" };
+    //Fragment padre
+    private ArticleFragment parentFragment;
 
     private int mode;
 
@@ -48,13 +51,16 @@ public class DialogFragmentArticle extends DialogFragment {
     private ArrayAdapter<String> adapterItems;
 
     // Método estático para crear una instancia del DialogFragment con un modo específico
-    public static DialogFragmentArticle newInstance(int mode, int position, Article article) {
+    public static DialogFragmentArticle newInstance(int mode, int position, Article article, ArticleFragment parentFragment) {
         DialogFragmentArticle fragment = new DialogFragmentArticle();
         Bundle args = new Bundle();
         args.putInt(ARG_MODE, mode);
         args.putInt(ARG_POSITION, position);
         args.putSerializable(ARG_ARTICLE, article);
         fragment.setArguments(args);
+        // Guardar una referencia al fragmento padre (ArticleFragment)
+        fragment.setParentFragment(parentFragment);
+
         return fragment;
     }
 
@@ -66,6 +72,11 @@ public class DialogFragmentArticle extends DialogFragment {
             position = getArguments().getInt(ARG_POSITION);
             article = (Article) getArguments().getSerializable(ARG_ARTICLE);
         }
+    }
+
+    // Método para establecer el fragmento padre (ArticleFragment)
+    private void setParentFragment(ArticleFragment parentFragment) {
+        this.parentFragment = parentFragment;
     }
 
     @Override
@@ -157,16 +168,12 @@ public class DialogFragmentArticle extends DialogFragment {
                             boolean updateSuccessful = updatedArticle.updateArticle(getContext());
                             System.out.println(updateSuccessful);
 
-                            if (updateSuccessful) {
+                            if (updateSuccessful && parentFragment != null) {
                                 // La actualización fue exitosa
                                 Toast.makeText(getContext(), "Artículo actualizado correctamente", Toast.LENGTH_SHORT).show();
-                                // Actualizar la lista de artículos en el fragmento
-                                if (getParentFragment() instanceof ArticleFragment) {
-                                    System.out.println("ultimo if");
-                                    ((ArticleFragment) getParentFragment()).updateArticleList(position);
-                                }
 
-                                //dismiss();
+                                // Actualizar la lista de artículos en el fragmento padre (ArticleFragment)
+                                parentFragment.updateArticles(getContext(), position);
                             } else {
                                 // Ocurrió un error durante la actualización
                                 Toast.makeText(getContext(), "Error al actualizar el artículo", Toast.LENGTH_SHORT).show();
