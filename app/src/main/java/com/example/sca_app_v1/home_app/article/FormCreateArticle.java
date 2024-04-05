@@ -1,10 +1,14 @@
 package com.example.sca_app_v1.home_app.article;
 
+import static com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_EXPANDED;
+
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.NonNull;
 
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -13,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import com.example.sca_app_v1.databinding.FragmentItemListDialogListDialogItemBinding;
@@ -40,6 +45,9 @@ public class FormCreateArticle extends BottomSheetDialogFragment {
                              @Nullable Bundle savedInstanceState) {
 
         binding = FragmentFormArticleBinding.inflate(inflater, container, false);
+        FrameLayout bottomSheetDialog = binding.bsArticle;
+        BottomSheetBehavior bottomSheetBehavior = BottomSheetBehavior.from(bottomSheetDialog);
+        bottomSheetBehavior.setState(STATE_EXPANDED);
         return binding.getRoot();
 
     }

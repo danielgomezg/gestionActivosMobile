@@ -3,4 +3,8 @@
     <string name="select_company">Compañia</string>
     <string name="nav_header_desc">Navigation header</string>
     <string name="category">Categoria</string>
+    <string name="title">title</string>
+    <string name="supporting_text">support</string>
+    <string name="action">action</string>
+    <string name="switch_label">switch</string>
 </resources>

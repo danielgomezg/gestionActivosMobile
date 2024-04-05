@@ -102,7 +102,7 @@ public class HomeActivity extends AppCompatActivity {
 
         //boton add
         setSupportActionBar(binding.appBarMain.toolbar);
-       /* binding.appBarMain.fab.setOnClickListener(new View.OnClickListener() {
+       binding.appBarMain.fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 //                Snackbar.make(view, "Reemplaza with your own action", Snackbar.LENGTH_LONG)
@@ -111,7 +111,7 @@ public class HomeActivity extends AppCompatActivity {
                 FormCreateArticle bottomSheet = new FormCreateArticle();
                 bottomSheet.show(getSupportFragmentManager(), "formCreateArticle");
             }
-        });*/
+        });
 
         DrawerLayout drawer = binding.drawerLayout;
         NavigationView navigationView = binding.navView;

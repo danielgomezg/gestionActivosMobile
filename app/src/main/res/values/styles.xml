@@ -2,5 +2,6 @@
     <style name="ProgressBarStyle" parent="@android:style/Widget.ProgressBar">
         <item name="colorAccent">@color/purple_700</item>
     </style>
+
 </resources>
 
