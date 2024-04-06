@@ -23,6 +23,7 @@ import com.example.sca_app_v1.MainActivity;
 import com.example.sca_app_v1.R;
 import com.example.sca_app_v1.models.Article;
 import com.example.sca_app_v1.home_app.article.DialogFragmentArticle;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,6 +45,16 @@ public class ArticleFragment extends Fragment {
         articleList.setLayoutManager(linearLayoutManager);
         adapterArticle = new AdapterArticle();
         articleList.setAdapter(adapterArticle);
+
+        FloatingActionButton fabAddArticle = view.findViewById(R.id.fab_add_article);
+        fabAddArticle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                FormCreateArticle bottomSheet = new FormCreateArticle();
+                bottomSheet.setArticleFragment(ArticleFragment.this);
+                bottomSheet.show(getChildFragmentManager(), "formCreateArticle");
+            }
+        });
 
         return view;
     }
@@ -97,6 +108,16 @@ public class ArticleFragment extends Fragment {
             System.out.println("get item count");
             return articles != null ? articles.size() : 0;
         }
+
+        //boton add
+        /*setSupportActionBar(binding.appBarMain.toolbar);
+       binding.appBarMain.fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                FormCreateArticle bottomSheet = new FormCreateArticle();
+                bottomSheet.show(getSupportFragmentManager(), "formCreateArticle");
+            }
+        });*/
 
         class AdapterArticleHolder extends RecyclerView.ViewHolder {
 

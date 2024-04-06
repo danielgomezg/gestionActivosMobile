@@ -38,11 +38,23 @@
         android:id="@+id/fab_add_article"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="@dimen/fab_margin"
+        android:layout_marginBottom="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:srcCompat="@android:drawable/ic_input_add"
+        android:contentDescription="Nuevo artículo" />
+
+    <!--<com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_add_article"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_margin="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:srcCompat="@android:drawable/ic_input_add"
-        android:contentDescription="Agregar nuevo artículo" />
+        android:contentDescription="Agregar nuevo artículo" />-->
 
 
 

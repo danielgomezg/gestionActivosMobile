@@ -11,8 +11,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class Article implements Serializable {
@@ -155,6 +158,10 @@ public class Article implements Serializable {
         return company_id;
     }
 
+    public void setCompany_id(Integer idCompany) {
+        this.company_id = idCompany;
+    }
+
     public String printData() {
         return "Article{" +
                 "id=" + id +
@@ -196,6 +203,45 @@ public class Article implements Serializable {
         }
 
     }
+
+    public boolean createArticle(Context context) {
+        SQLiteDatabase db = null;
+        try {
+            DatabaseHelper dbHelper = new DatabaseHelper(context);
+            db = dbHelper.getWritableDatabase();
+
+            db.beginTransaction();
+
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+            String currentDate = dateFormat.format(new Date());
+
+            // Crear un ContentValues con los valores del nuevo artículo
+            ContentValues values = new ContentValues();
+            values.put("name", this.name);
+            values.put("description", this.description);
+            values.put("code", this.code);
+            values.put("photo", this.photo);
+            values.put("creation_date", currentDate);
+            values.put("category_id", this.category_id);
+            values.put("company_id", this.company_id);
+
+            // Insertar el nuevo registro en la base de datos
+            long newRowId = db.insert("articulo", null, values);
+
+            db.setTransactionSuccessful();
+
+            return newRowId != -1; // Devolver true si se insertó el nuevo registro correctamente
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        } finally {
+            if (db != null) {
+                db.endTransaction();
+                db.close();
+            }
+        }
+    }
+
 
     public boolean updateArticle(Context context) {
         SQLiteDatabase db = null;
