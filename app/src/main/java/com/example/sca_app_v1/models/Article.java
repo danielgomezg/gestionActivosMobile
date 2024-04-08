@@ -162,6 +162,16 @@ public class Article implements Serializable {
         this.company_id = idCompany;
     }
 
+    //Se obtiene el id del articulo
+    public int getArticleID(String code, List<Article> articleList) {
+        for (Article article : articleList) {
+            if (article.getCode().equals(code)) {
+                return article.getId();
+            }
+        }
+        return 0;
+    }
+
     public String printData() {
         return "Article{" +
                 "id=" + id +
