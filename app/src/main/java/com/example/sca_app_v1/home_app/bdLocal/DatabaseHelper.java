@@ -446,6 +446,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     public Cursor executeQuery(String query) {
+        return executeQuery(query, null);
+    }
+
+    public Cursor executeQuery(String query, String[] selectionArgs) {
         SQLiteDatabase db = null;
         Cursor cursor = null;
         try {
@@ -454,8 +458,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             String dbPath = db.getPath();
             System.out.println("La base de datos se almacena en: " + dbPath);
     
-            // Ejecutar la consulta y obtener el resultado en un Cursor
-            cursor = db.rawQuery(query, null);
+            cursor = db.rawQuery(query, selectionArgs);
         } catch (Exception e) {
             System.out.println("Error al ejecutar la consulta: " + e.getMessage());
             e.printStackTrace();

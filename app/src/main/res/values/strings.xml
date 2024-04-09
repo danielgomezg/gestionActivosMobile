@@ -8,4 +8,7 @@
     <string name="supporting_text">support</string>
     <string name="action">action</string>
     <string name="switch_label">switch</string>
+    <string name="Sucursal">Sucursal</string>
+    <string name="oficina">Oficina</string>
+    <string name="state">Estado</string>
 </resources>

@@ -189,7 +189,7 @@ public class Article implements Serializable {
 
     public List<Article> getArticles(Context context) {
         System.out.println("IN GET ALL ARTICLES");
-        String sql = "SELECT * FROM articulo";
+        String sql = "SELECT * FROM articulo WHERE removed = 0";
 
         try {
 

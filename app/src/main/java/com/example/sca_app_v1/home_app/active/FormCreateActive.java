@@ -26,10 +26,13 @@ import com.example.sca_app_v1.home_app.article.FormCreateArticle;
 import com.example.sca_app_v1.models.Active;
 import com.example.sca_app_v1.models.Article;
 import com.example.sca_app_v1.models.Category;
+import com.example.sca_app_v1.models.Office;
+import com.example.sca_app_v1.models.Store;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.textfield.TextInputLayout;
 
+import java.lang.reflect.Array;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -40,6 +43,8 @@ public class FormCreateActive extends BottomSheetDialogFragment{
     private FragmentFormActiveBinding binding;
 
     private ArrayAdapter<String> adapterItems;
+    private ArrayAdapter<String> adapterStores;
+    private ArrayAdapter<String> adapterOffices;
 
     private ActiveFragment activeFragment;
 
@@ -73,6 +78,9 @@ public class FormCreateActive extends BottomSheetDialogFragment{
         TextInputLayout textInputLayoutSerie = view.findViewById(R.id.editTextSerie);
         TextInputLayout textInputLayoutArticle = view.findViewById(R.id.article_options);
         AutoCompleteTextView autoCompleteTextViewArticle = textInputLayoutArticle.findViewById(R.id.article_select);
+
+        //obtener sucursales
+        initializeStores(view);
 
         //obtener articulos
         Article article = new Article();
@@ -152,4 +160,57 @@ public class FormCreateActive extends BottomSheetDialogFragment{
         super.onDestroyView();
         binding = null;
     }
+
+    public void initializeStores(View view) {
+
+        TextInputLayout textInputLayoutStores = view.findViewById(R.id.stores);
+        AutoCompleteTextView autoCompleteTextViewStores = textInputLayoutStores.findViewById(R.id.stores_select);
+
+        Store store = new Store();
+        List<Store> storeList = store.getStores(requireContext());
+
+        List<String> items = storeList.stream()
+                .map(Store::getFullName)
+                .collect(Collectors.toList());
+
+        adapterStores = new ArrayAdapter<String>(requireContext(), R.layout.list_item, items);  
+        autoCompleteTextViewStores.setAdapter(adapterStores);
+
+        autoCompleteTextViewStores.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View _view, int position, long id) {
+                System.out.println(parent);
+                System.out.println("position " + position);
+                Store storeSelected = storeList.get(position);
+                System.out.println(storeSelected.getId());
+                System.out.println(storeSelected.getAddress());
+                initializeOffice(view, storeSelected.getId());
+
+                String item = parent.getItemAtPosition(position).toString();
+                Toast.makeText(requireContext(), "Item: "+item, Toast.LENGTH_SHORT).show();
+            }
+        });
+
+    }
+
+    public void initializeOffice(View view, Integer idSucursal) {
+        TextInputLayout textInputLayoutOffices = view.findViewById(R.id.office);
+        AutoCompleteTextView autoCompleteTextViewOffices = textInputLayoutOffices.findViewById(R.id.office_select);
+        
+        if (adapterOffices != null) {
+            adapterOffices.clear();
+            autoCompleteTextViewOffices.setText("");
+        }
+        
+        Office office = new Office();
+        List<Office> officeList = office.getOfficeStore(requireContext(), idSucursal);
+        System.out.println(officeList);
+        List<String> items = officeList.stream()
+                .map(Office::getFullName)
+                .collect(Collectors.toList());
+
+        adapterOffices = new ArrayAdapter<String>(requireContext(), R.layout.list_item, items);
+        autoCompleteTextViewOffices.setAdapter(adapterOffices);
+    }
+
 }
