@@ -243,7 +243,7 @@ public class Active {
 
     public List<Active> getActives(Context context) {
         System.out.println("IN GET ALL ACTIVES");
-        String sql = "SELECT * FROM activo";
+        String sql = "SELECT * FROM activo WHERE removed = 0 ORDER BY id DESC";
 
         try {
 

@@ -2,7 +2,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="com.example.sca_app_v1">
-
     <!--
     ATENCIÓN: En producción, asegúrate de cambiar android:usesCleartextTraffic a false
     y habilitar HTTPS para garantizar la seguridad de los datos y la privacidad de los usuarios.
@@ -20,22 +19,22 @@
         android:theme="@style/Theme.Sca_app_v1"
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
-
-
-
-        <activity android:name=".MainActivity"
+        <activity
+            android:name=".home_app.bdLocal.LoadData"
+            android:exported="false"
+            android:label="@string/title_activity_load_data"
+            android:theme="@style/Theme.Sca_app_v1" />
+        <activity
+            android:name=".MainActivity"
             android:exported="true"> <!-- Establecemos exported como true para que esté disponible -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity android:name=".home.HomeActivity" />
-
         <activity android:name=".home_app.HomeActivity" />
-
     </application>
-
 
 </manifest>

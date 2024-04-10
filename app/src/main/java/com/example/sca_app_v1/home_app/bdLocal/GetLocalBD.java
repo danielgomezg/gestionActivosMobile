@@ -65,7 +65,7 @@ public class GetLocalBD {
                                 dbHelper = new DatabaseHelper(context);
                                 SQLiteDatabase db = dbHelper.getWritableDatabase();
 
-                                dbHelper.deleteAllDataFromDatabase();
+//                                dbHelper.deleteAllDataFromDatabase();
                                 
                                 String selectSql = "SELECT * FROM compania";
                                 List<Map<String, String>> results = dbHelper.executeSqlQuery(selectSql);

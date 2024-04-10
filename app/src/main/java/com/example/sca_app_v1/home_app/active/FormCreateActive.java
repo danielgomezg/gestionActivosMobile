@@ -50,19 +50,14 @@ public class FormCreateActive extends BottomSheetDialogFragment{
     // TODO: Customize parameter argument names
     private static final String ARG_ITEM_COUNT = "item_count";
     private FragmentFormActiveBinding binding;
-
     private ArrayAdapter<String> adapterItems;
     private ArrayAdapter<String> adapterStores;
     private ArrayAdapter<String> adapterOffices;
-
     private ActiveFragment activeFragment;
-
     int officeId;
-
+    int articleId;
     String stateActive;
-
     private EditText adquisitionDateEditText;
-
     private String selectedDate;
 
 
@@ -99,8 +94,7 @@ public class FormCreateActive extends BottomSheetDialogFragment{
         TextInputLayout textInputLayoutcomment = view.findViewById(R.id.editTextComment);
         TextInputLayout textInputLayoutNameCharge = view.findViewById(R.id.editTextNameCharge);
         TextInputLayout textInputLayoutRutCharge = view.findViewById(R.id.editTextRutCharge);
-        TextInputLayout textInputLayoutArticle = view.findViewById(R.id.article_options);
-        AutoCompleteTextView autoCompleteTextViewArticle = textInputLayoutArticle.findViewById(R.id.article_select);
+
 
         adquisitionDateEditText = view.findViewById(R.id.adquisitionDate);
         adquisitionDateEditText.setOnClickListener(new View.OnClickListener() {
@@ -118,24 +112,7 @@ public class FormCreateActive extends BottomSheetDialogFragment{
         initializeStores(view);
 
         //obtener articulos
-        Article article = new Article();
-        List<Article> articleList = article.getArticles(requireContext());
-        System.out.println("ARTICLE LIST " + articleList);
-        List<String> items = articleList.stream()
-                .map(Article::getName)
-                .collect(Collectors.toList());
-        adapterItems = new ArrayAdapter<String>(requireContext(), R.layout.list_item, items);
-        autoCompleteTextViewArticle.setAdapter(adapterItems);
-
-        autoCompleteTextViewArticle.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                System.out.println(parent);
-                System.out.println("position " + position);
-                String item = parent.getItemAtPosition(position).toString();
-                Toast.makeText(requireContext(), "Item: "+item, Toast.LENGTH_SHORT).show();
-            }
-        });
+        initializeArticles(view);
 
         //obtener la company
         SharedPreferences sharedPreferences = requireContext().getSharedPreferences("session", Context.MODE_PRIVATE);
@@ -159,11 +136,10 @@ public class FormCreateActive extends BottomSheetDialogFragment{
                 String bar_code = Objects.requireNonNull(textInputLayoutBarcode.getEditText()).getText().toString();
                 String model = Objects.requireNonNull(textInputLayoutmodel.getEditText()).getText().toString();
                 String serie = Objects.requireNonNull(textInputLayoutSerie.getEditText()).getText().toString();
-                String selectedArticle = autoCompleteTextViewArticle.getText().toString();
                 String comment = Objects.requireNonNull(textInputLayoutcomment.getEditText()).getText().toString();
                 String nameCharge = Objects.requireNonNull(textInputLayoutNameCharge.getEditText()).getText().toString();
                 String rutCharge = Objects.requireNonNull(textInputLayoutRutCharge.getEditText()).getText().toString();
-                int articleId = article.getArticleID(selectedArticle, articleList);
+
 
                 Active newActive = new Active();
                 newActive.setBar_code(bar_code);
@@ -176,10 +152,13 @@ public class FormCreateActive extends BottomSheetDialogFragment{
                 newActive.setName_in_charge_active(nameCharge);
                 newActive.setRut_in_charge_active(rutCharge);
                 newActive.setOffice_id(officeId);
+                newActive.setAcquisition_date(selectedDate);
+                newActive.setAccounting_record_number("");
 
-                boolean createSuccessful = true; //newActive.createActive(getContext());
+                boolean createSuccessful = newActive.createActive(getContext());
                 System.out.println(createSuccessful);
                 System.out.println("seleccion " + selectedDate);
+//                selectedDate = selectedDate.replace("/", "-");
 
                 if (createSuccessful && activeFragment != null) {
                     // La creacion fue exitosa
@@ -203,6 +182,32 @@ public class FormCreateActive extends BottomSheetDialogFragment{
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
+    }
+
+    public void initializeArticles(View view) {
+
+        TextInputLayout textInputLayoutArticle = view.findViewById(R.id.article_options);
+        AutoCompleteTextView autoCompleteTextViewArticle = textInputLayoutArticle.findViewById(R.id.article_select);
+        Article article = new Article();
+        List<Article> articleList = article.getArticles(requireContext());
+        System.out.println("ARTICLE LIST " + articleList);
+        List<String> items = articleList.stream()
+                .map(Article::getName)
+                .collect(Collectors.toList());
+        adapterItems = new ArrayAdapter<String>(requireContext(), R.layout.list_item, items);
+        autoCompleteTextViewArticle.setAdapter(adapterItems);
+
+        autoCompleteTextViewArticle.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Article article = articleList.get(position);
+                articleId = article.getId();
+//                String item = parent.getItemAtPosition(position).toString();
+//                Toast.makeText(requireContext(), "Item: "+item, Toast.LENGTH_SHORT).show();
+            }
+        });
+
+
     }
 
     public void initializeStores(View view) {
@@ -294,7 +299,7 @@ public class FormCreateActive extends BottomSheetDialogFragment{
                     public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
                         // Aquí obtén la fecha seleccionada y actualiza el campo de texto
                         calendar.set(year, month, dayOfMonth);
-                        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+                        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
                         selectedDate = dateFormat.format(calendar.getTime());
                         adquisitionDateEditText.setText(selectedDate);
                     }

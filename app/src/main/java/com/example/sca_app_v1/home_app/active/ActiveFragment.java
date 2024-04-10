@@ -96,7 +96,7 @@ public class ActiveFragment  extends Fragment {
 
         @Override
         public int getItemCount() {
-            System.out.println("get item count");
+            // System.out.println("get item count");
             return actives != null ? actives.size() : 0;
         }
 

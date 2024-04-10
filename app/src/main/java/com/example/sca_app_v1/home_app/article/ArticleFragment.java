@@ -76,10 +76,10 @@ public class ArticleFragment extends Fragment {
            // System.out.println(a);
            // System.out.println(a.getName());
            // System.out.println(a.getDescription());
-            adapterArticle.notifyItemRangeInserted(articles.size(), 1);
+//            adapterArticle.notifyItemRangeInserted(articles.size(), 1);
         //}
 
-        //adapterArticle.notifyDataSetChanged();
+        adapterArticle.notifyDataSetChanged();
     }
 
     public void updateArticles(Context context, int position) {
@@ -105,7 +105,7 @@ public class ArticleFragment extends Fragment {
 
         @Override
         public int getItemCount() {
-            System.out.println("get item count");
+            // System.out.println("get item count");
             return articles != null ? articles.size() : 0;
         }
 

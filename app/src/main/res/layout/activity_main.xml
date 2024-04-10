@@ -13,20 +13,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:padding="16dp"
-        tools:context=".MainActivity">
-
-        <!-- Agregar el Spinner como vista de carga -->
-        <ProgressBar
-            android:id="@+id/loading_spinner"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            style="@style/ProgressBarStyle"
-            android:visibility="gone" />
-
-        <!-- Aquí iría tu contenido principal -->
-
-    </RelativeLayout>
+        tools:context=".MainActivity"/>
 
     <include
         android:id="@+id/app_bar_main"

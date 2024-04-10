@@ -223,12 +223,14 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="CANCELAR"
+                        android:layout_weight="1"
                         android:textSize="16sp" />
 
                     <Button
                         android:id="@+id/saveArticle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_weight="1"
                         android:text="GUARDAR"
                         android:textSize="16sp" />
 

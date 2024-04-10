@@ -1,6 +1,8 @@
 package com.example.sca_app_v1;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -11,6 +13,7 @@ import android.widget.Toast;
 
 //import com.example.sca_app_v1.home.HomeActivity;
 import com.example.sca_app_v1.home_app.HomeActivity;
+import com.example.sca_app_v1.home_app.bdLocal.LoadData;
 import com.example.sca_app_v1.login_app.*;
 import com.example.sca_app_v1.home_app.*;
 
@@ -25,6 +28,14 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login);
+
+        SharedPreferences sharedPreferences = this.getSharedPreferences("session", MODE_PRIVATE);
+        String accessToken = sharedPreferences.getString("accessToken", null);
+        System.out.println("ON CREATE SP -->> " + accessToken);
+        if (accessToken != null) {
+            Intent intent = new Intent(MainActivity.this, HomeActivity.class);
+            startActivity(intent);
+        }
         //getSupportActionBar().hide();
 
         // Vinculamos los elementos del diseño con las variables Java
@@ -103,7 +114,8 @@ public class MainActivity extends AppCompatActivity {
             public void onSuccess(String response) {
                 // Manejar el inicio de sesión exitoso
                 Toast.makeText(MainActivity.this, "Inicio de sesión exitoso", Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(MainActivity.this, HomeActivity.class);
+//                Intent intent = new Intent(MainActivity.this, HomeActivity.class);
+                Intent intent = new Intent(MainActivity.this, LoadData.class);
                 startActivity(intent);
 
             }

@@ -66,38 +66,34 @@ public class HomeActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        //Barra
-        ProgressBar loadingSpinner = findViewById(R.id.loading_spinner);
-        loadingSpinner.setVisibility(View.VISIBLE);
+//        SharedPreferences sharedPreferences = getSharedPreferences("session", MODE_PRIVATE);
+//        String token = sharedPreferences.getString("accessToken", null);
+//        Integer company_id = sharedPreferences.getInt("company_id", 0);
 
-        SharedPreferences sharedPreferences = getSharedPreferences("session", MODE_PRIVATE);
-        String token = sharedPreferences.getString("accessToken", null);
-        Integer company_id = sharedPreferences.getInt("company_id", 0);
-
-        View progressView = getLayoutInflater().inflate(R.layout.circular_progress, null);
+//        View progressView = getLayoutInflater().inflate(R.layout.circular_progress, null);
         //binding.getRoot().addView(progressView);
 
         // GetLocalBD.getAllDB(this, token, company_id);
-        ExecutorService executor = Executors.newSingleThreadExecutor();
-        executor.submit(() -> {
-            GetLocalBD.getAllDB(HomeActivity.this, token, company_id).thenRun(() -> {
-                System.out.println("End query 1");
-                ArticleFragment articleFragment = new ArticleFragment();
-                articleFragment.showArticles(HomeActivity.this);
-            });
+//        ExecutorService executor = Executors.newSingleThreadExecutor();
+//        executor.submit(() -> {
+//            GetLocalBD.getAllDB(HomeActivity.this, token, company_id).thenRun(() -> {
+//                System.out.println("End query 1");
+//                ArticleFragment articleFragment = new ArticleFragment();
+//                articleFragment.showArticles(HomeActivity.this);
+//            });
+//
+//            runOnUiThread(() -> {
+//                System.out.println("End query 0");
+//                // binding.getRoot().removeView(progressView);
+//            });
+//        });
 
-            runOnUiThread(() -> {
-                System.out.println("End query 0");
-                // binding.getRoot().removeView(progressView);
-            });
-        });
-
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                loadingSpinner.setVisibility(View.GONE);
-            }
-        }, 3000);
+//        new Handler().postDelayed(new Runnable() {
+//            @Override
+//            public void run() {
+//                loadingSpinner.setVisibility(View.GONE);
+//            }
+//        }, 3000);
         //loadingSpinner.setVisibility(View.GONE);
 
         //boton add
