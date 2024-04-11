@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+
 public class Article implements Serializable {
     private Integer id;
     private String name;
@@ -299,6 +300,24 @@ public class Article implements Serializable {
         }
     }
 
+    public Article getArticleById(Context context, Integer articleId) {
+        String sql = "SELECT * FROM articulo WHERE id = ?";
+
+        try {
+            DatabaseHelper dbHelper = new DatabaseHelper(context);
+            Cursor cursor = dbHelper.executeQuery(sql, new String[]{articleId.toString()});
+
+            if (cursor.moveToFirst()) {
+                return new Article(cursor);
+            }
+
+            cursor.close();
+            return null;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 
 
 }

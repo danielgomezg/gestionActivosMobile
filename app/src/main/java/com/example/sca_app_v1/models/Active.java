@@ -312,4 +312,49 @@ public class Active implements Serializable {
             }
         }
     }
+
+    public boolean updateActive (Context context) {
+
+        SQLiteDatabase db = null;
+        try {
+            DatabaseHelper dbHelper = new DatabaseHelper(context);
+            db = dbHelper.getWritableDatabase();
+
+            db.beginTransaction();
+
+            // SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+
+            // Crear un ContentValues con los valores del nuevo artículo
+            ContentValues values = new ContentValues();
+            values.put("bar_code", this.bar_code);
+            values.put("comment", this.comment);
+            values.put("acquisition_date", this.acquisition_date);
+            values.put("accounting_document", this.accounting_document);
+            values.put("accounting_record_number", this.accounting_record_number);
+            values.put("name_in_charge_active", this.name_in_charge_active);
+            values.put("rut_in_charge_active", this.rut_in_charge_active);
+            values.put("serie", this.serie);
+            values.put("model", this.model);
+            values.put("state", this.state);
+            values.put("office_id", this.office_id);
+            values.put("article_id", this.article_id);
+
+            // Insertar el nuevo registro en la base de datos
+            long newRowId = db.update("activo", values, "id = ?", new String[]{String.valueOf(this.id)});
+
+            db.setTransactionSuccessful();
+
+            return newRowId != -1; // Devolver true si se insertó el nuevo registro correctamente
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        } finally {
+            if (db != null) {
+                db.endTransaction();
+                db.close();
+            }
+        }
+
+    }
+
 }

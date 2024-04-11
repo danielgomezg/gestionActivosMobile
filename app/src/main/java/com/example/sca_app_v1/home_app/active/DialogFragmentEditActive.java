@@ -184,11 +184,40 @@ public class DialogFragmentEditActive extends DialogFragment {
                         updatedActive.setName_in_charge_active(newNameCharge);
                         updatedActive.setRut_in_charge_active(newRutCharge);
                         updatedActive.setAccounting_document("");
-                        updatedActive.setAcquisition_date(selectedDate);
-                        updatedActive.setArticle_id(articleId);
+                        System.out.println("selected Date " + selectedDate);
+                        if (selectedDate == null) {
+                            updatedActive.setAcquisition_date(active.getAcquisition_date());
+                        }
+                        else {
+                            updatedActive.setAcquisition_date(selectedDate);
+                        }
+                        System.out.println("Article id " + articleId);
+                        if (articleId == 0) {
+                            updatedActive.setArticle_id(active.getArticle_id());
+                        }
+                        else {
+                            updatedActive.setArticle_id(articleId);
+                        }
+
+                        System.out.println("Office id " + officeId);
+                        if (officeId == 0) {
+                            updatedActive.setOffice_id(active.getOffice_id());
+                        }
+                        else {
+                            updatedActive.setOffice_id(officeId);
+                        }
+
+                        System.out.println("State " + stateActive);
+                        if (stateActive == null) {
+                            updatedActive.setState(active.getState());
+                        }
+                        else {
+                            updatedActive.setState(stateActive);
+                        }
+
 
                         // Actualizar el artículo en la base de datos
-                        boolean updateSuccessful = true;//updatedArticle.updateArticle(getContext());
+                        boolean updateSuccessful = updatedActive.updateActive(getContext());
                         System.out.println(updateSuccessful);
 
                         if (updateSuccessful && parentFragment != null) {
@@ -315,10 +344,10 @@ public class DialogFragmentEditActive extends DialogFragment {
         TextInputLayout textInputLayoutOffices = view.findViewById(R.id.office);
         AutoCompleteTextView autoCompleteTextViewOffices = textInputLayoutOffices.findViewById(R.id.office_select);
 
-        /*if (adapterOffices != null) {
+        if (adapterOffices != null) {
             adapterOffices.clear();
             autoCompleteTextViewOffices.setText("");
-        }*/
+        }
 
         Office office = new Office();
         List<Office> officeList = office.getOfficeStore(requireContext(), idSucursal);

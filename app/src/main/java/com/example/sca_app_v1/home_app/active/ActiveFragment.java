@@ -19,11 +19,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.sca_app_v1.R;
-import com.example.sca_app_v1.home_app.article.ArticleFragment;
-import com.example.sca_app_v1.home_app.article.DialogFragmentArticle;
-import com.example.sca_app_v1.home_app.article.FormCreateArticle;
 import com.example.sca_app_v1.models.Active;
 import com.example.sca_app_v1.models.Article;
+import com.example.sca_app_v1.models.Office;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.List;
@@ -104,8 +102,15 @@ public class ActiveFragment  extends Fragment {
 
             TextView tvBarcode;
             TextView tvModel;
-
             TextView tvSerie;
+            TextView tvActiveDate;
+            TextView tvActiveOffice;
+            TextView activeState;
+            TextView tvActiveComment;
+            TextView tvActiveArticle;
+            TextView tvActiveBrand;
+            TextView tvActiveNameCharge;
+            TextView tvActiveRutCharge;
             ImageView ivPhoto;
 
             ImageButton btnOptions;
@@ -116,6 +121,16 @@ public class ActiveFragment  extends Fragment {
                 tvBarcode = itemView.findViewById(R.id.tvBarcodeActive);
                 tvModel = itemView.findViewById(R.id.tvModelActive);
                 tvSerie = itemView.findViewById(R.id.tvSerieActive);
+                tvActiveDate = itemView.findViewById(R.id.tvActiveDate);
+                tvActiveOffice = itemView.findViewById(R.id.tvActiveOffice);
+                activeState = itemView.findViewById(R.id.tvActiveState);
+                tvActiveComment = itemView.findViewById(R.id.tvActiveComment);
+                tvActiveArticle = itemView.findViewById(R.id.tvActiveArticle);
+                tvActiveBrand = itemView.findViewById(R.id.tvActiveBrand);
+                tvActiveNameCharge = itemView.findViewById(R.id.tvActiveNameCharge);
+                tvActiveRutCharge = itemView.findViewById(R.id.tvActiveRutCharge);
+
+
 
                 btnOptions = itemView.findViewById(R.id.btnOptions);
 //                ivPhoto = itemView.findViewById(R.id.ivPhoto);
@@ -139,6 +154,19 @@ public class ActiveFragment  extends Fragment {
                 tvBarcode.setText(active.getBar_code());
                 tvModel.setText(active.getModel());
                 tvSerie.setText(active.getSerie());
+                tvActiveDate.setText(active.getAcquisition_date());
+                Office office = new Office();
+                office = office.getOfficeId(itemView.getContext(), active.getOffice_id());
+                tvActiveOffice.setText(office.getFullName());
+                activeState.setText(active.getState());
+                tvActiveComment.setText(active.getComment());
+                Article article = new Article();
+                article = article.getArticleById(itemView.getContext(), active.getArticle_id());
+                tvActiveArticle.setText(article.getName());
+                tvActiveBrand.setText("Brand");
+                tvActiveNameCharge.setText(active.getName_in_charge_active());
+                tvActiveRutCharge.setText(active.getRut_in_charge_active());
+
             }
 
             // Método para mostrar el menú contextual
