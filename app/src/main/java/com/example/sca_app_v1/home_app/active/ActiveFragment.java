@@ -144,7 +144,7 @@ public class ActiveFragment  extends Fragment {
             // Método para mostrar el menú contextual
             private void showMenu(int position) {
                 PopupMenu popupMenu = new PopupMenu(itemView.getContext(), btnOptions);
-                popupMenu.inflate(R.menu.article_options_menu);
+                popupMenu.inflate(R.menu.active_options_menu);
                 System.out.println("position");
                 System.out.println(position);
 
@@ -164,6 +164,8 @@ public class ActiveFragment  extends Fragment {
                             // Acción para editar el artículo
                             Toast.makeText(itemView.getContext(), "Editar activo seleccionado " + active.getBar_code(), Toast.LENGTH_SHORT).show();
                             // Crear una instancia del DialogFragment y pasar una referencia al fragmento padre (ArticleFragment)
+                            DialogFragmentEditActive editDialog = DialogFragmentEditActive.newInstance(position, active, activeFragment);
+                            editDialog.show(requireActivity().getSupportFragmentManager(), "edit_active_dialog");
                             //DialogFragmentArticle editDialog = DialogFragmentArticle.newInstance(DialogFragmentArticle.MODE_EDIT, position, active, activeFragment);
                             //editDialog.show(requireActivity().getSupportFragmentManager(), "edit_article_dialog");
                             return true;

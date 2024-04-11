@@ -172,6 +172,15 @@ public class Article implements Serializable {
         return 0;
     }
 
+    public String getArticleName(int articleId, List<Article> articleList) {
+        for (Article article : articleList) {
+            if (article.getId() == articleId) {
+                return article.getName();
+            }
+        }
+        return null;
+    }
+
     public String printData() {
         return "Article{" +
                 "id=" + id +

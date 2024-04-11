@@ -116,4 +116,36 @@ public class Office {
 
     }
 
+    public Office getOfficeId(Context context, Integer id) {
+        String sql = "SELECT * FROM oficina WHERE id = ? AND removed = 0";
+
+        try {
+
+            DatabaseHelper dbHelper = new DatabaseHelper(context);
+            Cursor cursor = dbHelper.executeQuery(sql, new String[]{id.toString()});
+            if (cursor.moveToFirst()) {
+                Office office = new Office(cursor);
+                cursor.close();
+                return office;
+            }else {
+                cursor.close();
+                return null;
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+
+    }
+
+    public String getOfficeInfo(int officeId, List<Office> officeList) {
+        for (Office office : officeList) {
+            if (office.getId() == officeId) {
+                return office.floor + " - " + office.description;
+            }
+        }
+        return null;
+    }
+
 }

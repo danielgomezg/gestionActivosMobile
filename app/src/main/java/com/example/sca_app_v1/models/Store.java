@@ -146,4 +146,13 @@ public class Store {
         }
     }
 
+    public String getStoreInfo(int storeId, List<Store> storeList) {
+        for (Store store : storeList) {
+            if (store.getId() == storeId) {
+                return store.getFullName();
+            }
+        }
+        return null;
+    }
+
 }

@@ -10,13 +10,14 @@ import com.example.sca_app_v1.home_app.bdLocal.DatabaseHelper;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-public class Active {
+public class Active implements Serializable {
 
     private Integer id;
     private String bar_code;
