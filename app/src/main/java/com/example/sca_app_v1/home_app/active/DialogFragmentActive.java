@@ -17,6 +17,8 @@ import android.widget.Toast;
 import androidx.fragment.app.DialogFragment;
 
 import com.example.sca_app_v1.R;
+import com.example.sca_app_v1.home_app.article.ArticleFragment;
+import com.example.sca_app_v1.home_app.article.DialogFragmentArticle;
 import com.example.sca_app_v1.models.Active;
 import com.example.sca_app_v1.models.Article;
 import com.example.sca_app_v1.models.Office;
@@ -31,18 +33,15 @@ import java.util.Locale;
 import java.util.stream.Collectors;
 
 
-public class DialogFragmentEditActive extends DialogFragment {
-    //private static final String ARG_MODE = "mode";
-    //public static final int MODE_EDIT = 1;
-    //public static final int MODE_CREATE = 2;
+public class DialogFragmentActive extends DialogFragment {
+    private static final String ARG_MODE = "mode";
+    public static final int MODE_EDIT = 1;
+    public static final int MODE_CREATE = 2;
 
     public static final String ARG_POSITION = "";
 
     private static final String ARG_ACTIVE = "active";
 
-
-    // private String[] items = { "Cargador", "Pila", "Bateria", "Cosito" };
-    //Fragment padre
     private ActiveFragment parentFragment;
 
     private int mode;
@@ -62,20 +61,30 @@ public class DialogFragmentEditActive extends DialogFragment {
     private EditText editTextRutcharge;
     private EditText editTextRecordnumber;
     private EditText adquisitionDateEditText;
-    private AutoCompleteTextView stateSelect;
     int officeId;
     int articleId;
     String stateActive;
     private String selectedDate;
-    private ArrayAdapter<String> adapterItems;
 
-    // Método estático para crear una instancia del DialogFragment con un modo específico
-    public static DialogFragmentEditActive newInstance(int position, Active active, ActiveFragment parentFragment) {
-        DialogFragmentEditActive fragment = new DialogFragmentEditActive();
+    // Método estático para crear una instancia del DialogFragment modo edit
+    public static DialogFragmentActive newInstance(int mode, int position, Active active, ActiveFragment parentFragment) {
+        DialogFragmentActive fragment = new DialogFragmentActive();
         Bundle args = new Bundle();
-        //args.putInt(ARG_MODE, mode);
+        args.putInt(ARG_MODE, mode);
         args.putInt(ARG_POSITION, position);
         args.putSerializable(ARG_ACTIVE, active);
+        fragment.setArguments(args);
+        // Guardar una referencia al fragmento padre (ArticleFragment)
+        fragment.setParentFragment(parentFragment);
+
+        return fragment;
+    }
+
+    // Método estático para crear una instancia del DialogFragment en modo creacion
+    public static DialogFragmentActive newInstance(int mode, ActiveFragment parentFragment) {
+        DialogFragmentActive fragment = new DialogFragmentActive();
+        Bundle args = new Bundle();
+        args.putInt(ARG_MODE, mode);
         fragment.setArguments(args);
         // Guardar una referencia al fragmento padre (ArticleFragment)
         fragment.setParentFragment(parentFragment);
@@ -87,9 +96,11 @@ public class DialogFragmentEditActive extends DialogFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            //mode = getArguments().getInt(ARG_MODE);
-            position = getArguments().getInt(ARG_POSITION);
-            active = (Active) getArguments().getSerializable(ARG_ACTIVE);
+            mode = getArguments().getInt(ARG_MODE);
+            if (mode == MODE_EDIT){
+                position = getArguments().getInt(ARG_POSITION);
+                active = (Active) getArguments().getSerializable(ARG_ACTIVE);
+            }
         }
     }
 
@@ -149,17 +160,24 @@ public class DialogFragmentEditActive extends DialogFragment {
 
         // setea los campos de activo
 
-        editTextBarcode.setText(active.getBar_code());
-        editTextModel.setText(active.getModel());
-        editTextSerie.setText(active.getSerie());
-        editTextcomment.setText(active.getComment());
-        editTextRecordnumber.setText(active.getAccounting_record_number());
-        editTextNamecharge.setText(active.getName_in_charge_active());
-        editTextRutcharge.setText(active.getRut_in_charge_active());
-        adquisitionDateEditText.setText(active.getAcquisition_date());
+        if(active != null){
+            editTextBarcode.setText(active.getBar_code());
+            editTextModel.setText(active.getModel());
+            editTextSerie.setText(active.getSerie());
+            editTextcomment.setText(active.getComment());
+            editTextRecordnumber.setText(active.getAccounting_record_number());
+            editTextNamecharge.setText(active.getName_in_charge_active());
+            editTextRutcharge.setText(active.getRut_in_charge_active());
+            adquisitionDateEditText.setText(active.getAcquisition_date());
+
+            articleId = active.getArticle_id();
+            selectedDate = active.getAcquisition_date();
+            officeId = active.getOffice_id();
+            stateActive = active.getState();
+        }
 
         builder.setView(view)
-                .setTitle("Editar activo")
+                .setTitle(mode == MODE_EDIT ? "Editar activo" : "Crear nuevo activo")
                 .setPositiveButton("Guardar", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -174,17 +192,60 @@ public class DialogFragmentEditActive extends DialogFragment {
                         //String newDateAquisition = adquisitionDateEditText.getText().toString();
 
                         // Crear un objeto Article con los nuevos valores
-                        Active updatedActive = new Active();
-                        updatedActive.setId(active.getId());
-                        updatedActive.setBar_code(newBarcode);
-                        updatedActive.setModel(newModel);
-                        updatedActive.setSerie(newSerie);
-                        updatedActive.setComment(newcomment);
-                        updatedActive.setAccounting_record_number(newRecordNumber);
-                        updatedActive.setName_in_charge_active(newNameCharge);
-                        updatedActive.setRut_in_charge_active(newRutCharge);
-                        updatedActive.setAccounting_document("");
+                        Active newActive = new Active();
+                        newActive.setBar_code(newBarcode);
+                        newActive.setModel(newModel);
+                        newActive.setSerie(newSerie);
+                        newActive.setComment(newcomment);
+                        newActive.setAccounting_record_number(newRecordNumber);
+                        newActive.setName_in_charge_active(newNameCharge);
+                        newActive.setRut_in_charge_active(newRutCharge);
+                        newActive.setAccounting_document("");
+
+                        newActive.setAcquisition_date(selectedDate);
+                        newActive.setArticle_id(articleId);
+                        newActive.setOffice_id(officeId);
+                        newActive.setState(stateActive);
+
                         System.out.println("selected Date " + selectedDate);
+
+                        if(mode == MODE_EDIT){
+                            newActive.setId(active.getId());
+
+                            // Actualizar el artículo en la base de datos
+                            boolean updateSuccessful = newActive.updateActive(getContext());
+                            System.out.println(updateSuccessful);
+
+                            if (updateSuccessful && parentFragment != null) {
+                                // La actualización fue exitosa
+                                Toast.makeText(getContext(), "Artículo actualizado correctamente", Toast.LENGTH_SHORT).show();
+
+                                // Actualizar la lista de artículos en el fragmento padre (ArticleFragment)
+                                parentFragment.updateActives(getContext(), position);
+                            } else {
+                                // Ocurrió un error durante la actualización
+                                Toast.makeText(getContext(), "Error al actualizar el artículo", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+
+                        else{
+                            newActive.setAccounting_document("");
+
+                            boolean createSuccessful = newActive.createActive(getContext());
+                            System.out.println(createSuccessful);
+
+                            if (createSuccessful && parentFragment != null) {
+                                // La actualización fue exitosa
+                                Toast.makeText(getContext(), "Activo creado correctamente", Toast.LENGTH_SHORT).show();
+
+                                // Actualizar la lista de artículos en el fragmento padre (ArticleFragment)
+                                parentFragment.showActives(getContext());
+                            } else {
+                                // Ocurrió un error durante la actualización
+                                Toast.makeText(getContext(), "Error al crear el activo", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                        /*
                         if (selectedDate == null) {
                             updatedActive.setAcquisition_date(active.getAcquisition_date());
                         }
@@ -213,23 +274,7 @@ public class DialogFragmentEditActive extends DialogFragment {
                         }
                         else {
                             updatedActive.setState(stateActive);
-                        }
-
-
-                        // Actualizar el artículo en la base de datos
-                        boolean updateSuccessful = updatedActive.updateActive(getContext());
-                        System.out.println(updateSuccessful);
-
-                        if (updateSuccessful && parentFragment != null) {
-                            // La actualización fue exitosa
-                            Toast.makeText(getContext(), "Artículo actualizado correctamente", Toast.LENGTH_SHORT).show();
-
-                            // Actualizar la lista de artículos en el fragmento padre (ArticleFragment)
-                            parentFragment.updateActives(getContext(), position);
-                        } else {
-                            // Ocurrió un error durante la actualización
-                            Toast.makeText(getContext(), "Error al actualizar el artículo", Toast.LENGTH_SHORT).show();
-                        }
+                        }*/
 
                         // Lógica para guardar los cambios
 
@@ -261,19 +306,21 @@ public class DialogFragmentEditActive extends DialogFragment {
         adapterArticles = new ArrayAdapter<String>(requireContext(), R.layout.list_item, items);
         autoCompleteTextViewArticles.setAdapter(adapterArticles);
 
-        String selectedArticleName = (active != null && active.getArticle_id() != null) ? article.getArticleName(active.getArticle_id(), articleList) : null;
+        if(mode == MODE_EDIT){
+            String selectedArticleName = (active != null && active.getArticle_id() != null) ? article.getArticleName(active.getArticle_id(), articleList) : null;
 
-        // Desactivar temporalmente el filtrado automático
-        autoCompleteTextViewArticles.setThreshold(Integer.MAX_VALUE);
+            // Desactivar temporalmente el filtrado automático
+            autoCompleteTextViewArticles.setThreshold(Integer.MAX_VALUE);
 
-        // Si se encontró la descripción de la categoría, establecerla como texto en el AutoCompleteTextView
-        if (selectedArticleName != null) {
-            autoCompleteTextViewArticles.setText(selectedArticleName);
-            System.out.println("selected article " +  selectedArticleName);
+            // Si se encontró la descripción de la categoría, establecerla como texto en el AutoCompleteTextView
+            if (selectedArticleName != null) {
+                autoCompleteTextViewArticles.setText(selectedArticleName);
+                System.out.println("selected article " +  selectedArticleName);
+            }
+
+            // Volver a activar el filtrado automático
+            autoCompleteTextViewArticles.setThreshold(1);
         }
-
-        // Volver a activar el filtrado automático
-        autoCompleteTextViewArticles.setThreshold(1);
 
         autoCompleteTextViewArticles.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -303,25 +350,28 @@ public class DialogFragmentEditActive extends DialogFragment {
         adapterStores = new ArrayAdapter<String>(requireContext(), R.layout.list_item, items);
         autoCompleteTextViewStores.setAdapter(adapterStores);
 
-        Office office = new Office();
-        office = office.getOfficeId(requireContext() ,active.getOffice_id());
-        //office.getOfficeId(requireContext() ,active.getOffice_id());
+        if(mode == MODE_EDIT){
 
-        String selectedStore = (active != null && office != null) ? store.getStoreInfo(office.getSucursal_id(), storeList) : null;
+            Office office = new Office();
+            office = office.getOfficeId(requireContext() ,active.getOffice_id());
+            //office.getOfficeId(requireContext() ,active.getOffice_id());
 
-        // Desactivar temporalmente el filtrado automático
-        autoCompleteTextViewStores.setThreshold(Integer.MAX_VALUE);
+            String selectedStore = (active != null && office != null) ? store.getStoreInfo(office.getSucursal_id(), storeList) : null;
 
-        // Si se encontró la descripción de la categoría, establecerla como texto en el AutoCompleteTextView
-        if (selectedStore != null) {
-            autoCompleteTextViewStores.setText(selectedStore);
-            System.out.println("selectedstore " +  selectedStore);
+            // Desactivar temporalmente el filtrado automático
+            autoCompleteTextViewStores.setThreshold(Integer.MAX_VALUE);
+
+            // Si se encontró la descripción de la categoría, establecerla como texto en el AutoCompleteTextView
+            if (selectedStore != null) {
+                autoCompleteTextViewStores.setText(selectedStore);
+                System.out.println("selectedstore " +  selectedStore);
+            }
+
+            // Volver a activar el filtrado automático
+            autoCompleteTextViewStores.setThreshold(1);
+
+            initializeOffice(view, office.getSucursal_id());
         }
-
-        // Volver a activar el filtrado automático
-        autoCompleteTextViewStores.setThreshold(1);
-
-        initializeOffice(view, office.getSucursal_id());
 
         autoCompleteTextViewStores.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -359,19 +409,22 @@ public class DialogFragmentEditActive extends DialogFragment {
         adapterOffices = new ArrayAdapter<String>(requireContext(), R.layout.list_item, items);
         autoCompleteTextViewOffices.setAdapter(adapterOffices);
 
-        String selectedofficeInfo = (active != null && active.getOffice_id() != null) ? office.getOfficeInfo(active.getOffice_id(), officeList) : null;
+        if(mode == MODE_EDIT){
 
-        // Desactivar temporalmente el filtrado automático
-        autoCompleteTextViewOffices.setThreshold(Integer.MAX_VALUE);
+            String selectedofficeInfo = (active != null && active.getOffice_id() != null) ? office.getOfficeInfo(active.getOffice_id(), officeList) : null;
 
-        // Si se encontró la descripción de la categoría, establecerla como texto en el AutoCompleteTextView
-        if (selectedofficeInfo != null) {
-            autoCompleteTextViewOffices.setText(selectedofficeInfo);
-            System.out.println("selectedofficeinfo --" +  selectedofficeInfo);
+            // Desactivar temporalmente el filtrado automático
+            autoCompleteTextViewOffices.setThreshold(Integer.MAX_VALUE);
+
+            // Si se encontró la descripción de la categoría, establecerla como texto en el AutoCompleteTextView
+            if (selectedofficeInfo != null) {
+                autoCompleteTextViewOffices.setText(selectedofficeInfo);
+                System.out.println("selectedofficeinfo --" +  selectedofficeInfo);
+            }
+
+            // Volver a activar el filtrado automático
+            autoCompleteTextViewOffices.setThreshold(1);
         }
-
-        // Volver a activar el filtrado automático
-        autoCompleteTextViewOffices.setThreshold(1);
 
         autoCompleteTextViewOffices.setOnItemClickListener(new AdapterView.OnItemClickListener(){
             @Override
@@ -390,19 +443,22 @@ public class DialogFragmentEditActive extends DialogFragment {
         ArrayAdapter<String> adapterStates = new ArrayAdapter<>(requireContext(), R.layout.list_item, states);
         autoCompleteTextViewStates.setAdapter(adapterStates);
 
-        String selectedState = (active != null && active.getState() != null) ? active.getState() : null;
+        if(mode == MODE_EDIT){
 
-        // Desactivar temporalmente el filtrado automático
-        autoCompleteTextViewStates.setThreshold(Integer.MAX_VALUE);
+            String selectedState = (active != null && active.getState() != null) ? active.getState() : null;
 
-        // Si se encontró la descripción de la categoría, establecerla como texto en el AutoCompleteTextView
-        if (selectedState != null) {
-            autoCompleteTextViewStates.setText(selectedState);
-            System.out.println("selectedCategoryDescription " +  selectedState);
+            // Desactivar temporalmente el filtrado automático
+            autoCompleteTextViewStates.setThreshold(Integer.MAX_VALUE);
+
+            // Si se encontró la descripción de la categoría, establecerla como texto en el AutoCompleteTextView
+            if (selectedState != null) {
+                autoCompleteTextViewStates.setText(selectedState);
+                System.out.println("selectedCategoryDescription " +  selectedState);
+            }
+
+            // Volver a activar el filtrado automático
+            autoCompleteTextViewStates.setThreshold(1);
         }
-
-        // Volver a activar el filtrado automático
-        autoCompleteTextViewStates.setThreshold(1);
 
         autoCompleteTextViewStates.setOnItemClickListener(new AdapterView.OnItemClickListener(){
             @Override

@@ -19,6 +19,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.sca_app_v1.R;
+import com.example.sca_app_v1.home_app.article.DialogFragmentArticle;
 import com.example.sca_app_v1.models.Active;
 import com.example.sca_app_v1.models.Article;
 import com.example.sca_app_v1.models.Office;
@@ -31,6 +32,8 @@ public class ActiveFragment  extends Fragment {
     private List<Active> actives;
     private RecyclerView activeList;
     private AdapterActive adapterActive;
+    // Referencia al ArticleFragment
+    ActiveFragment activeFragment = ActiveFragment.this;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -48,9 +51,8 @@ public class ActiveFragment  extends Fragment {
         fabAddArticle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                FormCreateActive bottomSheet = new FormCreateActive();
-                bottomSheet.setActiveFragment(ActiveFragment.this);
-                bottomSheet.show(getChildFragmentManager(), "formCreateActive");
+                DialogFragmentActive createDialog = DialogFragmentActive.newInstance(DialogFragmentActive.MODE_CREATE, activeFragment);
+                createDialog.show(requireActivity().getSupportFragmentManager(), "create_active_dialog");
             }
         });
 
@@ -68,7 +70,7 @@ public class ActiveFragment  extends Fragment {
         Active active = new Active();
         actives = active.getActives(context);
         System.out.println("articles size: " + actives.size());
-        adapterActive.notifyItemRangeInserted(actives.size(), 1);
+        adapterActive.notifyDataSetChanged();
     }
 
     public void updateActives(Context context, int position) {
@@ -176,9 +178,6 @@ public class ActiveFragment  extends Fragment {
                 System.out.println("position");
                 System.out.println(position);
 
-                // Referencia al ArticleFragment
-                ActiveFragment activeFragment = ActiveFragment.this;
-
                 // Obtener el artículo seleccionado
                 Active active = actives.get(position);
 
@@ -192,7 +191,7 @@ public class ActiveFragment  extends Fragment {
                             // Acción para editar el artículo
                             Toast.makeText(itemView.getContext(), "Editar activo seleccionado " + active.getBar_code(), Toast.LENGTH_SHORT).show();
                             // Crear una instancia del DialogFragment y pasar una referencia al fragmento padre (ArticleFragment)
-                            DialogFragmentEditActive editDialog = DialogFragmentEditActive.newInstance(position, active, activeFragment);
+                            DialogFragmentActive editDialog = DialogFragmentActive.newInstance(DialogFragmentActive.MODE_EDIT ,position, active, activeFragment);
                             editDialog.show(requireActivity().getSupportFragmentManager(), "edit_active_dialog");
                             //DialogFragmentArticle editDialog = DialogFragmentArticle.newInstance(DialogFragmentArticle.MODE_EDIT, position, active, activeFragment);
                             //editDialog.show(requireActivity().getSupportFragmentManager(), "edit_article_dialog");

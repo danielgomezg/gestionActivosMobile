@@ -34,6 +34,9 @@ public class ArticleFragment extends Fragment {
     private RecyclerView articleList;
     private AdapterArticle adapterArticle;
 
+    // Referencia al ArticleFragment
+    public ArticleFragment articleFragment = ArticleFragment.this;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -46,13 +49,16 @@ public class ArticleFragment extends Fragment {
         adapterArticle = new AdapterArticle();
         articleList.setAdapter(adapterArticle);
 
+
         FloatingActionButton fabAddArticle = view.findViewById(R.id.fab_add_article);
         fabAddArticle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                FormCreateArticle bottomSheet = new FormCreateArticle();
-                bottomSheet.setArticleFragment(ArticleFragment.this);
-                bottomSheet.show(getChildFragmentManager(), "formCreateArticle");
+                DialogFragmentArticle createDialog = DialogFragmentArticle.newInstance(DialogFragmentArticle.MODE_CREATE, articleFragment);
+                createDialog.show(requireActivity().getSupportFragmentManager(), "create_article_dialog");
+                //FormCreateArticle bottomSheet = new FormCreateArticle();
+                //bottomSheet.setArticleFragment(ArticleFragment.this);
+                //bottomSheet.show(getChildFragmentManager(), "formCreateArticle");
             }
         });
 
@@ -72,12 +78,6 @@ public class ArticleFragment extends Fragment {
         Article article = new Article();
         articles = article.getArticles(context);
         System.out.println("articles size: " + articles.size());
-        //for (Article a : articles) {
-           // System.out.println(a);
-           // System.out.println(a.getName());
-           // System.out.println(a.getDescription());
-//            adapterArticle.notifyItemRangeInserted(articles.size(), 1);
-        //}
 
         adapterArticle.notifyDataSetChanged();
     }
@@ -108,16 +108,6 @@ public class ArticleFragment extends Fragment {
             // System.out.println("get item count");
             return articles != null ? articles.size() : 0;
         }
-
-        //boton add
-        /*setSupportActionBar(binding.appBarMain.toolbar);
-       binding.appBarMain.fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                FormCreateArticle bottomSheet = new FormCreateArticle();
-                bottomSheet.show(getSupportFragmentManager(), "formCreateArticle");
-            }
-        });*/
 
         class AdapterArticleHolder extends RecyclerView.ViewHolder {
 
@@ -166,9 +156,6 @@ public class ArticleFragment extends Fragment {
                 popupMenu.inflate(R.menu.article_options_menu);
                 System.out.println("position");
                 System.out.println(position);
-
-                // Referencia al ArticleFragment
-                ArticleFragment articleFragment = ArticleFragment.this;
 
                 // Obtener el artículo seleccionado
                 Article article = articles.get(position);
