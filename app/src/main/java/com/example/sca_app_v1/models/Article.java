@@ -300,6 +300,39 @@ public class Article implements Serializable {
         }
     }
 
+    public boolean deleteArticle(Context context) {
+        SQLiteDatabase db = null;
+        try {
+            DatabaseHelper dbHelper = new DatabaseHelper(context);
+            db = dbHelper.getWritableDatabase();
+
+            db.beginTransaction();
+
+            // Crear un ContentValues con los nuevos valores del artículo
+            ContentValues values = new ContentValues();
+            values.put("removed", 1);
+
+            // Definir la condición WHERE para la actualización (basado en el ID del artículo)
+            String whereClause = "id = ?";
+            String[] whereArgs = {String.valueOf(this.id)}; // El ID del artículo a actualizar
+
+            // Actualizar el registro en la base de datos
+            int rowsAffected = db.update("articulo", values, whereClause, whereArgs);
+
+            db.setTransactionSuccessful();
+
+            return rowsAffected > 0; // Devolver true si se actualizó al menos un registro
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        } finally {
+            if (db != null) {
+                db.endTransaction();
+                db.close();
+            }
+        }
+    }
+
     public Article getArticleById(Context context, Integer articleId) {
         String sql = "SELECT * FROM articulo WHERE id = ?";
 

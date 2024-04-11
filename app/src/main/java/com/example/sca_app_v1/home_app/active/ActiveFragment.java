@@ -1,6 +1,8 @@
 package com.example.sca_app_v1.home_app.active;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -193,12 +195,26 @@ public class ActiveFragment  extends Fragment {
                             // Crear una instancia del DialogFragment y pasar una referencia al fragmento padre (ArticleFragment)
                             DialogFragmentActive editDialog = DialogFragmentActive.newInstance(DialogFragmentActive.MODE_EDIT ,position, active, activeFragment);
                             editDialog.show(requireActivity().getSupportFragmentManager(), "edit_active_dialog");
-                            //DialogFragmentArticle editDialog = DialogFragmentArticle.newInstance(DialogFragmentArticle.MODE_EDIT, position, active, activeFragment);
-                            //editDialog.show(requireActivity().getSupportFragmentManager(), "edit_article_dialog");
                             return true;
                         } else if (id == R.id.delete_option_active) {
-                            // Acción para eliminar el artículo
-                            Toast.makeText(itemView.getContext(), "Eliminar artículo seleccionado " + active.getBar_code(), Toast.LENGTH_SHORT).show();
+                            // Acción para eliminar el activo
+                            AlertDialog.Builder builder = new AlertDialog.Builder(itemView.getContext());
+                            builder.setMessage("¿Está seguro que desea eliminar el activo " + active.getBar_code() +"?")
+                                    .setPositiveButton("Sí", new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int id) {
+                                            // Si el usuario confirma la eliminación
+                                            active.deleteActive(getContext());
+                                            showActives(getContext());
+                                            Toast.makeText(itemView.getContext(), "Activo eliminado correctamente", Toast.LENGTH_SHORT).show();
+                                        }
+                                    })
+                                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int id) {
+                                        }
+                                    });
+                            // Crea y muestra el cuadro de diálogo de confirmación
+                            AlertDialog dialog = builder.create();
+                            dialog.show();
                             return true;
                         } else {
                             return false;

@@ -1,6 +1,8 @@
 package com.example.sca_app_v1.home_app.article;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -176,7 +178,23 @@ public class ArticleFragment extends Fragment {
                             return true;
                         } else if (id == R.id.delete_option_article) {
                             // Acción para eliminar el artículo
-                            Toast.makeText(itemView.getContext(), "Eliminar artículo seleccionado " + article.getName(), Toast.LENGTH_SHORT).show();
+                            AlertDialog.Builder builder = new AlertDialog.Builder(itemView.getContext());
+                            builder.setMessage("¿Está seguro que desea eliminar el artículo " + article.getName() +"?")
+                                    .setPositiveButton("Sí", new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int id) {
+                                            // Si el usuario confirma la eliminación
+                                            article.deleteArticle(getContext());
+                                            showArticles(getContext());
+                                            Toast.makeText(itemView.getContext(), "Artículo eliminado correctamente", Toast.LENGTH_SHORT).show();
+                                        }
+                                    })
+                                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int id) {
+                                        }
+                                    });
+                            // Crea y muestra el cuadro de diálogo de confirmación
+                            AlertDialog dialog = builder.create();
+                            dialog.show();
                             return true;
                         } else {
                             return false;

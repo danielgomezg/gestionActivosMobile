@@ -357,4 +357,35 @@ public class Active implements Serializable {
 
     }
 
+    public boolean deleteActive (Context context) {
+
+        SQLiteDatabase db = null;
+        try {
+            DatabaseHelper dbHelper = new DatabaseHelper(context);
+            db = dbHelper.getWritableDatabase();
+
+            db.beginTransaction();
+
+            // Crear un ContentValues con los valores del nuevo artículo
+            ContentValues values = new ContentValues();
+            values.put("removed", 1);
+
+            // Insertar el nuevo registro en la base de datos
+            long newRowId = db.update("activo", values, "id = ?", new String[]{String.valueOf(this.id)});
+
+            db.setTransactionSuccessful();
+
+            return newRowId != -1; // Devolver true si se insertó el nuevo registro correctamente
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        } finally {
+            if (db != null) {
+                db.endTransaction();
+                db.close();
+            }
+        }
+
+    }
+
 }

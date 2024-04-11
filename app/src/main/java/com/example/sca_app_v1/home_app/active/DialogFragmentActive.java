@@ -245,36 +245,6 @@ public class DialogFragmentActive extends DialogFragment {
                                 Toast.makeText(getContext(), "Error al crear el activo", Toast.LENGTH_SHORT).show();
                             }
                         }
-                        /*
-                        if (selectedDate == null) {
-                            updatedActive.setAcquisition_date(active.getAcquisition_date());
-                        }
-                        else {
-                            updatedActive.setAcquisition_date(selectedDate);
-                        }
-                        System.out.println("Article id " + articleId);
-                        if (articleId == 0) {
-                            updatedActive.setArticle_id(active.getArticle_id());
-                        }
-                        else {
-                            updatedActive.setArticle_id(articleId);
-                        }
-
-                        System.out.println("Office id " + officeId);
-                        if (officeId == 0) {
-                            updatedActive.setOffice_id(active.getOffice_id());
-                        }
-                        else {
-                            updatedActive.setOffice_id(officeId);
-                        }
-
-                        System.out.println("State " + stateActive);
-                        if (stateActive == null) {
-                            updatedActive.setState(active.getState());
-                        }
-                        else {
-                            updatedActive.setState(stateActive);
-                        }*/
 
                         // Lógica para guardar los cambios
 
