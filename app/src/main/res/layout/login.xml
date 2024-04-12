@@ -30,42 +30,90 @@
         android:textFontWeight="10"
         android:textSize="24sp" />
 
-    <EditText
+<!--    <EditText-->
+<!--        android:id="@+id/correo_user"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginTop="20dp"-->
+<!--        android:ems="10"-->
+<!--        android:hint="Correo..."-->
+<!--        android:paddingLeft="15dp"-->
+<!--        android:paddingTop="20dp"-->
+<!--        android:paddingRight="5dp"-->
+<!--        android:textColor="#000000" />-->
+
+    <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/correo_user"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
+        android:layout_marginBottom="10dp"
         android:ems="10"
-        android:hint="Correo..."
-        android:paddingLeft="15dp"
-        android:paddingTop="20dp"
-        android:paddingRight="5dp"
-        android:textColor="#000000" />
+        android:hint="Correo"
+        android:textColor="#000000">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+    </com.google.android.material.textfield.TextInputLayout>
 
 
-    <EditText
+<!--    <EditText-->
+<!--        android:id="@+id/pass_user"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginTop="20dp"-->
+<!--        android:ems="10"-->
+<!--        android:hint="Contraseña..."-->
+<!--        android:inputType="textPassword"-->
+<!--        android:paddingLeft="15dp"-->
+<!--        android:paddingTop="20dp"-->
+<!--        android:paddingRight="5dp"/>-->
+    <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/pass_user"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:ems="10"
-        android:hint="Contraseña..."
+        android:layout_marginBottom="10dp"
         android:inputType="textPassword"
-        android:paddingLeft="15dp"
-        android:paddingTop="20dp"
-        android:paddingRight="5dp"/>
+        android:ems="10"
+        android:hint="Contraseña"
+        android:textColor="#000000">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textPassword"/>
+
+    </com.google.android.material.textfield.TextInputLayout>
 
 
-    <EditText
-        android:id="@+id/rut_company_select"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:hint="Rut de la compañía..."
-        android:paddingLeft="15dp"
-        android:paddingTop="20dp"
-        android:paddingRight="5dp"
-        android:layout_marginBottom="4dp"/>
+<!--    <EditText-->
+<!--        android:id="@+id/rut_company_select"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginTop="20dp"-->
+<!--        android:hint="Rut de la compañía..."-->
+<!--        android:paddingLeft="15dp"-->
+<!--        android:paddingTop="20dp"-->
+<!--        android:paddingRight="5dp"-->
+<!--        android:layout_marginBottom="4dp"/>-->
+
+<!--    <com.google.android.material.textfield.TextInputLayout-->
+<!--        android:id="@+id/tilCompanies"-->
+<!--        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginBottom="10dp"-->
+<!--        android:hint="Empresas">-->
+
+<!--        <AutoCompleteTextView-->
+<!--            android:id="@+id/company_select"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content" />-->
+
+<!--    </com.google.android.material.textfield.TextInputLayout>-->
 
     <!--
     <LinearLayout

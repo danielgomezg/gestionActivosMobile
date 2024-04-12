@@ -27,6 +27,10 @@ public class Company {
         this.name_db = name_db;
     }
 
+    public Company(){
+
+    }
+
     public Company(JSONObject company) throws JSONException {
         this.id = (int) company.getInt("id");
         this.name = company.getString("name");

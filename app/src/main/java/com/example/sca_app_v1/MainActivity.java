@@ -7,6 +7,9 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -16,8 +19,15 @@ import com.example.sca_app_v1.home_app.HomeActivity;
 import com.example.sca_app_v1.home_app.bdLocal.LoadData;
 import com.example.sca_app_v1.login_app.*;
 import com.example.sca_app_v1.home_app.*;
+import com.example.sca_app_v1.models.Article;
+import com.google.android.material.textfield.TextInputLayout;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import org.w3c.dom.Text;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -32,39 +42,44 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences sharedPreferences = this.getSharedPreferences("session", MODE_PRIVATE);
         String accessToken = sharedPreferences.getString("accessToken", null);
         System.out.println("ON CREATE SP -->> " + accessToken);
-        if (accessToken != null) {
-            Intent intent = new Intent(MainActivity.this, HomeActivity.class);
-            startActivity(intent);
-        }
+//        if (accessToken != null) {
+//            Intent intent = new Intent(MainActivity.this, HomeActivity.class);
+//            startActivity(intent);
+//        }
         //getSupportActionBar().hide();
 
         // Vinculamos los elementos del diseño con las variables Java
-        editTextEmail = findViewById(R.id.correo_user);
-        editTextPassword = findViewById(R.id.pass_user);
-        editTextRutCompany = findViewById(R.id.rut_company_select);
+        TextInputLayout textInputLayoutEmail = findViewById(R.id.correo_user);
+        editTextEmail = textInputLayoutEmail.getEditText();
+        TextInputLayout textInputLayoutPassword = findViewById(R.id.pass_user);
+        editTextPassword = textInputLayoutPassword.getEditText();
+
+        //Iniciar compañias.
+
+
         buttonLogin = findViewById(R.id.buttonLogin);
 
-        editTextRutCompany.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                String rut = s.toString();
-                String formattedRut = formatRut(rut);
-                editTextRutCompany.removeTextChangedListener(this); // Evitar el bucle infinito
-                editTextRutCompany.setText(formattedRut);
-                editTextRutCompany.setSelection(formattedRut.length()); // Colocar el cursor al final del texto
-                editTextRutCompany.addTextChangedListener(this);
-            }
-        });
+//        editTextRutCompany.addTextChangedListener(new TextWatcher() {
+//            @Override
+//            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+//
+//            }
+//
+//            @Override
+//            public void onTextChanged(CharSequence s, int start, int before, int count) {
+//
+//            }
+//
+//            @Override
+//            public void afterTextChanged(Editable s) {
+//                String rut = s.toString();
+//                String formattedRut = formatRut(rut);
+//                editTextRutCompany.removeTextChangedListener(this); // Evitar el bucle infinito
+//                editTextRutCompany.setText(formattedRut);
+//                editTextRutCompany.setSelection(formattedRut.length()); // Colocar el cursor al final del texto
+//                editTextRutCompany.addTextChangedListener(this);
+//            }
+//        });
 
         // Agregamos un OnClickListener al botón de inicio de sesión
         buttonLogin.setOnClickListener(new View.OnClickListener() {
@@ -73,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
                 // Obtenemos el correo electrónico y la contraseña ingresados por el usuario
                 String email = editTextEmail.getText().toString().trim();
                 String password = editTextPassword.getText().toString().trim();
-                String rutcompany = editTextRutCompany.getText().toString().trim();
+//                String rutcompany = editTextRutCompany.getText().toString().trim();
 
 
                 // Validamos que ambos campos no estén vacíos
@@ -87,10 +102,10 @@ public class MainActivity extends AppCompatActivity {
                     return;
                 }
 
-                if (rutcompany.isEmpty()) {
-                    Toast.makeText(MainActivity.this, "Falta ingresar el rut de la compañia", Toast.LENGTH_SHORT).show();
-                    return;
-                }
+//                if (rutcompany.isEmpty()) {
+//                    Toast.makeText(MainActivity.this, "Falta ingresar el rut de la compañia", Toast.LENGTH_SHORT).show();
+//                    return;
+//                }
 
                 if(!EmailValidator.validate(email)){
                     Toast.makeText(MainActivity.this, "Correo inválido", Toast.LENGTH_SHORT).show();
@@ -98,7 +113,7 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 //iniciar sesión
-                login(v, email, password, rutcompany);
+                login(v, email, password, "44.444.444-4");
 
 
                 // Simulamos un inicio de sesión exitoso para este ejemplo

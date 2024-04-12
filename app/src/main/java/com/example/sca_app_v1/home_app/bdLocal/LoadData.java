@@ -1,16 +1,33 @@
 package com.example.sca_app_v1.home_app.bdLocal;
 
+import static androidx.core.content.ContentProviderCompat.requireContext;
+
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.example.sca_app_v1.home_app.HomeActivity;
 import com.example.sca_app_v1.home_app.article.ArticleFragment;
+import com.example.sca_app_v1.models.Company;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.textfield.TextInputLayout;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.text.Layout;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
+import android.widget.Button;
+import android.widget.LinearLayout;
 
 import androidx.core.view.WindowCompat;
 import androidx.navigation.NavController;
@@ -22,6 +39,14 @@ import com.example.sca_app_v1.databinding.ActivityLoadDataBinding;
 
 import com.example.sca_app_v1.R;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -29,6 +54,12 @@ public class LoadData extends AppCompatActivity {
 
     private AppBarConfiguration appBarConfiguration;
     private ActivityLoadDataBinding binding;
+    private AutoCompleteTextView companySelect;
+    private ArrayAdapter<String> adapterItems;
+    private int companyId;
+    private Button buttonSync;
+    private LinearLayout layoutLoading;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,7 +68,19 @@ public class LoadData extends AppCompatActivity {
         binding = ActivityLoadDataBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        loadCompanyData();
+        buttonSync = findViewById(R.id.button_sync);
+        layoutLoading = findViewById(R.id.lyLoading);
+
+        getCompanyList();
+
+        buttonSync.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                layoutLoading.setVisibility(View.VISIBLE);
+                loadCompanyData();
+            }
+        });
     }
 
     public void loadCompanyData() {
@@ -49,10 +92,9 @@ public class LoadData extends AppCompatActivity {
         executor.submit(() -> {
             GetLocalBD.getAllDB(LoadData.this, token, company_id).thenRun(() -> {
                 System.out.println("End query 1");
+                layoutLoading.setVisibility(View.INVISIBLE);
                 Intent intent = new Intent(LoadData.this, HomeActivity.class);
                 startActivity(intent);
-//                ArticleFragment articleFragment = new ArticleFragment();
-//                articleFragment.showArticles(LoadData.this);
             });
 
             runOnUiThread(() -> {
@@ -60,6 +102,79 @@ public class LoadData extends AppCompatActivity {
                 // binding.getRoot().removeView(progressView);
             });
         });
+    }
+
+    private void getCompanyList() {
+        System.out.println("get company List");
+        RequestQueue queue = Volley.newRequestQueue(this);
+        SharedPreferences sharedPreferences = getSharedPreferences("session", MODE_PRIVATE);
+        String token = sharedPreferences.getString("accessToken", null);
+        String url = "http://10.0.2.2:9000/companiesIdName?limit=100";
+
+        JsonObjectRequest jsonRequest = new JsonObjectRequest(Request.Method.GET, url, null,
+
+            new Response.Listener<JSONObject>() {
+                @Override
+                public void onResponse(JSONObject response) {
+                    System.out.println("response company");
+                    System.out.println(response.toString());
+                    try {
+                        initializeCompanies(response.getJSONArray("result"));
+                    } catch (JSONException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    System.out.println("Error: "+error);
+                }
+            }
+
+
+        ) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<>();
+                headers.put("Content-Type", "application/json");
+                headers.put("Authorization", "Bearer " + token); // Reemplaza 'token' con tu token de autenticación
+                return headers;
+            }
+        };
+
+        // Agregar la solicitud a la cola
+        queue.add(jsonRequest);
+
+    }
+
+    public void initializeCompanies(JSONArray companies) throws JSONException {
+
+
+        TextInputLayout textInputLayoutCompany = findViewById(R.id.tilCompanies);
+        AutoCompleteTextView autoCompleteTextViewCompany = textInputLayoutCompany.findViewById(R.id.company_select);
+
+        List<String> items = new ArrayList<>();
+        for (int i = 0; i < companies.length(); i++) {
+            JSONObject company = companies.getJSONObject(i);
+            items.add(company.getString("name"));
+        }
+
+        adapterItems = new ArrayAdapter<String>(this, R.layout.list_item, items);
+        autoCompleteTextViewCompany.setAdapter(adapterItems);
+
+        autoCompleteTextViewCompany.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View _view, int position, long id) {
+                try {
+                    JSONObject company = companies.getJSONObject(position);
+                    companyId = company.getInt("id");
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+
+                }
+            }
+        });
+
     }
 
 }
