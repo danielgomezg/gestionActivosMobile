@@ -29,6 +29,7 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import androidx.core.view.WindowCompat;
 import androidx.navigation.NavController;
@@ -93,20 +94,38 @@ public class LoadData extends AppCompatActivity {
         editor.putInt("company_id", companyId);
         editor.apply();
 
-        ExecutorService executor = Executors.newSingleThreadExecutor();
-        executor.submit(() -> {
-            GetLocalBD.getAllDB(LoadData.this, token, companyId).thenRun(() -> {
-                System.out.println("End query 1");
+        GetLocalBD.syncProductionDB(LoadData.this, token, companyId, new GetLocalBD.GetLocalBDCallback(){
+            @Override
+            public void onSuccess(String response) {
+                System.out.println("SUCCESS SYNC");
                 layoutLoading.setVisibility(View.INVISIBLE);
                 Intent intent = new Intent(LoadData.this, HomeActivity.class);
                 startActivity(intent);
-            });
+            }
 
-            runOnUiThread(() -> {
-                System.out.println("End query 0");
-                // binding.getRoot().removeView(progressView);
-            });
+            @Override
+            public void onError(String error) {
+                System.out.println("ERROR SYNC");
+                layoutLoading.setVisibility(View.INVISIBLE);
+                Toast.makeText(LoadData.this, "Error al sincronizar.", Toast.LENGTH_SHORT).show();
+
+            }
         });
+
+        // ExecutorService executor = Executors.newSingleThreadExecutor();
+        // executor.submit(() -> {
+        //     GetLocalBD.getAllDB(LoadData.this, token, companyId).thenRun(() -> {
+        //         System.out.println("End query 1");
+        //         layoutLoading.setVisibility(View.INVISIBLE);
+        //         Intent intent = new Intent(LoadData.this, HomeActivity.class);
+        //         startActivity(intent);
+        //     });
+
+        //     runOnUiThread(() -> {
+        //         System.out.println("End query 0");
+        //         // binding.getRoot().removeView(progressView);
+        //     });
+        // });
     }
 
     private void getCompanyList() {
@@ -132,7 +151,9 @@ public class LoadData extends AppCompatActivity {
             }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
-                    System.out.println("Error: "+error);
+                    System.out.println("Error RESPONSE!!: " + error);
+                    layoutLoading.setVisibility(View.INVISIBLE);
+                    Toast.makeText(LoadData.this, "Un error ha ocurrido.", Toast.LENGTH_SHORT).show();
                 }
             }
 

@@ -13,5 +13,22 @@
         <item
             android:id="@+id/nav_active"
             android:title="Activo" />
+
+        <item
+            android:id="@+id/nav_sync"
+            android:title="Sincronizar datos" />
+
+        <!-- <item
+            android:id="@+id/nav_logout"
+            android:title="Cerras Sesión" /> -->
+
+
     </group>
+    <!-- Elemento de relleno para empujar nav_logout al final -->
+<!--    <item android:title="">-->
+<!--        <menu>-->
+<!--&lt;!&ndash;            <item android:title="" />&ndash;&gt;-->
+<!--        </menu>-->
+<!--    </item>-->
+    <!-- Segundo grupo con sólo nav_logout -->
 </menu>

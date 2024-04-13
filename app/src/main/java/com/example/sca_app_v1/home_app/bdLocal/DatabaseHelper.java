@@ -6,6 +6,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteStatement;
+import android.util.Log;
 
 import com.example.sca_app_v1.models.*;
 //import com.example.sca_app_v1.models.Company;
@@ -19,11 +20,42 @@ import java.util.Map;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final int DATABASE_VERSION = 1;
-    private static final String DATABASE_NAME = "sca_app.db";
+    private static final String DATABASE_NAME = "sca_gestion_activos.db";
 
     // Constructor
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
+    }
+
+    public void deleteAllTables() {
+        SQLiteDatabase db = getWritableDatabase();
+    
+        try {
+            // Obtén una lista de todas las tablas
+            Cursor cursor = db.rawQuery("SELECT name FROM sqlite_master WHERE type='table'", null);
+            List<String> tables = new ArrayList<>();
+    
+            // Añade cada tabla a la lista
+            while (cursor.moveToNext()) {
+                tables.add(cursor.getString(0));
+            }
+    
+            // Cierra el cursor
+            cursor.close();
+    
+            // Borra cada tabla
+            for (String table : tables) {
+                if (!table.equals("android_metadata") && !table.equals("sqlite_sequence")) {
+                    db.execSQL("DROP TABLE IF EXISTS " + table);
+                }
+            }
+        } catch (Exception e) {
+            Log.e("DatabaseHelper", "Error al borrar todas las tablas", e);
+        } finally {
+            if (db != null) {
+                db.close();
+            }
+        }
     }
 
     public List<Map<String, String>> executeSqlQuery(String sql) {
@@ -65,6 +97,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     // Método para crear la tabla
     @Override
     public void onCreate(SQLiteDatabase db) {
+        System.out.println("CREANDO TABLES");
+        System.out.println("CREANDO TABLES");
+        System.out.println("CREANDO TABLES");
+        System.out.println("CREANDO TABLES");
+
         String CREATE_TABLE_Company = "CREATE TABLE compania (" +
                 "id INTEGER PRIMARY KEY AUTOINCREMENT," +
                 "name TEXT UNIQUE NOT NULL," +

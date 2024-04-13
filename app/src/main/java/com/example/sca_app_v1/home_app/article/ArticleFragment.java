@@ -25,6 +25,7 @@ import com.example.sca_app_v1.MainActivity;
 import com.example.sca_app_v1.R;
 import com.example.sca_app_v1.models.Article;
 import com.example.sca_app_v1.home_app.article.DialogFragmentArticle;
+import com.example.sca_app_v1.models.Category;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
@@ -119,6 +120,10 @@ public class ArticleFragment extends Fragment {
             TextView tvDescription;
             ImageView ivPhoto;
 
+            TextView tvCountActive;
+
+            TextView tvCategory;
+
             ImageButton btnOptions;
 
             public AdapterArticleHolder(@NonNull View itemView) {
@@ -127,6 +132,8 @@ public class ArticleFragment extends Fragment {
                 tvName = itemView.findViewById(R.id.tvNameArticle);
                 tvCode = itemView.findViewById(R.id.tvCodeArticle);
                 tvDescription = itemView.findViewById(R.id.tvdescriptionArticle);
+                tvCountActive = itemView.findViewById(R.id.tvCountActive);
+                tvCategory = itemView.findViewById(R.id.tvCategory);
 
                 btnOptions = itemView.findViewById(R.id.btnOptions);
 //                ivPhoto = itemView.findViewById(R.id.ivPhoto);
@@ -147,9 +154,15 @@ public class ArticleFragment extends Fragment {
                 System.out.println(article.getName());
                 System.out.println(article.getCode());
 
+                Category category = new Category();
+                category = category.getCategoryById(itemView.getContext(), article.getCategory_id());
+
                 tvName.setText(article.getName());
                 tvDescription.setText(article.getDescription());
                 tvCode.setText(article.getCode());
+                System.out.println("count active " + article.getCount_active());
+                tvCountActive.setText(article.getCount_active().toString());
+                tvCategory.setText(category.getDescription());
             }
 
             // Método para mostrar el menú contextual

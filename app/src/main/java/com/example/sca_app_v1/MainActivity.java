@@ -42,10 +42,10 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences sharedPreferences = this.getSharedPreferences("session", MODE_PRIVATE);
         String accessToken = sharedPreferences.getString("accessToken", null);
         System.out.println("ON CREATE SP -->> " + accessToken);
-//        if (accessToken != null) {
-//            Intent intent = new Intent(MainActivity.this, HomeActivity.class);
-//            startActivity(intent);
-//        }
+        if (accessToken != null) {
+            Intent intent = new Intent(MainActivity.this, HomeActivity.class);
+            startActivity(intent);
+        }
         //getSupportActionBar().hide();
 
         // Vinculamos los elementos del diseño con las variables Java
@@ -56,27 +56,6 @@ public class MainActivity extends AppCompatActivity {
 
         buttonLogin = findViewById(R.id.buttonLogin);
 
-//        editTextRutCompany.addTextChangedListener(new TextWatcher() {
-//            @Override
-//            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-//
-//            }
-//
-//            @Override
-//            public void onTextChanged(CharSequence s, int start, int before, int count) {
-//
-//            }
-//
-//            @Override
-//            public void afterTextChanged(Editable s) {
-//                String rut = s.toString();
-//                String formattedRut = formatRut(rut);
-//                editTextRutCompany.removeTextChangedListener(this); // Evitar el bucle infinito
-//                editTextRutCompany.setText(formattedRut);
-//                editTextRutCompany.setSelection(formattedRut.length()); // Colocar el cursor al final del texto
-//                editTextRutCompany.addTextChangedListener(this);
-//            }
-//        });
 
         // Agregamos un OnClickListener al botón de inicio de sesión
         buttonLogin.setOnClickListener(new View.OnClickListener() {

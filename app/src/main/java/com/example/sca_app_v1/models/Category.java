@@ -111,4 +111,24 @@ public class Category {
         }
     }
 
+    public Category getCategoryById(Context context, Integer categoryId) {
+        String sql = "SELECT * FROM categoria WHERE id = ?";
+
+        try {
+            DatabaseHelper dbHelper = new DatabaseHelper(context);
+            Cursor cursor = dbHelper.executeQuery(sql, new String[]{categoryId.toString()});
+
+            if (cursor.moveToFirst()) {
+                return new Category(cursor);
+            }
+
+            cursor.close();
+            return null;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+
+    }
+
 }
