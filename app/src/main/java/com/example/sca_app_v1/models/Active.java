@@ -30,6 +30,7 @@ public class Active implements Serializable {
     private String serie;
     private String model;
     private String state;
+    private String brand;
     private String creation_date;
     private Integer removed;
     private Integer office_id;
@@ -72,6 +73,9 @@ public class Active implements Serializable {
         int _stateIndex = cursor.getColumnIndex("state");
         if (_stateIndex != -1) this.state = cursor.getString(_stateIndex);
 
+        int _brandIndex = cursor.getColumnIndex("brand");
+        if (_brandIndex != -1) this.brand = cursor.getString(_brandIndex);
+
         int _creation_dateIndex = cursor.getColumnIndex("creation_date");
         if (_creation_dateIndex != -1) this.creation_date = cursor.getString(_creation_dateIndex);
 
@@ -86,7 +90,7 @@ public class Active implements Serializable {
 
     }
 
-    public Active(Integer id, String bar_code, String comment, String acquisition_date, String accounting_document, String accounting_record_number, String name_in_charge_active, String rut_in_charge_active, String serie, String model, String state, String creation_date, Integer removed, Integer office_id, Integer article_id) {
+    public Active(Integer id, String bar_code, String comment, String acquisition_date, String accounting_document, String accounting_record_number, String name_in_charge_active, String rut_in_charge_active, String serie, String model, String state, String brand, String creation_date, Integer removed, Integer office_id, Integer article_id) {
         this.id = id;
         this.bar_code = bar_code;
         this.comment = comment;
@@ -98,6 +102,7 @@ public class Active implements Serializable {
         this.serie = serie;
         this.model = model;
         this.state = state;
+        this.brand = brand;
         this.creation_date = creation_date;
         this.removed = removed;
         this.office_id = office_id;
@@ -116,6 +121,7 @@ public class Active implements Serializable {
         this.serie = active.getString("serie");
         this.model = active.getString("model");
         this.state = active.getString("state");
+        this.brand = active.getString("brand");
         this.creation_date = active.getString("creation_date");
         this.removed = (int) active.getInt("removed");
         this.office_id = (int) active.getInt("office_id");
@@ -210,6 +216,14 @@ public class Active implements Serializable {
         this.state = state;
     }
 
+    public String getBrand() {
+        return brand;
+    }
+
+    public void setBrand(String brand) {
+        this.brand = brand;
+    }
+
     public String getCreation_date() {
         return creation_date;
     }
@@ -291,6 +305,7 @@ public class Active implements Serializable {
             values.put("serie", this.serie);
             values.put("model", this.model);
             values.put("state", this.state);
+            values.put("brand", this.brand);
             values.put("creation_date", currentDate);
             //values.put("creation_date", this.removed);
             values.put("office_id", this.office_id);
@@ -336,6 +351,7 @@ public class Active implements Serializable {
             values.put("serie", this.serie);
             values.put("model", this.model);
             values.put("state", this.state);
+            values.put("brand", this.brand);
             values.put("office_id", this.office_id);
             values.put("article_id", this.article_id);
 

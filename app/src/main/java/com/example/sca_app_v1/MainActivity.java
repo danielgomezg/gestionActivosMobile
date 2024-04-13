@@ -54,9 +54,6 @@ public class MainActivity extends AppCompatActivity {
         TextInputLayout textInputLayoutPassword = findViewById(R.id.pass_user);
         editTextPassword = textInputLayoutPassword.getEditText();
 
-        //Iniciar compañias.
-
-
         buttonLogin = findViewById(R.id.buttonLogin);
 
 //        editTextRutCompany.addTextChangedListener(new TextWatcher() {
@@ -113,7 +110,7 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 //iniciar sesión
-                login(v, email, password, "44.444.444-4");
+                login(v, email, password);
 
 
                 // Simulamos un inicio de sesión exitoso para este ejemplo
@@ -122,9 +119,9 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    public void login(View v, String email, String password, String rutCompany){
+    public void login(View v, String email, String password){
 
-        Login.signIn(MainActivity.this, email, password, rutCompany, new Login.LoginCallback(){
+        Login.signIn(MainActivity.this, email, password, new Login.LoginCallback(){
             @Override
             public void onSuccess(String response) {
                 // Manejar el inicio de sesión exitoso

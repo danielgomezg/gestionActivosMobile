@@ -5,6 +5,8 @@ import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
@@ -61,6 +63,7 @@ public class DialogFragmentActive extends DialogFragment {
     private EditText editTextRutcharge;
     private EditText editTextRecordnumber;
     private EditText adquisitionDateEditText;
+    private EditText editTextbrand;
     int officeId;
     int articleId;
     String stateActive;
@@ -128,6 +131,9 @@ public class DialogFragmentActive extends DialogFragment {
         TextInputLayout textInputLayoutComment = view.findViewById(R.id.editTextComment);
         editTextcomment = textInputLayoutComment.getEditText();
 
+        TextInputLayout textInputLayoutBrand = view.findViewById(R.id.editTextBrand);
+        editTextbrand = textInputLayoutBrand.getEditText();
+
         //obtener estados
         initializeState(view);
 
@@ -136,6 +142,28 @@ public class DialogFragmentActive extends DialogFragment {
 
         TextInputLayout textInputLayoutRutCharge = view.findViewById(R.id.editTextRutCharge);
         editTextRutcharge = textInputLayoutRutCharge.getEditText();
+
+        editTextRutcharge.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                String rut = s.toString();
+                String formattedRut = formatRut(rut);
+                editTextRutcharge.removeTextChangedListener(this); // Evitar el bucle infinito
+                editTextRutcharge.setText(formattedRut);
+                editTextRutcharge.setSelection(formattedRut.length()); // Colocar el cursor al final del texto
+                editTextRutcharge.addTextChangedListener(this);
+            }
+        });
 
         TextInputLayout textInputLayoutRecordNumber = view.findViewById(R.id.editTextRecordNumber);
         editTextRecordnumber = textInputLayoutRecordNumber.getEditText();
@@ -169,6 +197,7 @@ public class DialogFragmentActive extends DialogFragment {
             editTextNamecharge.setText(active.getName_in_charge_active());
             editTextRutcharge.setText(active.getRut_in_charge_active());
             adquisitionDateEditText.setText(active.getAcquisition_date());
+            editTextbrand.setText(active.getBrand());
 
             articleId = active.getArticle_id();
             selectedDate = active.getAcquisition_date();
@@ -189,6 +218,7 @@ public class DialogFragmentActive extends DialogFragment {
                         String newRecordNumber = editTextRecordnumber.getText().toString();
                         String newNameCharge = editTextNamecharge.getText().toString();
                         String newRutCharge = editTextRutcharge.getText().toString();
+                        String newBrand = editTextbrand.getText().toString();
                         //String newDateAquisition = adquisitionDateEditText.getText().toString();
 
                         // Crear un objeto Article con los nuevos valores
@@ -201,6 +231,7 @@ public class DialogFragmentActive extends DialogFragment {
                         newActive.setName_in_charge_active(newNameCharge);
                         newActive.setRut_in_charge_active(newRutCharge);
                         newActive.setAccounting_document("");
+                        newActive.setBrand(newBrand);
 
                         newActive.setAcquisition_date(selectedDate);
                         newActive.setArticle_id(articleId);
@@ -460,5 +491,37 @@ public class DialogFragmentActive extends DialogFragment {
         );
 
         datePickerDialog.show();
+    }
+
+    private String formatRut(String rut) {
+        rut = rut.replaceAll("[^0-9kK]", ""); // Eliminar cualquier carácter que no sea un dígito o la letra 'k' para validar RUT
+        int rutLength = rut.length();
+
+        // Si el RUT es menor o igual a 1, no hay formato que aplicar
+        if (rutLength <= 1) {
+            return rut;
+        }
+
+        String dv = rut.substring(rutLength - 1); // Digito verificador
+        String digits = rut.substring(0, rutLength - 1); // Dígitos del RUT sin el dígito verificador
+
+        StringBuilder formattedRut = new StringBuilder();
+        int count = 0;
+
+        // Agregar los puntos separadores
+        for (int i = digits.length() - 1; i >= 0; i--) {
+            char c = digits.charAt(i);
+            formattedRut.insert(0, c);
+            count++;
+            if (count % 3 == 0 && i != 0) {
+                formattedRut.insert(0, ".");
+            }
+        }
+
+        // Agregar el guion y el dígito verificador al final
+        formattedRut.append("-");
+        formattedRut.append(dv);
+
+        return formattedRut.toString();
     }
 }

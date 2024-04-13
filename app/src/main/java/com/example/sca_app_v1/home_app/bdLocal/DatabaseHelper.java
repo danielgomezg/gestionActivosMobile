@@ -139,6 +139,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "serie TEXT NOT NULL," +
                 "model TEXT NOT NULL," +
                 "state TEXT NOT NULL," +
+                "brand TEXT NOT NULL," +
                 "creation_date DATE NOT NULL," +
                 "removed INTEGER DEFAULT 0 NOT NULL," +
                 "office_id INTEGER," +
@@ -405,6 +406,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 values.put("serie", active.getSerie());
                 values.put("model", active.getModel());
                 values.put("state", active.getState());
+                values.put("brand", active.getBrand());
                 values.put("creation_date", active.getCreation_date());
                 values.put("removed", active.getRemoved());
                 values.put("office_id", active.getOffice_id());

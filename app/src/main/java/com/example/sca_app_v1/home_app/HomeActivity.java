@@ -1,5 +1,6 @@
 package com.example.sca_app_v1.home_app;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -11,6 +12,7 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -55,6 +57,13 @@ public class HomeActivity extends AppCompatActivity {
 
     private AppBarConfiguration mAppBarConfiguration;
     private ActivityMainBinding binding;
+
+    private TextView nombreTextView;
+    private TextView correoTextView;
+
+    private String emailUser;
+    private String nameUser;
+    private String lastNameUser;
 
     //AutoCompleteTextView companySelect;
     //CompanyAdapter adapterItems;
@@ -108,6 +117,27 @@ public class HomeActivity extends AppCompatActivity {
 
         DrawerLayout drawer = binding.drawerLayout;
         NavigationView navigationView = binding.navView;
+        View headerView = navigationView.getHeaderView(0);
+        nombreTextView = headerView.findViewById(R.id.nameUser);
+        correoTextView = headerView.findViewById(R.id.mailUser);
+
+        //obtener la datos user
+        SharedPreferences sharedPreferences = this.getSharedPreferences("session", Context.MODE_PRIVATE);
+        String infoUserString = sharedPreferences.getString("user", "");
+
+        try {
+            JSONObject userInfoJson = new JSONObject(infoUserString);
+            emailUser = userInfoJson.getString("email");
+            nameUser = userInfoJson.getString("firstName");
+            lastNameUser = userInfoJson.getString("lastName");
+
+            //Log.d("Email", email);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        nombreTextView.setText(nameUser + " " + lastNameUser);
+        correoTextView.setText(emailUser);
 
         mAppBarConfiguration = new AppBarConfiguration.Builder(
                 R.id.nav_active, R.id.nav_article)

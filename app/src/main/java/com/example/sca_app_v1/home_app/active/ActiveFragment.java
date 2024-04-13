@@ -167,7 +167,7 @@ public class ActiveFragment  extends Fragment {
                 Article article = new Article();
                 article = article.getArticleById(itemView.getContext(), active.getArticle_id());
                 tvActiveArticle.setText(article.getName());
-                tvActiveBrand.setText("Brand");
+                tvActiveBrand.setText(active.getBrand());
                 tvActiveNameCharge.setText(active.getName_in_charge_active());
                 tvActiveRutCharge.setText(active.getRut_in_charge_active());
 

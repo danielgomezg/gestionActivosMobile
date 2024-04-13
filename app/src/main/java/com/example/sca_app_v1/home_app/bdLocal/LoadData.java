@@ -2,6 +2,7 @@ package com.example.sca_app_v1.home_app.bdLocal;
 
 import static androidx.core.content.ContentProviderCompat.requireContext;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -86,11 +87,15 @@ public class LoadData extends AppCompatActivity {
     public void loadCompanyData() {
         SharedPreferences sharedPreferences = getSharedPreferences("session", MODE_PRIVATE);
         String token = sharedPreferences.getString("accessToken", null);
-        Integer company_id = sharedPreferences.getInt("company_id", 0);
+        //Integer company_id = sharedPreferences.getInt("company_id", 0);
+
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putInt("company_id", companyId);
+        editor.apply();
 
         ExecutorService executor = Executors.newSingleThreadExecutor();
         executor.submit(() -> {
-            GetLocalBD.getAllDB(LoadData.this, token, company_id).thenRun(() -> {
+            GetLocalBD.getAllDB(LoadData.this, token, companyId).thenRun(() -> {
                 System.out.println("End query 1");
                 layoutLoading.setVisibility(View.INVISIBLE);
                 Intent intent = new Intent(LoadData.this, HomeActivity.class);
@@ -109,7 +114,7 @@ public class LoadData extends AppCompatActivity {
         RequestQueue queue = Volley.newRequestQueue(this);
         SharedPreferences sharedPreferences = getSharedPreferences("session", MODE_PRIVATE);
         String token = sharedPreferences.getString("accessToken", null);
-        String url = "http://10.0.2.2:9000/companiesIdName?limit=100";
+        String url = "http://10.0.2.2:9000/companiesIdName?limit=200";
 
         JsonObjectRequest jsonRequest = new JsonObjectRequest(Request.Method.GET, url, null,
 
