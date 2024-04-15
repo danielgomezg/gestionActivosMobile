@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.view.View;
 
 import com.example.sca_app_v1.home_app.bdLocal.DatabaseHelper;
 
@@ -16,7 +17,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 
 public class Article implements Serializable {
@@ -241,6 +241,7 @@ public class Article implements Serializable {
             values.put("description", this.description);
             values.put("code", this.code);
             values.put("photo", this.photo);
+            values.put("sync", 1);
             values.put("creation_date", currentDate);
             values.put("category_id", this.category_id);
             values.put("company_id", this.company_id);
@@ -277,6 +278,7 @@ public class Article implements Serializable {
             values.put("description", this.description);
             values.put("code", this.code);
             values.put("photo", this.photo);
+            values.put("sync", 2);
             values.put("category_id", this.category_id);
 
             // Definir la condición WHERE para la actualización (basado en el ID del artículo)
@@ -311,6 +313,7 @@ public class Article implements Serializable {
             // Crear un ContentValues con los nuevos valores del artículo
             ContentValues values = new ContentValues();
             values.put("removed", 1);
+            values.put("sync", 3);
 
             // Definir la condición WHERE para la actualización (basado en el ID del artículo)
             String whereClause = "id = ?";
@@ -352,5 +355,29 @@ public class Article implements Serializable {
         }
     }
 
+    // Metodo que detecta si hay articulos sin sincronizar
+    /*
+     * Estados de sincronización (async column):
+     * 0: sin cambios, no se sincroniza
+     * 1: nuevo activo, se sincroniza
+     * 2: activo modificado, se sincroniza
+     * 3: activo eliminado, se sincroniza
+     */
+    public static boolean hasUnsyncedArticles(Context context) {
+        String sql = "SELECT * FROM articulo WHERE sync <> 0 LIMIT 1";
+
+        try {
+            DatabaseHelper dbHelper = new DatabaseHelper(context);
+            Cursor cursor = dbHelper.executeQuery(sql);
+
+            boolean hasUnsyncedArticles = cursor.moveToFirst();
+
+            cursor.close();
+            return hasUnsyncedArticles;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 
 }

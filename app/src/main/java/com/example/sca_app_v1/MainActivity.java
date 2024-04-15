@@ -42,10 +42,10 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences sharedPreferences = this.getSharedPreferences("session", MODE_PRIVATE);
         String accessToken = sharedPreferences.getString("accessToken", null);
         System.out.println("ON CREATE SP -->> " + accessToken);
-        if (accessToken != null) {
-            Intent intent = new Intent(MainActivity.this, HomeActivity.class);
-            startActivity(intent);
-        }
+//        if (accessToken != null) {
+//            Intent intent = new Intent(MainActivity.this, HomeActivity.class);
+//            startActivity(intent);
+//        }
         //getSupportActionBar().hide();
 
         // Vinculamos los elementos del diseño con las variables Java

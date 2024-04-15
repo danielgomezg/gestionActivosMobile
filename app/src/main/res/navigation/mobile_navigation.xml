@@ -17,4 +17,11 @@
         android:label="Active"
         tools:layout="@layout/fragment_active" />
 
+    <fragment
+        android:id="@+id/nav_sync"
+        android:name="com.example.sca_app_v1.home_app.sync.SyncFragment"
+        android:label="Sincronizar"
+        tools:layout="@layout/fragment_sync" />
+
+
 </navigation>

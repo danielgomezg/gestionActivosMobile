@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:paddingLeft="10dp"
+        android:paddingTop="10dp"
+        android:paddingRight="10dp">
+
+        <TextView
+            android:id="@+id/textView6"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:text="Traer los datos más reciente al dispositivo" />
+
+        <Button
+            android:id="@+id/btnSyncDownload"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Descargar" />
+
+        <TextView
+            android:id="@+id/textView7"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:text="Sube los datos al servidor. " />
+
+        <Button
+            android:id="@+id/btnSyncUpload"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Subir" />
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

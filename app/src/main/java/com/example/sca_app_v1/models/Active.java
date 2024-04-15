@@ -306,6 +306,7 @@ public class Active implements Serializable {
             values.put("model", this.model);
             values.put("state", this.state);
             values.put("brand", this.brand);
+            values.put("sync", 1);
             values.put("creation_date", currentDate);
             //values.put("creation_date", this.removed);
             values.put("office_id", this.office_id);
@@ -352,6 +353,7 @@ public class Active implements Serializable {
             values.put("model", this.model);
             values.put("state", this.state);
             values.put("brand", this.brand);
+            values.put("sync", 2);
             values.put("office_id", this.office_id);
             values.put("article_id", this.article_id);
 
@@ -385,6 +387,7 @@ public class Active implements Serializable {
             // Crear un ContentValues con los valores del nuevo artículo
             ContentValues values = new ContentValues();
             values.put("removed", 1);
+            values.put("sync", 3);
 
             // Insertar el nuevo registro en la base de datos
             long newRowId = db.update("activo", values, "id = ?", new String[]{String.valueOf(this.id)});
@@ -402,6 +405,31 @@ public class Active implements Serializable {
             }
         }
 
+    }
+
+    // Metodo que detecta si hay activos sin sincronizar
+    /*
+     * Estados de sincronización (async column):
+     * 0: sin cambios, no se sincroniza
+     * 1: nuevo activo, se sincroniza
+     * 2: activo modificado, se sincroniza
+     * 3: activo eliminado, se sincroniza
+     */
+    public static boolean hasUnsyncedActive(Context context) {
+        String sql = "SELECT * FROM activo WHERE sync <> 0 LIMIT 1";
+
+        try {
+            DatabaseHelper dbHelper = new DatabaseHelper(context);
+            Cursor cursor = dbHelper.executeQuery(sql);
+
+            boolean hasUnsyncedActive = cursor.moveToFirst();
+
+            cursor.close();
+            return hasUnsyncedActive;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
 }

@@ -6,15 +6,18 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.FragmentManager;
@@ -31,6 +34,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.example.sca_app_v1.MainActivity;
 import com.example.sca_app_v1.R;
 import com.example.sca_app_v1.databinding.ActivityMainBinding;
 import com.example.sca_app_v1.home_app.article.ArticleFragment;
@@ -38,6 +42,8 @@ import com.example.sca_app_v1.home_app.article.FormCreateArticle;
 import com.example.sca_app_v1.home_app.company.Company;
 import com.example.sca_app_v1.home_app.company.CompanyAdapter;
 import com.example.sca_app_v1.home_app.company.CompanyItem;
+import com.example.sca_app_v1.models.Active;
+import com.example.sca_app_v1.models.Article;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -64,6 +70,7 @@ public class HomeActivity extends AppCompatActivity {
     private String emailUser;
     private String nameUser;
     private String lastNameUser;
+    private Button btnLogout;
 
     //AutoCompleteTextView companySelect;
     //CompanyAdapter adapterItems;
@@ -74,36 +81,6 @@ public class HomeActivity extends AppCompatActivity {
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-
-//        SharedPreferences sharedPreferences = getSharedPreferences("session", MODE_PRIVATE);
-//        String token = sharedPreferences.getString("accessToken", null);
-//        Integer company_id = sharedPreferences.getInt("company_id", 0);
-
-//        View progressView = getLayoutInflater().inflate(R.layout.circular_progress, null);
-        //binding.getRoot().addView(progressView);
-
-        // GetLocalBD.getAllDB(this, token, company_id);
-//        ExecutorService executor = Executors.newSingleThreadExecutor();
-//        executor.submit(() -> {
-//            GetLocalBD.getAllDB(HomeActivity.this, token, company_id).thenRun(() -> {
-//                System.out.println("End query 1");
-//                ArticleFragment articleFragment = new ArticleFragment();
-//                articleFragment.showArticles(HomeActivity.this);
-//            });
-//
-//            runOnUiThread(() -> {
-//                System.out.println("End query 0");
-//                // binding.getRoot().removeView(progressView);
-//            });
-//        });
-
-//        new Handler().postDelayed(new Runnable() {
-//            @Override
-//            public void run() {
-//                loadingSpinner.setVisibility(View.GONE);
-//            }
-//        }, 3000);
-        //loadingSpinner.setVisibility(View.GONE);
 
         //boton add
         setSupportActionBar(binding.appBarMain.toolbar);
@@ -162,4 +139,35 @@ public class HomeActivity extends AppCompatActivity {
                 || super.onSupportNavigateUp();
     }
 
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+
+        if (item.getItemId() == R.id.action_logout) {
+            System.out.println("IN LOGOUT ACTION");
+            System.out.println("IN LOGOUT ACTION");
+            System.out.println("IN LOGOUT ACTION");
+
+            boolean UnsyncedArticles = Article.hasUnsyncedArticles(HomeActivity.this);
+            System.out.println("UnsyncedArticles: " + UnsyncedArticles);
+            boolean UnsyncedActives = Active.hasUnsyncedActive(HomeActivity.this);
+            System.out.println("UnsyncedActives: " + UnsyncedActives);
+
+            if (UnsyncedArticles) {
+                Toast.makeText(HomeActivity.this, "Tienes articulos sin sincronizar", Toast.LENGTH_SHORT).show();
+            } else if (UnsyncedActives) {
+                Toast.makeText(HomeActivity.this, "Tienes activos sin sincronizar", Toast.LENGTH_SHORT).show();
+            } else {
+                 SharedPreferences sharedPreferences = getSharedPreferences("session", Context.MODE_PRIVATE);
+                 SharedPreferences.Editor editor = sharedPreferences.edit();
+                 editor.clear();
+                 editor.apply();
+
+                 Intent intent = new Intent(HomeActivity.this, MainActivity.class);
+                 startActivity(intent);
+                 finish();
+            }
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
 }
