@@ -233,6 +233,8 @@ public class DialogFragmentArticle extends DialogFragment {
                         newArticle.setDescription(newDescription);
                         newArticle.setCode(newCode);
                         newArticle.setCategory_id(idCategory);
+                        newArticle.setPhoto("");
+                        newArticle.setSync(article.getSync());
 
                         if (mode == MODE_EDIT) {
                             System.out.println("newName " + newName);

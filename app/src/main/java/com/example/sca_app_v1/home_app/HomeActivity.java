@@ -152,20 +152,29 @@ public class HomeActivity extends AppCompatActivity {
             boolean UnsyncedActives = Active.hasUnsyncedActive(HomeActivity.this);
             System.out.println("UnsyncedActives: " + UnsyncedActives);
 
-            if (UnsyncedArticles) {
-                Toast.makeText(HomeActivity.this, "Tienes articulos sin sincronizar", Toast.LENGTH_SHORT).show();
-            } else if (UnsyncedActives) {
-                Toast.makeText(HomeActivity.this, "Tienes activos sin sincronizar", Toast.LENGTH_SHORT).show();
-            } else {
-                 SharedPreferences sharedPreferences = getSharedPreferences("session", Context.MODE_PRIVATE);
-                 SharedPreferences.Editor editor = sharedPreferences.edit();
-                 editor.clear();
-                 editor.apply();
+//            if (UnsyncedArticles) {
+//                Toast.makeText(HomeActivity.this, "Tienes articulos sin sincronizar", Toast.LENGTH_SHORT).show();
+//            } else if (UnsyncedActives) {
+//                Toast.makeText(HomeActivity.this, "Tienes activos sin sincronizar", Toast.LENGTH_SHORT).show();
+//            } else {
+//                 SharedPreferences sharedPreferences = getSharedPreferences("session", Context.MODE_PRIVATE);
+//                 SharedPreferences.Editor editor = sharedPreferences.edit();
+//                 editor.clear();
+//                 editor.apply();
+//
+//                 Intent intent = new Intent(HomeActivity.this, MainActivity.class);
+//                 startActivity(intent);
+//                 finish();
+//            }
 
-                 Intent intent = new Intent(HomeActivity.this, MainActivity.class);
-                 startActivity(intent);
-                 finish();
-            }
+            SharedPreferences sharedPreferences = getSharedPreferences("session", Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.clear();
+            editor.apply();
+
+            Intent intent = new Intent(HomeActivity.this, MainActivity.class);
+            startActivity(intent);
+            finish();
         }
 
         return super.onOptionsItemSelected(item);

@@ -196,9 +196,20 @@ public class ArticleFragment extends Fragment {
                                     .setPositiveButton("Sí", new DialogInterface.OnClickListener() {
                                         public void onClick(DialogInterface dialog, int id) {
                                             // Si el usuario confirma la eliminación
-                                            article.deleteArticle(getContext());
+                                            boolean success;
+                                            if (article.getSync().equals(1)) {
+                                                success = article.deleteArticleLocal(getContext());
+                                            } else {
+                                                success = article.deleteArticle(getContext());
+                                            }
                                             showArticles(getContext());
-                                            Toast.makeText(itemView.getContext(), "Artículo eliminado correctamente", Toast.LENGTH_SHORT).show();
+                                            if (success) {
+                                                Toast.makeText(itemView.getContext(), "Artículo eliminado correctamente", Toast.LENGTH_SHORT).show();
+                                            }
+                                            else {
+                                                Toast.makeText(itemView.getContext(), "Error al eliminar articulo", Toast.LENGTH_SHORT).show();
+
+                                            }
                                         }
                                     })
                                     .setNegativeButton("No", new DialogInterface.OnClickListener() {

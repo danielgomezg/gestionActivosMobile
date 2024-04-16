@@ -1,5 +1,8 @@
 package com.example.sca_app_v1.home_app.sync;
 
+import static android.content.Context.MODE_PRIVATE;
+
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,15 +23,19 @@ public class SyncFragment extends Fragment {
 
     private Button btnSyncUpload;
     private Button btnSyncDownload;
+    private String token;
+    private Integer companyId;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_sync, container, false);
 
+        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("session", MODE_PRIVATE);
+        token = sharedPreferences.getString("accessToken", null);
+        companyId = sharedPreferences.getInt("company_id", 0);
+
         setUploadAction(view);
         setDownloadAction(view);
-
-
 
         return view;
     }
@@ -42,11 +49,11 @@ public class SyncFragment extends Fragment {
                 System.out.println("UPLOAD!!!");
 
                 boolean UnsyncedArticles = Article.hasUnsyncedArticles(getContext());
-                System.out.println("UnsyncedArticles: " + UnsyncedArticles);
                 boolean UnsyncedActives = Active.hasUnsyncedActive(getContext());
-                System.out.println("UnsyncedActives: " + UnsyncedActives);
 
                 if (UnsyncedArticles) {
+
+                    Article.syncUploadActives(getContext(), token, companyId);
 
                 } else if (UnsyncedActives) {
 

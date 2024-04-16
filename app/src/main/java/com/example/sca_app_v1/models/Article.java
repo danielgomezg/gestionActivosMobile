@@ -6,6 +6,13 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.view.View;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.example.sca_app_v1.home_app.bdLocal.DatabaseHelper;
 
 import org.json.JSONException;
@@ -15,8 +22,10 @@ import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 
 public class Article implements Serializable {
@@ -30,6 +39,7 @@ public class Article implements Serializable {
     private Integer removed;
     private Integer category_id;
     private Integer company_id;
+    private Integer sync;
     private DatabaseHelper dbHelper;
 
     public Article() {
@@ -66,6 +76,9 @@ public class Article implements Serializable {
 
         int _company_idIndex = cursor.getColumnIndex("company_id");
         if (_company_idIndex != -1) this.company_id = cursor.getInt(_company_idIndex);
+
+        int _sync_idIndex = cursor.getColumnIndex("sync");
+        if (_sync_idIndex != -1) this.sync = cursor.getInt(_sync_idIndex);
 
     }
 
@@ -161,6 +174,12 @@ public class Article implements Serializable {
 
     public void setCompany_id(Integer idCompany) {
         this.company_id = idCompany;
+    }
+
+    public Integer getSync() { return sync; }
+
+    public void setSync(Integer sync) {
+        this.sync = sync;
     }
 
     //Se obtiene el id del articulo
@@ -278,7 +297,9 @@ public class Article implements Serializable {
             values.put("description", this.description);
             values.put("code", this.code);
             values.put("photo", this.photo);
-            values.put("sync", 2);
+            if (!this.sync.equals(1)) {
+                values.put("sync", 2);
+            }
             values.put("category_id", this.category_id);
 
             // Definir la condición WHERE para la actualización (basado en el ID del artículo)
@@ -336,6 +357,35 @@ public class Article implements Serializable {
         }
     }
 
+    public boolean deleteArticleLocal(Context context) {
+        SQLiteDatabase db = null;
+        try {
+            DatabaseHelper dbHelper = new DatabaseHelper(context);
+            db = dbHelper.getWritableDatabase();
+
+            db.beginTransaction();
+
+            // Definir la condición WHERE para la actualización (basado en el ID del artículo)
+            String whereClause = "id = ?";
+            String[] whereArgs = {String.valueOf(this.id)}; // El ID del artículo a actualizar
+
+            // Actualizar el registro en la base de datos
+            int rowsAffected = db.delete("articulo", whereClause, whereArgs);
+
+            db.setTransactionSuccessful();
+
+            return rowsAffected > 0; // Devolver true si se actualizó al menos un registro
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        } finally {
+            if (db != null) {
+                db.endTransaction();
+                db.close();
+            }
+        }
+    }
+
     public Article getArticleById(Context context, Integer articleId) {
         String sql = "SELECT * FROM articulo WHERE id = ?";
 
@@ -352,6 +402,32 @@ public class Article implements Serializable {
         } catch (Exception e) {
             e.printStackTrace();
             return null;
+        }
+    }
+
+    public void setCorrectSync(Context context) {
+        SQLiteDatabase db = null;
+        try {
+            DatabaseHelper dbHelper = new DatabaseHelper(context);
+            db = dbHelper.getWritableDatabase();
+
+            db.beginTransaction();
+
+            // Crear un ContentValues con los nuevos valores del artículo
+            ContentValues values = new ContentValues();
+            values.put("sync", 0);
+
+            // Definir la condición WHERE para la actualización (basado en el ID del artículo)
+            String whereClause = "id = ?";
+            String[] whereArgs = {String.valueOf(this.id)}; // El ID del artículo a actualizar
+
+            // Actualizar el registro en la base de datos
+            int rowsAffected = db.update("articulo", values, whereClause, whereArgs);
+
+            db.setTransactionSuccessful();
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -379,5 +455,107 @@ public class Article implements Serializable {
             return false;
         }
     }
+
+    public static void syncUploadActives(Context context, String token, Integer companyId) {
+        System.out.println("SYNC UPLOAD ACTIVES");
+        String sql = "SELECT * FROM articulo WHERE sync <> 0";
+
+        try {
+
+            DatabaseHelper dbHelper = new DatabaseHelper(context);
+            Cursor cursor = dbHelper.executeQuery(sql);
+
+            List<Article> articles = new ArrayList<>();
+
+            if (cursor.moveToFirst()) {
+                do {
+                    System.out.println(cursor);
+                    Article article = new Article(cursor);
+                    System.out.println(article.getId());
+                    System.out.println(article.printData());
+
+                    switch (article.getSync()) {
+                        case 1:
+                            // Sincronizar nuevo activo
+                            article.syncCreate();
+                            break;
+                        
+                        case 2:
+                            // Sincronizar activo modificado
+                            article.syncUpdate(context, token, companyId);
+                            break;
+
+                        case 3:
+                            // Sincronizar activo eliminado
+                            article.syncDelete();
+                            break;
+                        
+                    }
+
+
+                } while (cursor.moveToNext());
+            }
+
+            cursor.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void syncUpdate(Context context, String token, Integer companyId) {
+        //PETICION A LA API PARA ACTUALIZAR EL ARTICULO
+        String url = "http://10.0.2.2:9000/article/" + this.getId();
+        RequestQueue queue = Volley.newRequestQueue(context);
+
+        // Crear el objeto JSON para enviar en el cuerpo de la solicitud
+        JSONObject jsonBody = new JSONObject();
+        try {
+            jsonBody.put("name", this.getName());
+            jsonBody.put("description", this.getDescription());
+            jsonBody.put("code", this.getCode());
+            jsonBody.put("photo", this.getPhoto());
+            jsonBody.put("category_id", this.getCategory_id());
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+        JsonObjectRequest jsonRequest = new JsonObjectRequest(Request.Method.PUT, url, jsonBody,
+            new Response.Listener<JSONObject>() {
+                @Override
+                public void onResponse(JSONObject response) {
+                    System.out.println("RESPONSE UPDATE ARTICLE");
+                    System.out.println(response.toString());
+//                  // SI es code es 201, actualizar valor de sync en local a 0.
+                }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    error.printStackTrace();
+                    System.out.println("Error: " + error);
+                }
+            }
+        )
+        {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<>();
+                headers.put("Content-Type", "application/json");
+                headers.put("Authorization", "Bearer " + token); // Reemplaza 'token' con tu token de autenticación
+                headers.put("companyId", String.valueOf(companyId));
+                return headers;
+            }
+        };
+        // Agregar la solicitud a la cola
+        queue.add(jsonRequest);
+    }
+
+    public void syncCreate() {
+        //PETICION A LA API PARA CREAR EL ARTICULO
+    }
+
+    public void syncDelete() {
+        //PETICION A LA API PARA ELIMINAR EL ARTICULO
+    }
+
 
 }
