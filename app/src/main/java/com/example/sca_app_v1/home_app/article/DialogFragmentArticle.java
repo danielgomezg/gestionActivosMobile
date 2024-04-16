@@ -1,20 +1,37 @@
 package com.example.sca_app_v1.home_app.article;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
+import android.Manifest;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
 
 import com.example.sca_app_v1.R;
@@ -48,6 +65,12 @@ public class DialogFragmentArticle extends DialogFragment {
     private EditText editTextCode;
     private AutoCompleteTextView categorySelect;
     private ArrayAdapter<String> adapterItems;
+    private ActivityResultLauncher<Intent> galleryLauncher;
+    private ActivityResultLauncher<Intent> cameraLauncher;
+    private static final int REQUEST_CAMERA_PERMISSION = 100;
+    private ImageView photoArticle;
+
+
 
     // Método estático para crear una instancia del DialogFragment en modo edicion
     public static DialogFragmentArticle newInstance(int mode, int position, Article article, ArticleFragment parentFragment) {
@@ -87,6 +110,29 @@ public class DialogFragmentArticle extends DialogFragment {
             }
 
         }
+        // Inicializar los ActivityResultLauncher para la galería y la cámara
+        galleryLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+                new ActivityResultCallback<ActivityResult>() {
+                    @Override
+                    public void onActivityResult(ActivityResult result) {
+                        if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                            Uri selectedImageUri = result.getData().getData();
+                            photoArticle.setImageURI(selectedImageUri);
+                        }
+                    }
+                });
+
+        cameraLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+                new ActivityResultCallback<ActivityResult>() {
+                    @Override
+                    public void onActivityResult(ActivityResult result) {
+                        if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                            Bundle extras = result.getData().getExtras();
+                            Bitmap photo = (Bitmap) extras.get("data");
+                            photoArticle.setImageBitmap(photo);
+                        }
+                    }
+                });
     }
 
     // Método para establecer el fragmento padre (ArticleFragment)
@@ -133,6 +179,16 @@ public class DialogFragmentArticle extends DialogFragment {
             // Volver a activar el filtrado automático
             categorySelect.setThreshold(1);
         }
+
+        photoArticle = view.findViewById(R.id.imageView);
+        Button buttonAddPhoto = view.findViewById(R.id.buttonAddPhoto);
+
+        buttonAddPhoto.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onAddPhotoClick();
+            }
+        });
 
 
         categorySelect.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -235,4 +291,40 @@ public class DialogFragmentArticle extends DialogFragment {
 
         return builder.create();
     }
+
+    // Método llamado cuando el usuario hace clic en el botón "Añadir Foto"
+    public void onAddPhotoClick() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        builder.setTitle("Seleccionar Fuente de Imagen")
+                .setItems(new CharSequence[]{"Galería", "Cámara"}, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch (which) {
+                            case 0:
+                                // Abrir la galería
+                                Intent galleryIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                                galleryLauncher.launch(galleryIntent);
+                                break;
+                            case 1:
+                                // Verificar los permisos de la cámara
+                                if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                                    // No hay permisos de cámara, solicitarlos
+                                    ActivityCompat.requestPermissions(requireActivity(), new String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA_PERMISSION);
+                                } else {
+                                    // Ya se tienen permisos de cámara, abrir la cámara
+                                    openCamera();
+                                }
+                                break;
+                        }
+                    }
+                })
+                .show();
+    }
+
+    // Método para abrir la cámara
+    private void openCamera() {
+        Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        cameraLauncher.launch(cameraIntent);
+    }
+
 }

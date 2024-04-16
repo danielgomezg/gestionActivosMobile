@@ -26,6 +26,7 @@ public class SyncFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_sync, container, false);
 
         setUploadAction(view);
+        setDownloadAction(view);
 
 
 
