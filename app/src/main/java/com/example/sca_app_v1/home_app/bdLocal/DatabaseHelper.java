@@ -20,7 +20,7 @@ import java.util.Map;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final int DATABASE_VERSION = 1;
-    private static final String DATABASE_NAME = "sca_gestion_activos_2.db";
+    private static final String DATABASE_NAME = "sca_gestion_activos_3.db";
 
     // Constructor
     public DatabaseHelper(Context context) {

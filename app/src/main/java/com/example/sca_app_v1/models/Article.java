@@ -216,9 +216,9 @@ public class Article implements Serializable {
                 '}';
     }
 
-    public List<Article> getArticles(Context context) {
+    public List<Article> getArticles(Context context, Integer offset) {
         System.out.println("IN GET ALL ARTICLES");
-        String sql = "SELECT * FROM articulo WHERE removed = 0 ORDER BY id DESC";
+        String sql = "SELECT * FROM articulo WHERE removed = 0 ORDER BY id DESC LIMIT  " + offset + ", 50";
 
         try {
 
@@ -435,32 +435,6 @@ public class Article implements Serializable {
         } catch (Exception e) {
             e.printStackTrace();
             return null;
-        }
-    }
-
-    public void setCorrectSync(Context context) {
-        SQLiteDatabase db = null;
-        try {
-            DatabaseHelper dbHelper = new DatabaseHelper(context);
-            db = dbHelper.getWritableDatabase();
-
-            db.beginTransaction();
-
-            // Crear un ContentValues con los nuevos valores del artículo
-            ContentValues values = new ContentValues();
-            values.put("sync", 0);
-
-            // Definir la condición WHERE para la actualización (basado en el ID del artículo)
-            String whereClause = "id = ?";
-            String[] whereArgs = {String.valueOf(this.id)}; // El ID del artículo a actualizar
-
-            // Actualizar el registro en la base de datos
-            int rowsAffected = db.update("articulo", values, whereClause, whereArgs);
-
-            db.setTransactionSuccessful();
-
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 

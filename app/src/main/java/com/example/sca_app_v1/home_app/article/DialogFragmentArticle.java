@@ -12,7 +12,6 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
@@ -28,8 +27,6 @@ import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
@@ -40,7 +37,6 @@ import com.example.sca_app_v1.models.Category;
 import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 
@@ -154,6 +150,7 @@ public class DialogFragmentArticle extends DialogFragment {
         TextInputLayout textInputLayoutCode = view.findViewById(R.id.editTextCode);
         editTextCode = textInputLayoutCode.getEditText();
 
+        TextInputLayout textInputLayoutCategory = view.findViewById(R.id.editTextCategoryS);
         categorySelect = view.findViewById(R.id.category_select);
         Category category = new Category();
         List<Category> categoryList = category.getCategories(requireContext());
@@ -213,20 +210,65 @@ public class DialogFragmentArticle extends DialogFragment {
             System.out.println("category " + article.getCategory_id());
         }
 
-        builder.setView(view)
-                .setTitle(mode == MODE_EDIT ? "Editar artículo" : "Crear nuevo artículo")
-                .setPositiveButton("Guardar", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        // Acción al hacer clic en el botón de guardar
+        AlertDialog dialog = builder.setView(view)
+            .setTitle(mode == MODE_EDIT ? "Editar artículo" : "Crear nuevo artículo")
+            .setPositiveButton("Guardar", null)
+            .setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
+                 @Override
+                 public void onClick(DialogInterface dialog, int which) {
+                     // Acción al hacer clic en el botón de cancelar
+                     dismiss();
+                 }
+            }).create();
 
+        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+
+            @Override
+            public void onShow(DialogInterface dialogInterface) {
+        
+                Button button = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE);
+                button.setOnClickListener(new View.OnClickListener() {
+        
+                    @Override
+                    public void onClick(View view) {
+                        // Acción al hacer clic en el botón de guardar
+        
                         // Creacion del artículo
                         String newName = editTextName.getText().toString();
                         String newDescription = editTextDescription.getText().toString();
                         String newCode = editTextCode.getText().toString();
                         String selectedCategory = categorySelect.getText().toString();
                         int idCategory = category.getCategoryID(selectedCategory, categoryList);
+                        System.out.println("categoria seleccionada " + idCategory);
+                        // Validacion de datos.
+                        if (newName.isEmpty()) {
+                            textInputLayoutName.setError("Nombre requerido");
+                        } else {
+                            textInputLayoutName.setError(null);
+                        }
 
+                        if (newCode.isEmpty()) {
+                            textInputLayoutCode.setError("Codigo requerido");
+                        } else {
+                            textInputLayoutCode.setError(null);
+                        }
+
+                        if (newDescription.isEmpty()) {
+                            textInputLayoutDescription.setError("Descripción requerido");
+                        } else {
+                            textInputLayoutDescription.setError(null);
+                        }
+
+                        if (idCategory == 0) {
+                            System.out.println("falta categoria");
+                            categorySelect.setError("Seleccione categoria");
+                            textInputLayoutCategory.setError("Categoria requerido");
+                        } else {
+                            categorySelect.setError(null);
+                            textInputLayoutCategory.setError(null);
+                        }
+
+        
                         // Crear un objeto Article con los nuevos valores
                         Article newArticle = new Article();
                         newArticle.setName(newName);
@@ -234,7 +276,7 @@ public class DialogFragmentArticle extends DialogFragment {
                         newArticle.setCode(newCode);
                         newArticle.setCategory_id(idCategory);
                         newArticle.setPhoto("");
-
+        
                         if (mode == MODE_EDIT) {
                             System.out.println("newName " + newName);
                             System.out.println("newDescription " + newDescription);
@@ -242,56 +284,135 @@ public class DialogFragmentArticle extends DialogFragment {
                             System.out.println("selectedCategory " + selectedCategory);
                             System.out.println("selectedCategory " + idCategory);
                             System.out.println("position " + position);
-
+        
                             newArticle.setId(article.getId());
                             newArticle.setSync(article.getSync());
-
-                            // Actualizar el artículo en la base de datos
-                            boolean updateSuccessful = newArticle.updateArticle(getContext());
-                            System.out.println(updateSuccessful);
-
-                            if (updateSuccessful && parentFragment != null) {
-                                // La actualización fue exitosa
-                                Toast.makeText(getContext(), "Artículo actualizado correctamente", Toast.LENGTH_SHORT).show();
-
-                                // Actualizar la lista de artículos en el fragmento padre (ArticleFragment)
-                                parentFragment.updateArticles(getContext(), position);
-                            } else {
-                                // Ocurrió un error durante la actualización
-                                Toast.makeText(getContext(), "Error al actualizar el artículo", Toast.LENGTH_SHORT).show();
-                            }
-
-                            // Lógica para guardar los cambios
+        
+                            // Resto de tu código
+        
+                            // Dismiss once everything is OK.
+                            dialog.dismiss();
                         } else{
 
-                            newArticle.setPhoto("");
-                            newArticle.setCompany_id(company_id);
+                             newArticle.setPhoto("");
+                             newArticle.setCompany_id(company_id);
 
-                            boolean createSuccessful = newArticle.createArticle(getContext());
-                            System.out.println(createSuccessful);
+                             boolean createSuccessful = newArticle.createArticle(getContext());
+                             System.out.println(createSuccessful);
 
-                            if (createSuccessful && parentFragment != null) {
-                                // La creacion fue exitosa
-                                Toast.makeText(getContext(), "Artículo creado correctamente", Toast.LENGTH_SHORT).show();
+                             if (createSuccessful && parentFragment != null) {
+                                 dialog.dismiss();
 
-                                // Actualizar la lista de artículos en el fragmento padre (ArticleFragment)
-                                parentFragment.showArticles(getContext());
-                            } else {
-                                // Ocurrió un error durante la actualización
-                                Toast.makeText(getContext(), "Error al crear el artículo", Toast.LENGTH_SHORT).show();
-                            }
+                                 // Actualizar la lista de artículos en el fragmento padre (ArticleFragment)
+                                 parentFragment.showAlert("Artículo creado correctamente");
+                                 parentFragment.showArticles(getContext());
+
+                             } else {
+                                 // Ocurrió un error durante la actualización
+                                 Toast.makeText(getContext(), "Error al crear el artículo", Toast.LENGTH_SHORT).show();
+                             }
                         }
                     }
-                })
-                .setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        // Acción al hacer clic en el botón de cancelar
-                        dismiss();
-                    }
                 });
+            }
+        });
 
-        return builder.create();
+//        dialog.show();
+        // builder.setView(view)
+        //         .setTitle(mode == MODE_EDIT ? "Editar artículo" : "Crear nuevo artículo")
+        //         .setPositiveButton("Guardar", new DialogInterface.OnClickListener() {
+        //             @Override
+        //             public void onClick(DialogInterface dialog, int which) {
+        //                 // Acción al hacer clic en el botón de guardar
+
+        //                 // Creacion del artículo
+        //                 String newName = editTextName.getText().toString();
+        //                 String newDescription = editTextDescription.getText().toString();
+        //                 String newCode = editTextCode.getText().toString();
+        //                 String selectedCategory = categorySelect.getText().toString();
+        //                 int idCategory = category.getCategoryID(selectedCategory, categoryList);
+
+        //                 // Validacion de datos.
+        //                 if (newDescription.isEmpty()) {
+        //                     textInputLayoutDescription.setError("Campo requerido");
+                            
+        //                     return;
+        //                 } else {
+        //                     textInputLayoutDescription.setError(null);
+        //                 }
+
+        //                 // if (newName.isEmpty() || newDescription.isEmpty() || newCode.isEmpty() || selectedCategory.isEmpty()) {
+        //                 //     Toast.makeText(getContext(), "Por favor, complete todos los campos", Toast.LENGTH_SHORT).show();
+        //                 //     return;
+        //                 // }
+
+        //                 // Crear un objeto Article con los nuevos valores
+        //                 Article newArticle = new Article();
+        //                 newArticle.setName(newName);
+        //                 newArticle.setDescription(newDescription);
+        //                 newArticle.setCode(newCode);
+        //                 newArticle.setCategory_id(idCategory);
+        //                 newArticle.setPhoto("");
+
+                        
+
+        //                 if (mode == MODE_EDIT) {
+        //                     System.out.println("newName " + newName);
+        //                     System.out.println("newDescription " + newDescription);
+        //                     System.out.println("newCode " + newCode);
+        //                     System.out.println("selectedCategory " + selectedCategory);
+        //                     System.out.println("selectedCategory " + idCategory);
+        //                     System.out.println("position " + position);
+
+        //                     newArticle.setId(article.getId());
+        //                     newArticle.setSync(article.getSync());
+
+        //                     // Actualizar el artículo en la base de datos
+        //                     boolean updateSuccessful = newArticle.updateArticle(getContext());
+        //                     System.out.println(updateSuccessful);
+
+        //                     if (updateSuccessful && parentFragment != null) {
+        //                         // La actualización fue exitosa
+        //                         Toast.makeText(getContext(), "Artículo actualizado correctamente", Toast.LENGTH_SHORT).show();
+
+        //                         // Actualizar la lista de artículos en el fragmento padre (ArticleFragment)
+        //                         parentFragment.updateArticles(getContext(), position);
+        //                     } else {
+        //                         // Ocurrió un error durante la actualización
+        //                         Toast.makeText(getContext(), "Error al actualizar el artículo", Toast.LENGTH_SHORT).show();
+        //                     }
+
+        //                     // Lógica para guardar los cambios
+        //                 } else{
+
+        //                     newArticle.setPhoto("");
+        //                     newArticle.setCompany_id(company_id);
+
+        //                     boolean createSuccessful = newArticle.createArticle(getContext());
+        //                     System.out.println(createSuccessful);
+
+        //                     if (createSuccessful && parentFragment != null) {
+        //                         // La creacion fue exitosa
+        //                         Toast.makeText(getContext(), "Artículo creado correctamente", Toast.LENGTH_SHORT).show();
+
+        //                         // Actualizar la lista de artículos en el fragmento padre (ArticleFragment)
+        //                         parentFragment.showArticles(getContext());
+        //                     } else {
+        //                         // Ocurrió un error durante la actualización
+        //                         Toast.makeText(getContext(), "Error al crear el artículo", Toast.LENGTH_SHORT).show();
+        //                     }
+        //                 }
+        //             }
+        //         })
+        //         .setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
+        //             @Override
+        //             public void onClick(DialogInterface dialog, int which) {
+        //                 // Acción al hacer clic en el botón de cancelar
+        //                 dismiss();
+        //             }
+        //         });
+
+        return dialog;
     }
 
     // Método llamado cuando el usuario hace clic en el botón "Añadir Foto"

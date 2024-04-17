@@ -37,6 +37,8 @@ public class ArticleFragment extends Fragment {
     private RecyclerView articleList;
     private AdapterArticle adapterArticle;
 
+    private Integer offset = 0;
+
     // Referencia al ArticleFragment
     public ArticleFragment articleFragment = ArticleFragment.this;
 
@@ -47,10 +49,34 @@ public class ArticleFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_article, container, false);
         articleList = view.findViewById(R.id.list_articles);
+
+        articleList.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+
+                LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+
+                if (layoutManager != null) {
+                    int visibleItemCount = layoutManager.getChildCount();
+                    int totalItemCount = layoutManager.getItemCount();
+                    int firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition();
+
+                    if ((visibleItemCount + firstVisibleItemPosition) >= totalItemCount
+                            && firstVisibleItemPosition >= 0) {
+                        // Llegamos al final del RecyclerView, cargar más datos aquí
+                        System.out.println("Se llega al final del scroll");
+                    }
+                }
+            }
+        });
+
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
         articleList.setLayoutManager(linearLayoutManager);
         adapterArticle = new AdapterArticle();
         articleList.setAdapter(adapterArticle);
+
+
 
 
         FloatingActionButton fabAddArticle = view.findViewById(R.id.fab_add_article);
@@ -74,6 +100,11 @@ public class ArticleFragment extends Fragment {
 
         showArticles(getContext());
 
+    }
+
+    public void showAlert(String msg) {
+        System.out.println("SHOW ALERT FRANGEMENT ARTICLE");
+        Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show();
     }
 
     public void showArticles(Context context) {
