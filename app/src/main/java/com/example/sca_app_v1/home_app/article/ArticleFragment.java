@@ -110,18 +110,18 @@ public class ArticleFragment extends Fragment {
     public void showArticles(Context context) {
         System.out.println("IN SHOW ARTICLES");
         Article article = new Article();
-        articles = article.getArticles(context);
+        articles = article.getArticles(context, offset);
         System.out.println("articles size: " + articles.size());
 
         adapterArticle.notifyDataSetChanged();
     }
 
-    public void updateArticles(Context context, int position) {
-        System.out.println("IN UPDATE SHOW ARTICLES");
-        Article article = new Article();
-        articles = article.getArticles(context);
-        adapterArticle.notifyItemChanged(position);
-    }
+//    public void updateArticles(Context context, int position) {
+//        System.out.println("IN UPDATE SHOW ARTICLES");
+//        Article article = new Article();
+//        articles = article.getArticles(context);
+//        adapterArticle.notifyItemChanged(position);
+//    }
 
     private class AdapterArticle extends RecyclerView.Adapter<AdapterArticle.AdapterArticleHolder> {
 
