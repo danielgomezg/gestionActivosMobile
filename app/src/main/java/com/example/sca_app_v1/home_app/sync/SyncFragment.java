@@ -53,10 +53,11 @@ public class SyncFragment extends Fragment {
 
                 if (UnsyncedArticles) {
 
-                    Article.syncUploadActives(getContext(), token, companyId);
+                    Article.syncUploadArticles(getContext(), token, companyId);
 
-                } else if (UnsyncedActives) {
-
+                }
+                if (UnsyncedActives) {
+                    Active.syncUploadActives(getContext(), token, companyId);
                 }
 
             }

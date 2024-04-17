@@ -386,6 +386,39 @@ public class Article implements Serializable {
         }
     }
 
+    public boolean updateArticleSync(Context context){
+        SQLiteDatabase db = null;
+        try {
+            DatabaseHelper dbHelper = new DatabaseHelper(context);
+            db = dbHelper.getWritableDatabase();
+
+            db.beginTransaction();
+
+            // Crear un ContentValues con los nuevos valores del artículo
+            ContentValues values = new ContentValues();
+            values.put("sync", 0);
+
+            // Definir la condición WHERE para la actualización (basado en el ID del artículo)
+            String whereClause = "id = ?";
+            String[] whereArgs = {String.valueOf(this.id)};
+
+            // Actualizar el registro en la base de datos
+            int rowsAffected = db.update("articulo", values, whereClause, whereArgs);
+
+            db.setTransactionSuccessful();
+
+            return rowsAffected > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        } finally {
+            if (db != null) {
+                db.endTransaction();
+                db.close();
+            }
+        }
+    }
+
     public Article getArticleById(Context context, Integer articleId) {
         String sql = "SELECT * FROM articulo WHERE id = ?";
 
@@ -456,8 +489,8 @@ public class Article implements Serializable {
         }
     }
 
-    public static void syncUploadActives(Context context, String token, Integer companyId) {
-        System.out.println("SYNC UPLOAD ACTIVES");
+    public static void syncUploadArticles(Context context, String token, Integer companyId) {
+        System.out.println("SYNC UPLOAD ARTICLES");
         String sql = "SELECT * FROM articulo WHERE sync <> 0";
 
         try {
@@ -477,17 +510,23 @@ public class Article implements Serializable {
                     switch (article.getSync()) {
                         case 1:
                             // Sincronizar nuevo activo
-                            article.syncCreate();
+                            System.out.println("SSSSSSSSSS");
+                            System.out.println(article.getSync());
+                            article.syncCreate(context, token);
                             break;
                         
                         case 2:
                             // Sincronizar activo modificado
+                            System.out.println("SSSSSSSSSS");
+                            System.out.println(article.getSync());
                             article.syncUpdate(context, token, companyId);
                             break;
 
                         case 3:
                             // Sincronizar activo eliminado
-                            article.syncDelete();
+                            System.out.println("SSSSSSSSSS");
+                            System.out.println(article.getSync());
+                            article.syncDelete(context, token, companyId);
                             break;
                         
                     }
@@ -506,6 +545,7 @@ public class Article implements Serializable {
     public void syncUpdate(Context context, String token, Integer companyId) {
         //PETICION A LA API PARA ACTUALIZAR EL ARTICULO
         String url = "http://10.0.2.2:9000/article/" + this.getId();
+        Integer idArt = this.getId();
         RequestQueue queue = Volley.newRequestQueue(context);
 
         // Crear el objeto JSON para enviar en el cuerpo de la solicitud
@@ -525,7 +565,21 @@ public class Article implements Serializable {
                 public void onResponse(JSONObject response) {
                     System.out.println("RESPONSE UPDATE ARTICLE");
                     System.out.println(response.toString());
-//                  // SI es code es 201, actualizar valor de sync en local a 0.
+                    String code = "0";
+                    try {
+                        code = response.getString("code");
+                    } catch (JSONException e) {
+                        throw new RuntimeException(e);
+                    }
+                    if(code.equals("201")){
+                        boolean successful = updateArticleSync(context);
+                        if (successful){
+                            Article art = new Article();
+                            art = art.getArticleById(context, idArt);
+                            System.out.println("FIN");
+                            System.out.println(art.getSync());
+                        }
+                    }
                 }
             }, new Response.ErrorListener() {
                 @Override
@@ -549,12 +603,116 @@ public class Article implements Serializable {
         queue.add(jsonRequest);
     }
 
-    public void syncCreate() {
+    public void syncCreate(Context context, String token) {
         //PETICION A LA API PARA CREAR EL ARTICULO
+        String url = "http://10.0.2.2:9000/article";
+        RequestQueue queue = Volley.newRequestQueue(context);
+        Integer idArt = this.getId();
+
+        // Crear el objeto JSON para enviar en el cuerpo de la solicitud
+        JSONObject jsonBody = new JSONObject();
+        try {
+            jsonBody.put("name", this.getName());
+            jsonBody.put("description", this.getDescription());
+            jsonBody.put("code", this.getCode());
+            jsonBody.put("photo", this.getPhoto());
+            jsonBody.put("category_id", this.getCategory_id());
+            jsonBody.put("company_id", this.getCompany_id());
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+        JsonObjectRequest jsonRequest = new JsonObjectRequest(Request.Method.POST, url, jsonBody,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        System.out.println("RESPONSE CREATE ARTICLE");
+                        System.out.println(response.toString());
+                        String code = "0";
+                        try {
+                            code = response.getString("code");
+                        } catch (JSONException e) {
+                            throw new RuntimeException(e);
+                        }
+                        if(code.equals("201")){
+                            boolean successful = updateArticleSync(context);
+                            if (successful){
+                                Article art = new Article();
+                                art = art.getArticleById(context, idArt);
+                                System.out.println("FIN");
+                                System.out.println(art.getSync());
+                            }
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                error.printStackTrace();
+                System.out.println("Error: " + error);
+            }
+        }
+        )
+        {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<>();
+                headers.put("Content-Type", "application/json");
+                headers.put("Authorization", "Bearer " + token);
+                //headers.put("companyId", String.valueOf(companyId));
+                return headers;
+            }
+        };
+        // Agregar la solicitud a la cola
+        queue.add(jsonRequest);
     }
 
-    public void syncDelete() {
+    public void syncDelete(Context context, String token, Integer companyId) {
         //PETICION A LA API PARA ELIMINAR EL ARTICULO
+        String url = "http://10.0.2.2:9000/article/" + this.getId();
+        RequestQueue queue = Volley.newRequestQueue(context);
+        Integer idArt = this.getId();
+
+        JsonObjectRequest jsonRequest = new JsonObjectRequest(Request.Method.DELETE, url, null,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        System.out.println("RESPONSE DELETE ARTICLE");
+                        System.out.println(response.toString());
+                        String code = "0";
+                        try {
+                            code = response.getString("code");
+                        } catch (JSONException e) {
+                            throw new RuntimeException(e);
+                        }
+                        if(code.equals("201")){
+                            boolean successful = updateArticleSync(context);
+                            if (successful){
+                                Article art = new Article();
+                                art = art.getArticleById(context, idArt);
+                                System.out.println("FIN");
+                                System.out.println(art.getSync());
+                            }
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                error.printStackTrace();
+                System.out.println("Error: " + error);
+            }
+        }
+        )
+        {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<>();
+                headers.put("Content-Type", "application/json");
+                headers.put("Authorization", "Bearer " + token);
+                headers.put("companyId", String.valueOf(companyId));
+                return headers;
+            }
+        };
+        // Agregar la solicitud a la cola
+        queue.add(jsonRequest);
     }
 
 

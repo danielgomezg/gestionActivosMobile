@@ -234,7 +234,6 @@ public class DialogFragmentArticle extends DialogFragment {
                         newArticle.setCode(newCode);
                         newArticle.setCategory_id(idCategory);
                         newArticle.setPhoto("");
-                        newArticle.setSync(article.getSync());
 
                         if (mode == MODE_EDIT) {
                             System.out.println("newName " + newName);
@@ -245,6 +244,7 @@ public class DialogFragmentArticle extends DialogFragment {
                             System.out.println("position " + position);
 
                             newArticle.setId(article.getId());
+                            newArticle.setSync(article.getSync());
 
                             // Actualizar el artículo en la base de datos
                             boolean updateSuccessful = newArticle.updateArticle(getContext());

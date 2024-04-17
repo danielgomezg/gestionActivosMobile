@@ -5,6 +5,13 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.example.sca_app_v1.home_app.bdLocal.DatabaseHelper;
 
 import org.json.JSONException;
@@ -14,8 +21,10 @@ import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 public class Active implements Serializable {
 
@@ -35,6 +44,7 @@ public class Active implements Serializable {
     private Integer removed;
     private Integer office_id;
     private Integer article_id;
+    private Integer sync;
 
     public Active(){}
 
@@ -87,6 +97,9 @@ public class Active implements Serializable {
 
         int _article_idIndex = cursor.getColumnIndex("article_id");
         if (_article_idIndex != -1) this.article_id = cursor.getInt(_article_idIndex);
+
+        int _sync_idIndex = cursor.getColumnIndex("sync");
+        if (_sync_idIndex != -1) this.sync = cursor.getInt(_sync_idIndex);
 
     }
 
@@ -282,6 +295,12 @@ public class Active implements Serializable {
         }
     }
 
+    public Integer getSync() { return sync; }
+
+    public void setSync(Integer sync) {
+        this.sync = sync;
+    }
+
     public boolean createActive(Context context) {
         SQLiteDatabase db = null;
         try {
@@ -375,6 +394,39 @@ public class Active implements Serializable {
 
     }
 
+    public boolean updateActiveSync(Context context){
+        SQLiteDatabase db = null;
+        try {
+            DatabaseHelper dbHelper = new DatabaseHelper(context);
+            db = dbHelper.getWritableDatabase();
+
+            db.beginTransaction();
+
+            // Crear un ContentValues con los nuevos valores del artículo
+            ContentValues values = new ContentValues();
+            values.put("sync", 0);
+
+            // Definir la condición WHERE para la actualización (basado en el ID del artículo)
+            String whereClause = "id = ?";
+            String[] whereArgs = {String.valueOf(this.id)};
+
+            // Actualizar el registro en la base de datos
+            int rowsAffected = db.update("activo", values, whereClause, whereArgs);
+
+            db.setTransactionSuccessful();
+
+            return rowsAffected > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        } finally {
+            if (db != null) {
+                db.endTransaction();
+                db.close();
+            }
+        }
+    }
+
     public boolean deleteActive (Context context) {
 
         SQLiteDatabase db = null;
@@ -430,6 +482,228 @@ public class Active implements Serializable {
             e.printStackTrace();
             return false;
         }
+    }
+
+    public static void syncUploadActives(Context context, String token, Integer companyId) {
+        System.out.println("SYNC UPLOAD ACTIVES");
+        String sql = "SELECT * FROM activo WHERE sync <> 0";
+
+        try {
+
+            DatabaseHelper dbHelper = new DatabaseHelper(context);
+            Cursor cursor = dbHelper.executeQuery(sql);
+
+            List<Active> actives = new ArrayList<>();
+
+            if (cursor.moveToFirst()) {
+                do {
+                    System.out.println(cursor);
+                    Active active = new Active(cursor);
+                    System.out.println(active.getId());
+
+                    switch (active.getSync()) {
+                        case 1:
+                            // Sincronizar nuevo activo
+                            active.syncCreate(context, token, companyId);
+                            break;
+
+                        case 2:
+                            // Sincronizar activo modificado
+                            active.syncUpdate(context, token, companyId);
+                            break;
+
+                        case 3:
+                            // Sincronizar activo eliminado
+                            active.syncDelete(context, token, companyId);
+                            break;
+
+                    }
+
+
+                } while (cursor.moveToNext());
+            }
+
+            cursor.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void syncUpdate(Context context, String token, Integer companyId){
+        //PETICION A LA API PARA ACTUALIZAR EL ACTIVO
+        String url = "http://10.0.2.2:9000/active/" + this.getId();
+        RequestQueue queue = Volley.newRequestQueue(context);
+
+        // Crear el objeto JSON para enviar en el cuerpo de la solicitud
+        JSONObject jsonBody = new JSONObject();
+        try {
+            jsonBody.put("bar_code", this.getBar_code());
+            jsonBody.put("comment", this.getComment());
+            jsonBody.put("acquisition_date", this.getAcquisition_date());
+            jsonBody.put("accounting_document", this.getAccounting_document());
+            jsonBody.put("accounting_record_number", this.getAccounting_record_number());
+            jsonBody.put("name_in_charge_active", this.getName_in_charge_active());
+            jsonBody.put("rut_in_charge_active", this.getRut_in_charge_active());
+            jsonBody.put("serie", this.getSerie());
+            jsonBody.put("model", this.getModel());
+            jsonBody.put("state", this.getState());
+            jsonBody.put("brand", this.getBrand());
+            jsonBody.put("office_id", this.getOffice_id());
+            jsonBody.put("article_id", this.getArticle_id());
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+        JsonObjectRequest jsonRequest = new JsonObjectRequest(Request.Method.PUT, url, jsonBody,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        System.out.println("RESPONSE UPDATE ACTIVE");
+                        System.out.println(response.toString());
+                        String code = "0";
+                        try {
+                            code = response.getString("code");
+                        } catch (JSONException e) {
+                            throw new RuntimeException(e);
+                        }
+                        if(code.equals("201")){
+                            boolean successful = updateActiveSync(context);
+                            if (successful){
+                                System.out.println("UPDATED ACTIVE");
+                            }
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                error.printStackTrace();
+                System.out.println("Error: " + error);
+            }
+        }
+        )
+        {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<>();
+                headers.put("Content-Type", "application/json");
+                headers.put("Authorization", "Bearer " + token); // Reemplaza 'token' con tu token de autenticación
+                headers.put("companyId", String.valueOf(companyId));
+                return headers;
+            }
+        };
+        // Agregar la solicitud a la cola
+        queue.add(jsonRequest);
+    }
+
+    public void syncCreate(Context context, String token, Integer companyId){
+        //PETICION A LA API PARA CREAR EL ACTIVE
+        String url = "http://10.0.2.2:9000/active";
+        RequestQueue queue = Volley.newRequestQueue(context);
+
+        // Crear el objeto JSON para enviar en el cuerpo de la solicitud
+        JSONObject jsonBody = new JSONObject();
+        try {
+            jsonBody.put("bar_code", this.getBar_code());
+            jsonBody.put("comment", this.getComment());
+            jsonBody.put("acquisition_date", this.getAcquisition_date());
+            jsonBody.put("accounting_document", this.getAccounting_document());
+            jsonBody.put("accounting_record_number", this.getAccounting_record_number());
+            jsonBody.put("name_in_charge_active", this.getName_in_charge_active());
+            jsonBody.put("rut_in_charge_active", this.getRut_in_charge_active());
+            jsonBody.put("serie", this.getSerie());
+            jsonBody.put("model", this.getModel());
+            jsonBody.put("state", this.getState());
+            jsonBody.put("brand", this.getBrand());
+            jsonBody.put("office_id", this.getOffice_id());
+            jsonBody.put("article_id", this.getArticle_id());
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+        JsonObjectRequest jsonRequest = new JsonObjectRequest(Request.Method.POST, url, jsonBody,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        System.out.println("RESPONSE CREATE ACTIVE");
+                        System.out.println(response.toString());
+                        String code = "0";
+                        try {
+                            code = response.getString("code");
+                        } catch (JSONException e) {
+                            throw new RuntimeException(e);
+                        }
+                        if(code.equals("201")){
+                            boolean successful = updateActiveSync(context);
+                            if (successful){
+                                System.out.println("CREATED ACTIVE");
+                            }
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                error.printStackTrace();
+                System.out.println("Error: " + error);
+            }
+        }
+        )
+        {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<>();
+                headers.put("Content-Type", "application/json");
+                headers.put("Authorization", "Bearer " + token);
+                headers.put("companyId", String.valueOf(companyId));
+                return headers;
+            }
+        };
+        // Agregar la solicitud a la cola
+        queue.add(jsonRequest);
+    }
+
+    public void syncDelete(Context context, String token, Integer companyId){
+        //PETICION A LA API PARA ELIMINAR EL ARTICULO
+        String url = "http://10.0.2.2:9000/active/" + this.getId();
+        RequestQueue queue = Volley.newRequestQueue(context);
+
+        JsonObjectRequest jsonRequest = new JsonObjectRequest(Request.Method.DELETE, url, null,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        System.out.println("RESPONSE DELETE ACTIVE");
+                        System.out.println(response.toString());
+                        String code = "0";
+                        try {
+                            code = response.getString("code");
+                        } catch (JSONException e) {
+                            throw new RuntimeException(e);
+                        }
+                        if(code.equals("201")){
+                            boolean successful = updateActiveSync(context);
+                            if (successful){
+                                System.out.println("DELETED ACTIVE");
+                            }
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                error.printStackTrace();
+                System.out.println("Error: " + error);
+            }
+        }
+        )
+        {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<>();
+                headers.put("Content-Type", "application/json");
+                headers.put("Authorization", "Bearer " + token);
+                headers.put("companyId", String.valueOf(companyId));
+                return headers;
+            }
+        };
+        // Agregar la solicitud a la cola
+        queue.add(jsonRequest);
     }
 
 }
