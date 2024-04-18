@@ -66,6 +66,8 @@ public class DialogFragmentArticle extends DialogFragment {
     private static final int REQUEST_CAMERA_PERMISSION = 100;
     private ImageView photoArticle;
 
+    private String photoPath;
+
 
 
     // Método estático para crear una instancia del DialogFragment en modo edicion
@@ -107,17 +109,29 @@ public class DialogFragmentArticle extends DialogFragment {
 
         }
         // Inicializar los ActivityResultLauncher para la galería y la cámara
+        // Callback de la galería
         galleryLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
                 new ActivityResultCallback<ActivityResult>() {
                     @Override
                     public void onActivityResult(ActivityResult result) {
                         if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
                             Uri selectedImageUri = result.getData().getData();
-                            photoArticle.setImageURI(selectedImageUri);
+
+                            // Guardar la foto seleccionada y obtener la ruta absoluta
+                            photoPath = article.savePhoto(requireContext(), selectedImageUri);
+
+                            if (photoPath != null) {
+                                // Mostrar la foto en el ImageView
+                                photoArticle.setImageURI(selectedImageUri);
+                                System.out.println("GALLERY " + photoPath);
+                            } else {
+                                Toast.makeText(requireContext(), "Error al guardar la imagen", Toast.LENGTH_SHORT).show();
+                            }
                         }
                     }
                 });
 
+        // Callback de la cámara
         cameraLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
                 new ActivityResultCallback<ActivityResult>() {
                     @Override
@@ -125,7 +139,17 @@ public class DialogFragmentArticle extends DialogFragment {
                         if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
                             Bundle extras = result.getData().getExtras();
                             Bitmap photo = (Bitmap) extras.get("data");
-                            photoArticle.setImageBitmap(photo);
+
+                            // Guardar la foto capturada y obtener la ruta absoluta
+                            photoPath = article.savePhoto(requireContext(), photo);
+                            System.out.println("CAMERA " + photoPath);
+
+                            if (photoPath != null) {
+                                // Mostrar la foto en el ImageView
+                                photoArticle.setImageBitmap(photo);
+                            } else {
+                                Toast.makeText(requireContext(), "Error al guardar la imagen", Toast.LENGTH_SHORT).show();
+                            }
                         }
                     }
                 });
@@ -202,12 +226,31 @@ public class DialogFragmentArticle extends DialogFragment {
         SharedPreferences sharedPreferences = requireContext().getSharedPreferences("session", Context.MODE_PRIVATE);
         Integer company_id = sharedPreferences.getInt("company_id", 0);
 
+        System.out.println("PRE SETEO " + photoPath);
+
         // Verificar si el artículo está presente y establecer los valores de los campos
         if (article != null) {
             editTextName.setText(article.getName());
             editTextCode.setText(article.getCode());
             editTextDescription.setText(article.getDescription());
+            photoPath = article.getPhoto();
+            System.out.println("SETEO " + photoPath);
             System.out.println("category " + article.getCategory_id());
+
+            // Verificar si la ruta de la foto no es nula
+            if (photoPath == null || photoPath.isEmpty()) {
+                photoArticle.setImageResource(R.drawable.photo);
+                System.out.println("photoPath está vacío o es nulo. Mostrando imagen por defecto.");
+            } else {
+                try {
+                    Uri photoUri = Uri.parse(photoPath);
+                    photoArticle.setImageURI(photoUri);
+                    System.out.println("Mostrando foto en ImageView: " + photoPath);
+                } catch (Exception e) {
+                    photoArticle.setImageResource(R.drawable.photo);
+                    System.out.println("Error al cargar la foto desde " + photoPath + ". Mostrando imagen por defecto.");
+                }
+            }
         }
 
         AlertDialog dialog = builder.setView(view)
@@ -280,7 +323,8 @@ public class DialogFragmentArticle extends DialogFragment {
                             newArticle.setDescription(newDescription);
                             newArticle.setCode(newCode);
                             newArticle.setCategory_id(idCategory);
-                            newArticle.setPhoto("");
+                            newArticle.setPhoto(photoPath);
+                            System.out.println("GUARDANDO PHOTO " + photoPath);
 
                             if (mode == MODE_EDIT) {
                                 System.out.println("newName " + newName);
@@ -313,7 +357,6 @@ public class DialogFragmentArticle extends DialogFragment {
                             } else{
                                 System.out.println("CREATEEEEEEEEEE");
 
-                                newArticle.setPhoto("");
                                 newArticle.setCompany_id(company_id);
 
                                 boolean createSuccessful = newArticle.createArticle(getContext());

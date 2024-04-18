@@ -4,7 +4,10 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.view.View;
+import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
@@ -18,6 +21,13 @@ import com.example.sca_app_v1.home_app.bdLocal.DatabaseHelper;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -687,6 +697,56 @@ public class Article implements Serializable {
         };
         // Agregar la solicitud a la cola
         queue.add(jsonRequest);
+    }
+
+    public static String savePhoto(Context context, Object imageSource) {
+        try {
+            InputStream inputStream = null;
+
+            // Determinar el tipo de source (Bitmap o Uri)
+            if (imageSource instanceof Uri) {
+                // Si es un Uri, obtener el InputStream desde el Uri
+                inputStream = context.getContentResolver().openInputStream((Uri) imageSource);
+            } else if (imageSource instanceof Bitmap) {
+                // Si es un Bitmap, convertirlo en un ByteArrayInputStream
+                Bitmap bitmap = (Bitmap) imageSource;
+                ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
+                byte[] bitmapData = byteArrayOutputStream.toByteArray();
+                inputStream = new ByteArrayInputStream(bitmapData);
+            }
+
+            // Crear la carpeta imagesArticles en el almacenamiento interno si no existe
+            File imagesDir = new File(context.getFilesDir(), "imagesArticles");
+            if (!imagesDir.exists()) {
+                imagesDir.mkdirs();
+            }
+
+            // Crear un archivo para guardar la imagen en la carpeta imagesArticles
+            File imageFile = new File(imagesDir, "article_photo.jpg");
+            OutputStream outputStream = new FileOutputStream(imageFile);
+
+            // Copiar la imagen del InputStream al OutputStream
+            byte[] buffer = new byte[1024];
+            int length;
+            while ((length = inputStream.read(buffer)) > 0) {
+                outputStream.write(buffer, 0, length);
+            }
+
+            // Cerrar los flujos de entrada y salida
+            inputStream.close();
+            outputStream.close();
+
+            // Mostrar un mensaje indicando que la imagen ha sido guardada
+            Toast.makeText(context, "Imagen guardada exitosamente", Toast.LENGTH_SHORT).show();
+
+            // Devolver la ruta absoluta del archivo
+            return imageFile.getAbsolutePath();
+        } catch (IOException e) {
+            e.printStackTrace();
+            Toast.makeText(context, "Error al guardar la imagen", Toast.LENGTH_SHORT).show();
+            return null;
+        }
     }
 
 
