@@ -12,6 +12,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
+import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -64,10 +65,19 @@ public class DialogFragmentActive extends DialogFragment {
     private EditText editTextRecordnumber;
     private EditText adquisitionDateEditText;
     private EditText editTextbrand;
-    int officeId;
-    int articleId;
-    String stateActive;
-    private String selectedDate;
+    private AutoCompleteTextView autoCompleteTextViewArticles;
+    private TextInputLayout textInputLayoutArticle;
+    private AutoCompleteTextView autoCompleteTextViewStores;
+    private TextInputLayout textInputLayoutStores;
+    private AutoCompleteTextView autoCompleteTextViewOffices;
+    private TextInputLayout textInputLayoutOffices;
+    private AutoCompleteTextView autoCompleteTextViewStates;
+    private TextInputLayout textInputLayoutStates;
+    int officeId = 0;
+    int storeId = 0;
+    int articleId = 0;
+    String stateActive = "";
+    private String selectedDate = "";
 
     // Método estático para crear una instancia del DialogFragment modo edit
     public static DialogFragmentActive newInstance(int mode, int position, Active active, ActiveFragment parentFragment) {
@@ -174,6 +184,9 @@ public class DialogFragmentActive extends DialogFragment {
         //obtener stores
         initializeStores(view);
 
+        textInputLayoutOffices = view.findViewById(R.id.office);
+        autoCompleteTextViewOffices = textInputLayoutOffices.findViewById(R.id.office_select);
+
         //obtener articles
         initializeArticle(view);
 
@@ -205,7 +218,178 @@ public class DialogFragmentActive extends DialogFragment {
             stateActive = active.getState();
         }
 
-        builder.setView(view)
+        AlertDialog dialog = builder.setView(view)
+                .setTitle(mode == MODE_EDIT ? "Editar activo" : "Crear nuevo activo")
+                .setPositiveButton("Guardar", null)
+                .setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // Acción al hacer clic en el botón de cancelar
+                        dismiss();
+                    }
+                }).create();
+
+        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+
+            @Override
+            public void onShow(DialogInterface dialogInterface) {
+
+                Button button = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE);
+                button.setOnClickListener(new View.OnClickListener() {
+
+                    @Override
+                    public void onClick(View view) {
+                        // Variable para indicar si se debe continuar con la ejecución
+                        boolean continueExecution = true;
+
+                        // Creacion del artículo
+                        String newBarcode = editTextBarcode.getText().toString();
+                        String newModel = editTextModel.getText().toString();
+                        String newSerie = editTextSerie.getText().toString();
+                        String newcomment = editTextcomment.getText().toString();
+                        String newRecordNumber = editTextRecordnumber.getText().toString();
+                        String newNameCharge = editTextNamecharge.getText().toString();
+                        String newRutCharge = editTextRutcharge.getText().toString();
+                        String newBrand = editTextbrand.getText().toString();
+
+                        // Validacion de datos.
+                        if (newBarcode.isEmpty()) {
+                            textInputLayoutBarcode.setError("Codigo de barra requerido");
+                            continueExecution = false;
+                        } else {
+                            textInputLayoutBarcode.setError(null);
+                        }
+
+                        if (newModel.isEmpty()) {
+                            textInputLayoutModel.setError("Modelo requerido");
+                            continueExecution = false;
+                        } else {
+                            textInputLayoutModel.setError(null);
+                        }
+
+                        if (newSerie.isEmpty()) {
+                            textInputLayoutSerie.setError("Serie requerido");
+                            continueExecution = false;
+                        } else {
+                            textInputLayoutSerie.setError(null);
+                        }
+                        if (newBrand.isEmpty()) {
+                            textInputLayoutBrand.setError("Marca requerido");
+                            continueExecution = false;
+                        } else {
+                            textInputLayoutBrand.setError(null);
+                        }
+                        if (selectedDate.equals("")){
+                            adquisitionDateEditText.setError("Seleccione activo");
+                            textInputLayoutDateAdquisition.setError("Fecha de adquisición requerida");
+                            continueExecution = false;
+                        }else {
+                            adquisitionDateEditText.setError(null);
+                            textInputLayoutDateAdquisition.setError(null);
+                        }
+                        if (articleId == 0) {
+                            System.out.println("falta el artículo");
+                            autoCompleteTextViewArticles.setError("Seleccione articulo");
+                            textInputLayoutArticle.setError("Articulo requerido");
+                            continueExecution = false;
+                        } else {
+                            autoCompleteTextViewArticles.setError(null);
+                            textInputLayoutArticle.setError(null);
+                        }
+                        if (storeId == 0) {
+                            System.out.println("falta la sucursal");
+                            autoCompleteTextViewStores.setError("Seleccione sucursal");
+                            textInputLayoutStores.setError("Sucursal requerida");
+                            continueExecution = false;
+                        } else {
+                            autoCompleteTextViewStores.setError(null);
+                            textInputLayoutStores.setError(null);
+                        }
+                        if (officeId == 0) {
+                            System.out.println("falta la oficina");
+                            autoCompleteTextViewOffices.setError("Seleccione oficina");
+                            textInputLayoutOffices.setError("Oficina requerida");
+                            continueExecution = false;
+                        } else {
+                            autoCompleteTextViewOffices.setError(null);
+                            textInputLayoutOffices.setError(null);
+                        }
+                        if (stateActive.equals("")) {
+                            System.out.println("falta el estado");
+                            autoCompleteTextViewStates.setError("Seleccione estado");
+                            textInputLayoutStates.setError("Estado requerido");
+                            continueExecution = false;
+                        } else {
+                            autoCompleteTextViewStates.setError(null);
+                            textInputLayoutStates.setError(null);
+                        }
+
+                        if(continueExecution) {
+                            // Crear un objeto Active con los nuevos valores
+                            Active newActive = new Active();
+                            newActive.setBar_code(newBarcode);
+                            newActive.setModel(newModel);
+                            newActive.setSerie(newSerie);
+                            newActive.setComment(newcomment);
+                            newActive.setAccounting_record_number(newRecordNumber);
+                            newActive.setName_in_charge_active(newNameCharge);
+                            newActive.setRut_in_charge_active(newRutCharge);
+                            newActive.setAccounting_document("");
+                            newActive.setBrand(newBrand);
+
+                            newActive.setAcquisition_date(selectedDate);
+                            newActive.setArticle_id(articleId);
+                            newActive.setOffice_id(officeId);
+                            newActive.setState(stateActive);
+
+                            if (mode == MODE_EDIT) {
+                                newActive.setId(active.getId());
+                                newActive.setSync(active.getSync());
+
+                                // Actualizar el artículo en la base de datos
+                                boolean updateSuccessful = newActive.updateActive(getContext());
+                                System.out.println(updateSuccessful);
+
+                                if (updateSuccessful && parentFragment != null) {
+                                    // La actualización fue exitosa
+                                    Toast.makeText(getContext(), "Activo actualizado correctamente", Toast.LENGTH_SHORT).show();
+
+                                    // Actualizar la lista de artículos en el fragmento padre (ArticleFragment)
+                                    parentFragment.updateActives(getContext(), position);
+                                } else {
+                                    // Ocurrió un error durante la actualización
+                                    Toast.makeText(getContext(), "Error al actualizar el activo", Toast.LENGTH_SHORT).show();
+                                }
+
+                                // Dismiss once everything is OK.
+                                dialog.dismiss();
+                            } else {
+
+                                newActive.setAccounting_document("");
+
+                                boolean createSuccessful = newActive.createActive(getContext());
+                                System.out.println(createSuccessful);
+
+                                if (createSuccessful && parentFragment != null) {
+                                    // La actualización fue exitosa
+                                    Toast.makeText(getContext(), "Activo creado correctamente", Toast.LENGTH_SHORT).show();
+
+                                    // Actualizar la lista de artículos en el fragmento padre (ArticleFragment)
+                                    parentFragment.showActives(getContext());
+                                } else {
+                                    // Ocurrió un error durante la actualización
+                                    Toast.makeText(getContext(), "Error al crear el activo", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        });
+
+        return dialog;
+
+        /*builder.setView(view)
                 .setTitle(mode == MODE_EDIT ? "Editar activo" : "Crear nuevo activo")
                 .setPositiveButton("Guardar", new DialogInterface.OnClickListener() {
                     @Override
@@ -289,13 +473,13 @@ public class DialogFragmentActive extends DialogFragment {
                     }
                 });
 
-        return builder.create();
+        return builder.create();*/
     }
 
     public void initializeArticle(View view) {
 
-        TextInputLayout textInputLayoutArticle = view.findViewById(R.id.article_options);
-        AutoCompleteTextView autoCompleteTextViewArticles = textInputLayoutArticle.findViewById(R.id.article_select);
+        textInputLayoutArticle = view.findViewById(R.id.article_options);
+        autoCompleteTextViewArticles = textInputLayoutArticle.findViewById(R.id.article_select);
 
         Article article = new Article();
         List<Article> articleList = article.getArticles(requireContext(), 0);
@@ -338,8 +522,8 @@ public class DialogFragmentActive extends DialogFragment {
 
     public void initializeStores(View view) {
 
-        TextInputLayout textInputLayoutStores = view.findViewById(R.id.stores);
-        AutoCompleteTextView autoCompleteTextViewStores = textInputLayoutStores.findViewById(R.id.stores_select);
+        textInputLayoutStores = view.findViewById(R.id.stores);
+        autoCompleteTextViewStores = textInputLayoutStores.findViewById(R.id.stores_select);
 
         Store store = new Store();
         List<Store> storeList = store.getStores(requireContext());
@@ -371,7 +555,8 @@ public class DialogFragmentActive extends DialogFragment {
             // Volver a activar el filtrado automático
             autoCompleteTextViewStores.setThreshold(1);
 
-            initializeOffice(view, office.getSucursal_id());
+            storeId = office.getSucursal_id();
+            initializeOffice(view, storeId);
         }
 
         autoCompleteTextViewStores.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -382,7 +567,8 @@ public class DialogFragmentActive extends DialogFragment {
                 Store storeSelected = storeList.get(position);
                 System.out.println(storeSelected.getId());
                 System.out.println(storeSelected.getAddress());
-                initializeOffice(view, storeSelected.getId());
+                storeId = storeSelected.getId();
+                initializeOffice(view, storeId);
 
                 String item = parent.getItemAtPosition(position).toString();
                 Toast.makeText(requireContext(), "Item: "+item, Toast.LENGTH_SHORT).show();
@@ -392,8 +578,8 @@ public class DialogFragmentActive extends DialogFragment {
     }
 
     public void initializeOffice(View view, Integer idSucursal) {
-        TextInputLayout textInputLayoutOffices = view.findViewById(R.id.office);
-        AutoCompleteTextView autoCompleteTextViewOffices = textInputLayoutOffices.findViewById(R.id.office_select);
+        //textInputLayoutOffices = view.findViewById(R.id.office);
+        //autoCompleteTextViewOffices = textInputLayoutOffices.findViewById(R.id.office_select);
 
         if (adapterOffices != null) {
             adapterOffices.clear();
@@ -437,8 +623,8 @@ public class DialogFragmentActive extends DialogFragment {
     }
 
     public void initializeState(View view) {
-        TextInputLayout textInputLayoutStates = view.findViewById(R.id.state_options);
-        AutoCompleteTextView autoCompleteTextViewStates = textInputLayoutStates.findViewById(R.id.state_select);
+        textInputLayoutStates = view.findViewById(R.id.state_options);
+        autoCompleteTextViewStates = textInputLayoutStates.findViewById(R.id.state_select);
 
         List<String> states = Arrays.asList("Reparación", "Nuevo", "Operativo", "Perdida o Robo", "Dañado", "Obsoleto", "Otro");
         ArrayAdapter<String> adapterStates = new ArrayAdapter<>(requireContext(), R.layout.list_item, states);
