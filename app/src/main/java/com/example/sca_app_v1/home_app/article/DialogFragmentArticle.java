@@ -66,8 +66,11 @@ public class DialogFragmentArticle extends DialogFragment {
     private static final int REQUEST_CAMERA_PERMISSION = 100;
     private ImageView photoArticle;
 
-    private String photoPath;
-
+    private String photoPath = "";
+    //Si la foto proviene de la camara se guarda aca
+    private Bitmap photoCam = null;
+    //Si la foto proviene de la galeria se guarda aca
+    private Uri selectedImageUri = null;
 
 
     // Método estático para crear una instancia del DialogFragment en modo edicion
@@ -115,18 +118,21 @@ public class DialogFragmentArticle extends DialogFragment {
                     @Override
                     public void onActivityResult(ActivityResult result) {
                         if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
-                            Uri selectedImageUri = result.getData().getData();
+                            selectedImageUri = result.getData().getData();
+                            photoCam = null;
 
                             // Guardar la foto seleccionada y obtener la ruta absoluta
-                            photoPath = article.savePhoto(requireContext(), selectedImageUri);
+                            //photoPath = article.savePhoto(requireContext(), selectedImageUri);
+                            photoArticle.setImageURI(selectedImageUri);
+                            System.out.println("GALLERY " + photoPath);
 
-                            if (photoPath != null) {
+                            /*if (photoPath != null) {
                                 // Mostrar la foto en el ImageView
                                 photoArticle.setImageURI(selectedImageUri);
                                 System.out.println("GALLERY " + photoPath);
                             } else {
                                 Toast.makeText(requireContext(), "Error al guardar la imagen", Toast.LENGTH_SHORT).show();
-                            }
+                            }*/
                         }
                     }
                 });
@@ -138,18 +144,20 @@ public class DialogFragmentArticle extends DialogFragment {
                     public void onActivityResult(ActivityResult result) {
                         if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
                             Bundle extras = result.getData().getExtras();
-                            Bitmap photo = (Bitmap) extras.get("data");
+                            photoCam = (Bitmap) extras.get("data");
+                            selectedImageUri = null;
 
                             // Guardar la foto capturada y obtener la ruta absoluta
-                            photoPath = article.savePhoto(requireContext(), photo);
-                            System.out.println("CAMERA " + photoPath);
+                            //photoPath = article.savePhoto(requireContext(), photo);
+                            //System.out.println("CAMERA " + photoPath);
+                            photoArticle.setImageBitmap(photoCam);
 
-                            if (photoPath != null) {
+                            /*if (photoPath != null) {
                                 // Mostrar la foto en el ImageView
-                                photoArticle.setImageBitmap(photo);
+                                photoArticle.setImageBitmap(photoCam);
                             } else {
                                 Toast.makeText(requireContext(), "Error al guardar la imagen", Toast.LENGTH_SHORT).show();
-                            }
+                            }*/
                         }
                     }
                 });
@@ -323,6 +331,19 @@ public class DialogFragmentArticle extends DialogFragment {
                             newArticle.setDescription(newDescription);
                             newArticle.setCode(newCode);
                             newArticle.setCategory_id(idCategory);
+                            if(photoCam != null){
+                                photoPath = article.savePhoto(requireContext(), photoCam, newName);
+                            }else if(selectedImageUri != null){
+                                photoPath = article.savePhoto(requireContext(), selectedImageUri, newName);
+                            }
+                            if (photoPath == null) {
+                                // Manejar el error de guardar la foto
+                                photoPath = "";
+                                Toast.makeText(requireContext(), "Error al guardar la foto seleecionada", Toast.LENGTH_SHORT).show();
+                            }
+                            photoCam = null;
+                            selectedImageUri = null;
+
                             newArticle.setPhoto(photoPath);
                             System.out.println("GUARDANDO PHOTO " + photoPath);
 

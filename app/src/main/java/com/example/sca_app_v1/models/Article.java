@@ -36,6 +36,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.UUID;
+
+import okhttp3.*;
 
 
 public class Article implements Serializable {
@@ -494,21 +497,21 @@ public class Article implements Serializable {
                     switch (article.getSync()) {
                         case 1:
                             // Sincronizar nuevo activo
-                            System.out.println("SSSSSSSSSS");
+                            System.out.println("1111111111");
                             System.out.println(article.getSync());
                             article.syncCreate(context, token);
                             break;
                         
                         case 2:
                             // Sincronizar activo modificado
-                            System.out.println("SSSSSSSSSS");
+                            System.out.println("222222222222");
                             System.out.println(article.getSync());
                             article.syncUpdate(context, token, companyId);
                             break;
 
                         case 3:
                             // Sincronizar activo eliminado
-                            System.out.println("SSSSSSSSSS");
+                            System.out.println("33333333333333");
                             System.out.println(article.getSync());
                             article.syncDelete(context, token, companyId);
                             break;
@@ -527,64 +530,99 @@ public class Article implements Serializable {
     }
 
     public void syncUpdate(Context context, String token, Integer companyId) {
-        //PETICION A LA API PARA ACTUALIZAR EL ARTICULO
+        // PETICION A LA API PARA ACTUALIZAR EL ARTICULO
         String url = "http://10.0.2.2:9000/article/" + this.getId();
         Integer idArt = this.getId();
         RequestQueue queue = Volley.newRequestQueue(context);
 
-        // Crear el objeto JSON para enviar en el cuerpo de la solicitud
-        JSONObject jsonBody = new JSONObject();
-        try {
-            jsonBody.put("name", this.getName());
-            jsonBody.put("description", this.getDescription());
-            jsonBody.put("code", this.getCode());
-            jsonBody.put("photo", this.getPhoto());
-            jsonBody.put("category_id", this.getCategory_id());
-        } catch (JSONException e) {
-            throw new RuntimeException(e);
-        }
-        JsonObjectRequest jsonRequest = new JsonObjectRequest(Request.Method.PUT, url, jsonBody,
-            new Response.Listener<JSONObject>() {
-                @Override
-                public void onResponse(JSONObject response) {
-                    System.out.println("RESPONSE UPDATE ARTICLE");
-                    System.out.println(response.toString());
-                    String code = "0";
-                    try {
-                        code = response.getString("code");
-                    } catch (JSONException e) {
-                        throw new RuntimeException(e);
-                    }
-                    if(code.equals("201")){
-                        boolean successful = updateArticleSync(context);
-                        if (successful){
-                            Article art = new Article();
-                            art = art.getArticleById(context, idArt);
-                            System.out.println("FIN");
-                            System.out.println(art.getSync());
-                        }
-                    }
-                }
-            }, new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    error.printStackTrace();
-                    System.out.println("Error: " + error);
-                }
-            }
-        )
-        {
+        // Variable para almacenar `photoName`
+        final String[] photoName = new String[1];
+
+        // Definir un callback para manejar el resultado de `uploadImage()`
+        UploadImageCallback callback = new UploadImageCallback() {
             @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                Map<String, String> headers = new HashMap<>();
-                headers.put("Content-Type", "application/json");
-                headers.put("Authorization", "Bearer " + token); // Reemplaza 'token' con tu token de autenticación
-                headers.put("companyId", String.valueOf(companyId));
-                return headers;
+            public void onSuccess(String photoUrl) {
+                // Almacenar la URL de la imagen
+                photoName[0] = photoUrl;
+                // Lógica para crear y enviar la solicitud JSON a la API
+                updateArticleAPI(context, token, companyId, queue, url, photoName[0]);
+            }
+
+            @Override
+            public void onError(String errorMessage) {
+                // Manejar el error de `uploadImage()`
+                System.out.println("Error al subir la imagen: " + errorMessage);
             }
         };
-        // Agregar la solicitud a la cola
-        queue.add(jsonRequest);
+
+        // Llamar a `uploadImage()` si es necesario o asignar `photoName[0]` directamente
+        if (this.getPhoto().contains("mobile")) {
+            uploadImage(token, companyId, this.getPhoto(), callback);
+        } else {
+            photoName[0] = this.getPhoto();
+            // Lógica para crear y enviar la solicitud JSON a la API
+            updateArticleAPI(context, token, companyId, queue, url, photoName[0]);
+        }
+    }
+
+    // ACTUALIZA EL ARTICULO DE LA API
+    private void updateArticleAPI(Context context, String token, Integer companyId, RequestQueue queue, String url, String photoName) {
+        JSONObject jsonBody = new JSONObject();
+        try {
+            jsonBody.put("name", getName());
+            jsonBody.put("description", getDescription());
+            jsonBody.put("code", getCode());
+            jsonBody.put("photo", photoName);
+            jsonBody.put("category_id", getCategory_id());
+
+            System.out.println("JSONBODYYYY " + jsonBody);
+
+            // Crear una solicitud JSON a la API para actualizar el artículo
+            JsonObjectRequest jsonRequest = new JsonObjectRequest(Request.Method.PUT, url, jsonBody,
+                    new Response.Listener<JSONObject>() {
+                        @Override
+                        public void onResponse(JSONObject response) {
+                            // Manejar la respuesta exitosa
+                            System.out.println("RESPONSE UPDATE ARTICLE");
+                            System.out.println(response.toString());
+
+                            try {
+                                // Acceder al campo "code" en la respuesta JSON
+                                String code = response.getString("code");
+                                if (code.equals("201")) {
+                                    boolean successful = updateArticleSync(context);
+                                    System.out.println("SUCCESSFUL " + successful);
+                                }
+                            } catch (JSONException e) {
+                                System.out.println("Error al acceder al JSON de respuesta: " + e.getMessage());
+                            }
+                        }
+                    },
+                    new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            // Manejar el error
+                            error.printStackTrace();
+                            System.out.println("Error: " + error);
+                        }
+                    }
+            ) {
+                @Override
+                public Map<String, String> getHeaders() throws AuthFailureError {
+                    // Agregar los encabezados personalizados a la solicitud
+                    Map<String, String> headers = new HashMap<>();
+                    headers.put("Content-Type", "application/json");
+                    headers.put("Authorization", "Bearer " + token); // Añadir token de autenticación
+                    headers.put("companyId", String.valueOf(companyId)); // Añadir el ID de la empresa
+                    return headers;
+                }
+            };
+
+            // Agregar la solicitud a la cola
+            queue.add(jsonRequest);
+        } catch (JSONException e) {
+            System.out.println("Error al crear el cuerpo JSON: " + e.getMessage());
+        }
     }
 
     public void syncCreate(Context context, String token) {
@@ -593,13 +631,47 @@ public class Article implements Serializable {
         RequestQueue queue = Volley.newRequestQueue(context);
         Integer idArt = this.getId();
 
+        // Variable para almacenar `photoName`
+        final String[] photoName = new String[1];
+
+        // Definir un callback para manejar el resultado de `uploadImage()`
+        UploadImageCallback callback = new UploadImageCallback() {
+            @Override
+            public void onSuccess(String photoUrl) {
+                // Almacenar la URL de la imagen
+                photoName[0] = photoUrl;
+                // Lógica para crear y enviar la solicitud JSON a la API
+                createArticleAPI(context, token, queue, url, photoName[0]);
+            }
+
+            @Override
+            public void onError(String errorMessage) {
+                // Manejar el error de `uploadImage()`
+                System.out.println("Error al subir la imagen: " + errorMessage);
+            }
+        };
+
+        // Llamar a `uploadImage()` si es necesario o asignar `photoName[0]` directamente
+        if (this.getPhoto().contains("mobile")) {
+            uploadImage(token, this.getCompany_id(), this.getPhoto(), callback);
+        } else {
+            photoName[0] = this.getPhoto();
+            // Lógica para crear y enviar la solicitud JSON a la API
+            createArticleAPI(context, token, queue, url, photoName[0]);
+        }
+
+
+    }
+
+    public void createArticleAPI(Context context, String token, RequestQueue queue, String url, String photoName) {
+
         // Crear el objeto JSON para enviar en el cuerpo de la solicitud
         JSONObject jsonBody = new JSONObject();
         try {
             jsonBody.put("name", this.getName());
             jsonBody.put("description", this.getDescription());
             jsonBody.put("code", this.getCode());
-            jsonBody.put("photo", this.getPhoto());
+            jsonBody.put("photo", photoName);
             jsonBody.put("category_id", this.getCategory_id());
             jsonBody.put("company_id", this.getCompany_id());
         } catch (JSONException e) {
@@ -619,12 +691,6 @@ public class Article implements Serializable {
                         }
                         if(code.equals("201")){
                             boolean successful = updateArticleSync(context);
-                            if (successful){
-                                Article art = new Article();
-                                art = art.getArticleById(context, idArt);
-                                System.out.println("FIN");
-                                System.out.println(art.getSync());
-                            }
                         }
                     }
                 }, new Response.ErrorListener() {
@@ -699,7 +765,76 @@ public class Article implements Serializable {
         queue.add(jsonRequest);
     }
 
-    public static String savePhoto(Context context, Object imageSource) {
+    public void uploadImage(String token, Integer companyId, String imagePath, UploadImageCallback callback) {
+        // URL del endpoint
+        String url = "http://10.0.2.2:9000/image_article";
+
+        // Crear un objeto File para la imagen
+        File imageFile = new File(imagePath);
+
+        // Crear un cliente OkHttp
+        OkHttpClient client = new OkHttpClient();
+
+        // Crear el cuerpo del archivo con el tipo de medio "image/jpeg"
+        RequestBody fileBody = RequestBody.create(imageFile, MediaType.get("image/jpeg"));
+
+        // Obtener el nombre completo del archivo
+        String fullFileName = imageFile.getName();
+
+        // Extraer solo el nombre del archivo después del último guion
+        String NameImageArt = fullFileName.substring(fullFileName.lastIndexOf('-') + 1);
+
+        // Crear el cuerpo de la solicitud con el archivo y otros datos
+        MultipartBody.Builder multipartBodyBuilder = new MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart("file", NameImageArt, fileBody)
+                .addFormDataPart("companyId", String.valueOf(companyId));
+
+        // Crear la solicitud
+        okhttp3.Request request = new okhttp3.Request.Builder()
+                .url(url)
+                .post(multipartBodyBuilder.build())
+                .addHeader("Authorization", "Bearer " + token) // Añadir el token en la cabecera
+                .build();
+
+        // Enviar la solicitud de forma asíncrona
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(okhttp3.Call call, IOException e) {
+                // Llamar al callback con un mensaje de error
+                e.printStackTrace();
+                callback.onError("Error al subir la imagen: " + e.getMessage());
+            }
+
+            @Override
+            public void onResponse(okhttp3.Call call, okhttp3.Response response) throws IOException {
+                // Manejar la respuesta exitosa
+                if (response.isSuccessful()) {
+                    // Analizar el cuerpo de la respuesta como un objeto JSON
+                    String responseBody = response.body().string();
+                    try {
+                        JSONObject jsonResponse = new JSONObject(responseBody);
+                        // Verificar el código en la respuesta JSON
+                        String code = jsonResponse.getString("code");
+                        if (code.equals("201")) {
+                            String photoUrl = jsonResponse.getString("result");
+                            // Llamar al callback con el URL de la imagen
+                            callback.onSuccess(photoUrl);
+                        } else {
+                            callback.onError("Error en la respuesta: " + jsonResponse.getString("message"));
+                        }
+                    } catch (JSONException e) {
+                        callback.onError("Error al analizar la respuesta JSON: " + e.getMessage());
+                    }
+                } else {
+                    callback.onError("Error al subir la imagen: " + response.message());
+                }
+            }
+        });
+    }
+
+
+    public static String savePhoto(Context context, Object imageSource, String nameArt) {
         try {
             InputStream inputStream = null;
 
@@ -722,8 +857,14 @@ public class Article implements Serializable {
                 imagesDir.mkdirs();
             }
 
+            // Generar un UUID para el nombre del archivo
+            String uuid = UUID.randomUUID().toString();
+
+            // Crear el nombre del archivo con el UUID y "article_photo.jpg"
+            String fileName = uuid + "-" + "mobile" + "-" + nameArt + ".jpg";
+
             // Crear un archivo para guardar la imagen en la carpeta imagesArticles
-            File imageFile = new File(imagesDir, "article_photo.jpg");
+            File imageFile = new File(imagesDir, fileName);
             OutputStream outputStream = new FileOutputStream(imageFile);
 
             // Copiar la imagen del InputStream al OutputStream
@@ -747,6 +888,11 @@ public class Article implements Serializable {
             Toast.makeText(context, "Error al guardar la imagen", Toast.LENGTH_SHORT).show();
             return null;
         }
+    }
+
+    interface UploadImageCallback {
+        void onSuccess(String photoUrl);
+        void onError(String errorMessage);
     }
 
 
