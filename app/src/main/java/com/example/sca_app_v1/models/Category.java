@@ -17,6 +17,7 @@ public class Category {
     private String description;
     private Integer parent_id;
     private Integer removed;
+    private String code;
 
     public Category() {
 
@@ -47,6 +48,7 @@ public class Category {
         this.description = category.get("description").toString();
         this.parent_id = (int) category.get("parent_id");
         this.removed = (int) category.get("removed");
+        this.code = category.get("code").toString();
     }
 
     public Integer getId() {
@@ -63,6 +65,14 @@ public class Category {
 
     public Integer getRemoved() {
         return removed;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
     }
 
     //Se obtiene la description de la categoria

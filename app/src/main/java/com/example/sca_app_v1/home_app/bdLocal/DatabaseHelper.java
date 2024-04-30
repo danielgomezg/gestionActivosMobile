@@ -20,7 +20,7 @@ import java.util.Map;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final int DATABASE_VERSION = 1;
-    private static final String DATABASE_NAME = "sca_gestion_activos_3.db";
+    private static final String DATABASE_NAME = "sca_gestion_activos_12.db";
 
     // Constructor
     public DatabaseHelper(Context context) {
@@ -142,7 +142,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         String CREATE_TABLE_Category = "CREATE TABLE categoria (" +
                 "id INTEGER PRIMARY KEY AUTOINCREMENT," +
-                "description TEXT NOT NULL," +
+                "description TEXT," +
                 "code TEXT NOT NULL," +
                 "parent_id INTEGER NOT NULL," +
                 "removed INTEGER DEFAULT 0 NOT NULL" +
@@ -169,7 +169,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         String CREATE_TABLE_Active = "CREATE TABLE activo (" +
                 "id INTEGER PRIMARY KEY AUTOINCREMENT," +
                 "bar_code TEXT NOT NULL," +
-                "virtual_code NOT NULL," +
+                "virtual_code TEXT," +
                 "comment TEXT," +
                 "acquisition_date DATE NOT NULL," +
                 "accounting_document TEXT NOT NULL," +
@@ -180,10 +180,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "model TEXT NOT NULL," +
                 "state TEXT NOT NULL," +
                 "brand TEXT NOT NULL," +
-                "photo1 NOT NULL," +
-                "photo2 NOT NULL," +
-                "photo3 NOT NULL," +
-                "photo4 NOT NULL," +
+                "photo1 TEXT," +
+                "photo2 TEXT," +
+                "photo3 TEXT," +
+                "photo4 TEXT," +
                 "creation_date DATE NOT NULL," +
                 "removed INTEGER DEFAULT 0 NOT NULL," +
                 "office_id INTEGER," +
@@ -362,6 +362,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 values.put("description", category.getDescription());
                 values.put("parent_id", category.getParent_id());
                 values.put("removed", category.getRemoved());
+                values.put("code", category.getCode());
 
                 db.insert("categoria", null, values);
             }

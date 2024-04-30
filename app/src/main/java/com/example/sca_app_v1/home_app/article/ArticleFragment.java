@@ -68,7 +68,13 @@ public class ArticleFragment extends Fragment {
                         // Llegamos al final del RecyclerView, cargar más datos aquí
                         System.out.println("Se llega al final del scroll");
                         offset += limit;
-//                        showArticles(getContext());
+                    //    showArticles(getContext());
+                        // recyclerView.post(new Runnable() {
+                        //     @Override
+                        //     public void run() {
+                        //         showArticles(getContext());
+                        //     }
+                        // });
                     }
                 }
             }
@@ -194,7 +200,12 @@ public class ArticleFragment extends Fragment {
                 tvCode.setText(article.getCode());
                 System.out.println("count active " + article.getCount_active());
                 tvCountActive.setText(article.getCount_active().toString());
-                tvCategory.setText(category.getDescription());
+                if (category != null) {
+                    tvCategory.setText(category.getDescription());
+                }
+                else {
+                    tvCategory.setText("");
+                }
             }
 
             // Método para mostrar el menú contextual
