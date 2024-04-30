@@ -38,6 +38,7 @@ public class ArticleFragment extends Fragment {
     private AdapterArticle adapterArticle;
 
     private Integer offset = 0;
+    private Integer limit  = 6;
 
     // Referencia al ArticleFragment
     public ArticleFragment articleFragment = ArticleFragment.this;
@@ -66,6 +67,8 @@ public class ArticleFragment extends Fragment {
                             && firstVisibleItemPosition >= 0) {
                         // Llegamos al final del RecyclerView, cargar más datos aquí
                         System.out.println("Se llega al final del scroll");
+                        offset += limit;
+//                        showArticles(getContext());
                     }
                 }
             }
@@ -97,9 +100,7 @@ public class ArticleFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
         showArticles(getContext());
-
     }
 
     public void showAlert(String msg) {
