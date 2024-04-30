@@ -143,6 +143,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         String CREATE_TABLE_Category = "CREATE TABLE categoria (" +
                 "id INTEGER PRIMARY KEY AUTOINCREMENT," +
                 "description TEXT NOT NULL," +
+                "code TEXT NOT NULL," +
                 "parent_id INTEGER NOT NULL," +
                 "removed INTEGER DEFAULT 0 NOT NULL" +
                 ")";
@@ -168,6 +169,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         String CREATE_TABLE_Active = "CREATE TABLE activo (" +
                 "id INTEGER PRIMARY KEY AUTOINCREMENT," +
                 "bar_code TEXT NOT NULL," +
+                "virtual_code NOT NULL," +
                 "comment TEXT," +
                 "acquisition_date DATE NOT NULL," +
                 "accounting_document TEXT NOT NULL," +
@@ -178,6 +180,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "model TEXT NOT NULL," +
                 "state TEXT NOT NULL," +
                 "brand TEXT NOT NULL," +
+                "photo1 NOT NULL," +
+                "photo2 NOT NULL," +
+                "photo3 NOT NULL," +
+                "photo4 NOT NULL," +
                 "creation_date DATE NOT NULL," +
                 "removed INTEGER DEFAULT 0 NOT NULL," +
                 "office_id INTEGER," +

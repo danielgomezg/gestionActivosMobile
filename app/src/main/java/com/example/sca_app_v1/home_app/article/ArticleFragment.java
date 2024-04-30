@@ -182,7 +182,7 @@ public class ArticleFragment extends Fragment {
                 System.out.println("Inprmir posicion " + position);
                 System.out.println("articles size imp: " + articles.size());
                 Article article = articles.get(position);
-                System.out.println(article);
+                System.out.println(article.printData());
                 System.out.println(article.getName());
                 System.out.println(article.getCode());
 
