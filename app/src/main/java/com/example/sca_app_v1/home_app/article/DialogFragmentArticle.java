@@ -36,6 +36,7 @@ import com.example.sca_app_v1.models.Article;
 import com.example.sca_app_v1.models.Category;
 import com.google.android.material.textfield.TextInputLayout;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -65,13 +66,18 @@ public class DialogFragmentArticle extends DialogFragment {
     private ActivityResultLauncher<Intent> cameraLauncher;
     private static final int REQUEST_CAMERA_PERMISSION = 100;
     private ImageView photoArticle;
-
+    private ImageView photoArticle2;
+    private ImageView photoArticle3;
+    private ImageView photoArticle4;
+    private Integer countAddImage = 0;
+    private Button buttonAddPhoto;
     private String photoPath = "";
     //Si la foto proviene de la camara se guarda aca
     private Bitmap photoCam = null;
+    private List<Bitmap> photosCam = new ArrayList<>();
     //Si la foto proviene de la galeria se guarda aca
     private Uri selectedImageUri = null;
-
+    private List<Uri> photosGallery = new ArrayList<>();
 
     // Método estático para crear una instancia del DialogFragment en modo edicion
     public static DialogFragmentArticle newInstance(int mode, int position, Article article, ArticleFragment parentFragment) {
@@ -111,6 +117,8 @@ public class DialogFragmentArticle extends DialogFragment {
             }
 
         }
+
+
         // Inicializar los ActivityResultLauncher para la galería y la cámara
         // Callback de la galería
         galleryLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
@@ -119,20 +127,38 @@ public class DialogFragmentArticle extends DialogFragment {
                     public void onActivityResult(ActivityResult result) {
                         if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
                             selectedImageUri = result.getData().getData();
+                            photosGallery.add(selectedImageUri);
                             photoCam = null;
 
-                            // Guardar la foto seleccionada y obtener la ruta absoluta
-                            //photoPath = article.savePhoto(requireContext(), selectedImageUri);
-                            photoArticle.setImageURI(selectedImageUri);
-                            System.out.println("GALLERY " + photoPath);
 
-                            /*if (photoPath != null) {
-                                // Mostrar la foto en el ImageView
+                            if (countAddImage == 0) {
                                 photoArticle.setImageURI(selectedImageUri);
-                                System.out.println("GALLERY " + photoPath);
-                            } else {
-                                Toast.makeText(requireContext(), "Error al guardar la imagen", Toast.LENGTH_SHORT).show();
-                            }*/
+                                countAddImage++;
+                            }
+                            else if (countAddImage == 1) {
+                                photoArticle2.setImageURI(selectedImageUri);
+                                countAddImage++;
+                            }
+                            else if (countAddImage == 2) {
+                                photoArticle3.setImageURI(selectedImageUri);
+                                countAddImage++;
+                            }
+                            else if (countAddImage == 3) {
+                                photoArticle4.setImageURI(selectedImageUri);
+                                countAddImage++;
+                            }
+                            else {
+                                System.out.println("No hay espacio para más fotos");
+                                Toast.makeText(getContext(), "Solo se pueden agregar hasta 4 imagenes", Toast.LENGTH_SHORT).show();
+                            }
+
+                            if (countAddImage == 4) {
+                                // Desabilitar buttonAddPhoto
+                                buttonAddPhoto.setEnabled(false);
+                            }
+
+                            // 
+
                         }
                     }
                 });
@@ -145,19 +171,35 @@ public class DialogFragmentArticle extends DialogFragment {
                         if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
                             Bundle extras = result.getData().getExtras();
                             photoCam = (Bitmap) extras.get("data");
+                            photosCam.add(photoCam);
                             selectedImageUri = null;
 
-                            // Guardar la foto capturada y obtener la ruta absoluta
-                            //photoPath = article.savePhoto(requireContext(), photo);
-                            //System.out.println("CAMERA " + photoPath);
-                            photoArticle.setImageBitmap(photoCam);
-
-                            /*if (photoPath != null) {
-                                // Mostrar la foto en el ImageView
+                            if (countAddImage == 0) {
                                 photoArticle.setImageBitmap(photoCam);
-                            } else {
-                                Toast.makeText(requireContext(), "Error al guardar la imagen", Toast.LENGTH_SHORT).show();
-                            }*/
+                                countAddImage++;
+                            }
+                            else if (countAddImage == 1) {
+                                photoArticle2.setImageBitmap(photoCam);
+                                countAddImage++;
+                            }
+                            else if (countAddImage == 2) {
+                                photoArticle3.setImageBitmap(photoCam);
+                                countAddImage++;
+                            }
+                            else if (countAddImage == 3) {
+                                photoArticle4.setImageBitmap(photoCam);
+                                countAddImage++;
+                            }
+                            else {
+                                System.out.println("No hay espacio para más fotos");
+                                Toast.makeText(getContext(), "Solo se pueden agregar hasta 4 imagenes", Toast.LENGTH_SHORT).show();
+                            }
+
+                            if (countAddImage == 4) {
+                                // Desabilitar buttonAddPhoto
+                                buttonAddPhoto.setEnabled(false);
+                            }
+
                         }
                     }
                 });
@@ -207,10 +249,19 @@ public class DialogFragmentArticle extends DialogFragment {
 
             // Volver a activar el filtrado automático
             categorySelect.setThreshold(1);
+
+            String photosArticle = article.getPhoto();
+            System.out.println("images articulos " + photosArticle);
+            String[] photosUrl = photosArticle.split(",");
+            countAddImage = photosUrl.length;
         }
 
         photoArticle = view.findViewById(R.id.imageView);
-        Button buttonAddPhoto = view.findViewById(R.id.buttonAddPhoto);
+        photoArticle2 = view.findViewById(R.id.imageView2);
+        photoArticle3 = view.findViewById(R.id.imageView3);
+        photoArticle4 = view.findViewById(R.id.imageView4);
+
+        buttonAddPhoto = view.findViewById(R.id.buttonAddPhoto);
 
         buttonAddPhoto.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -251,8 +302,50 @@ public class DialogFragmentArticle extends DialogFragment {
                 System.out.println("photoPath está vacío o es nulo. Mostrando imagen por defecto.");
             } else {
                 try {
-                    Uri photoUri = Uri.parse(photoPath);
-                    photoArticle.setImageURI(photoUri);
+                    System.out.println("PHOTO PATH ARTICULO");
+                    System.out.println(photoPath);
+                    String[] photos = photoPath.split(",");
+                    if (photos.length == 4) {
+                        buttonAddPhoto.setEnabled(false);
+                    }
+                    for(int i = 0; i < photos.length; i++) {
+                        Uri photoUri = Uri.parse(photos[i]);
+                        System.out.println("photo uri " + photoUri);
+                        if (i == 0) {
+                            if (photoUri.toString().contains("mobile_local")) {
+                                photoArticle.setImageURI(photoUri);
+                            }
+                            else {
+                                photoArticle.setImageResource(R.drawable.sca_logo_2);
+                            }
+                        }
+                        else if (i == 1) {
+                            if (photoUri.toString().contains("mobile_local")) {
+                                photoArticle2.setImageURI(photoUri);
+                            }
+                            else {
+                                photoArticle2.setImageResource(R.drawable.sca_logo_2);
+                            }
+                        }
+                        else if (i == 2) {
+                            if (photoUri.toString().contains("mobile_local")) {
+                                photoArticle3.setImageURI(photoUri);
+                            }
+                            else {
+                                photoArticle3.setImageResource(R.drawable.sca_logo_2);
+                            }
+                        }
+                        else if (i == 3) {
+                            if (photoUri.toString().contains("mobile_local")) {
+                                photoArticle4.setImageURI(photoUri);
+                            }
+                            else {
+                                photoArticle4.setImageResource(R.drawable.sca_logo_2);
+                            }
+                        }
+                    }
+//                    Uri photoUri = Uri.parse(photoPath);
+//                    photoArticle.setImageURI(photoUri);
                     System.out.println("Mostrando foto en ImageView: " + photoPath);
                 } catch (Exception e) {
                     photoArticle.setImageResource(R.drawable.photo);
@@ -331,20 +424,40 @@ public class DialogFragmentArticle extends DialogFragment {
                             newArticle.setDescription(newDescription);
                             newArticle.setCode(newCode);
                             newArticle.setCategory_id(idCategory);
-                            if(photoCam != null){
-                                photoPath = article.savePhoto(requireContext(), photoCam, newName);
-                            }else if(selectedImageUri != null){
-                                photoPath = article.savePhoto(requireContext(), selectedImageUri, newName);
+                            List<String> photosUrl = new ArrayList<>();
+                            boolean success = true;
+                            for(int i = 0; i < photosCam.size(); i++){
+                                String url = article.savePhoto(requireContext(), photosCam.get(i), newName);
+                                if (url == null) {
+                                    success = false;
+                                }
+                                else {
+                                    photosUrl.add(url);
+                                }
                             }
-                            if (photoPath == null) {
+                            for(int i = 0; i < photosGallery.size(); i++){
+                                String url = article.savePhoto(requireContext(), photosGallery.get(i), newName);
+                                if (url == null) {
+                                    success = false;
+                                }
+                                else {
+                                    photosUrl.add(url);
+                                }
+                            }
+
+//                            if(photosCam.size() > 0){
+////                              photoPath = article.savePhoto(requireContext(), photoCam, newName);
+//                            }else if(selectedImageUri != null){
+//                                photoPath = article.savePhoto(requireContext(), selectedImageUri, newName);
+//                            }
+                            if (!success) {
                                 // Manejar el error de guardar la foto
                                 photoPath = "";
                                 Toast.makeText(requireContext(), "Error al guardar la foto seleecionada", Toast.LENGTH_SHORT).show();
                             }
                             photoCam = null;
                             selectedImageUri = null;
-
-                            newArticle.setPhoto(photoPath);
+                            photoPath = String.join(",", photosUrl);
                             System.out.println("GUARDANDO PHOTO " + photoPath);
 
                             if (mode == MODE_EDIT) {
@@ -357,7 +470,7 @@ public class DialogFragmentArticle extends DialogFragment {
 
                                 newArticle.setId(article.getId());
                                 newArticle.setSync(article.getSync());
-
+                                newArticle.setPhoto(article.getPhoto() + "," + photoPath);
                                 // Actualizar el artículo en la base de datos
                                 boolean updateSuccessful = newArticle.updateArticle(getContext());
                                 System.out.println(updateSuccessful);
@@ -379,7 +492,7 @@ public class DialogFragmentArticle extends DialogFragment {
                                 System.out.println("CREATEEEEEEEEEE");
 
                                 newArticle.setCompany_id(company_id);
-
+                                newArticle.setPhoto(photoPath);
                                 boolean createSuccessful = newArticle.createArticle(getContext());
                                 System.out.println(createSuccessful);
 
@@ -400,101 +513,6 @@ public class DialogFragmentArticle extends DialogFragment {
                 });
             }
         });
-
-//        dialog.show();
-        // builder.setView(view)
-        //         .setTitle(mode == MODE_EDIT ? "Editar artículo" : "Crear nuevo artículo")
-        //         .setPositiveButton("Guardar", new DialogInterface.OnClickListener() {
-        //             @Override
-        //             public void onClick(DialogInterface dialog, int which) {
-        //                 // Acción al hacer clic en el botón de guardar
-
-        //                 // Creacion del artículo
-        //                 String newName = editTextName.getText().toString();
-        //                 String newDescription = editTextDescription.getText().toString();
-        //                 String newCode = editTextCode.getText().toString();
-        //                 String selectedCategory = categorySelect.getText().toString();
-        //                 int idCategory = category.getCategoryID(selectedCategory, categoryList);
-
-        //                 // Validacion de datos.
-        //                 if (newDescription.isEmpty()) {
-        //                     textInputLayoutDescription.setError("Campo requerido");
-                            
-        //                     return;
-        //                 } else {
-        //                     textInputLayoutDescription.setError(null);
-        //                 }
-
-        //                 // if (newName.isEmpty() || newDescription.isEmpty() || newCode.isEmpty() || selectedCategory.isEmpty()) {
-        //                 //     Toast.makeText(getContext(), "Por favor, complete todos los campos", Toast.LENGTH_SHORT).show();
-        //                 //     return;
-        //                 // }
-
-        //                 // Crear un objeto Article con los nuevos valores
-        //                 Article newArticle = new Article();
-        //                 newArticle.setName(newName);
-        //                 newArticle.setDescription(newDescription);
-        //                 newArticle.setCode(newCode);
-        //                 newArticle.setCategory_id(idCategory);
-        //                 newArticle.setPhoto("");
-
-                        
-
-        //                 if (mode == MODE_EDIT) {
-        //                     System.out.println("newName " + newName);
-        //                     System.out.println("newDescription " + newDescription);
-        //                     System.out.println("newCode " + newCode);
-        //                     System.out.println("selectedCategory " + selectedCategory);
-        //                     System.out.println("selectedCategory " + idCategory);
-        //                     System.out.println("position " + position);
-
-        //                     newArticle.setId(article.getId());
-        //                     newArticle.setSync(article.getSync());
-
-        //                     // Actualizar el artículo en la base de datos
-        //                     boolean updateSuccessful = newArticle.updateArticle(getContext());
-        //                     System.out.println(updateSuccessful);
-
-        //                     if (updateSuccessful && parentFragment != null) {
-        //                         // La actualización fue exitosa
-        //                         Toast.makeText(getContext(), "Artículo actualizado correctamente", Toast.LENGTH_SHORT).show();
-
-        //                         // Actualizar la lista de artículos en el fragmento padre (ArticleFragment)
-        //                         parentFragment.updateArticles(getContext(), position);
-        //                     } else {
-        //                         // Ocurrió un error durante la actualización
-        //                         Toast.makeText(getContext(), "Error al actualizar el artículo", Toast.LENGTH_SHORT).show();
-        //                     }
-
-        //                     // Lógica para guardar los cambios
-        //                 } else{
-
-        //                     newArticle.setPhoto("");
-        //                     newArticle.setCompany_id(company_id);
-
-        //                     boolean createSuccessful = newArticle.createArticle(getContext());
-        //                     System.out.println(createSuccessful);
-
-        //                     if (createSuccessful && parentFragment != null) {
-        //                         // La creacion fue exitosa
-        //                         Toast.makeText(getContext(), "Artículo creado correctamente", Toast.LENGTH_SHORT).show();
-
-        //                         // Actualizar la lista de artículos en el fragmento padre (ArticleFragment)
-        //                         parentFragment.showArticles(getContext());
-        //                     } else {
-        //                         // Ocurrió un error durante la actualización
-        //                         Toast.makeText(getContext(), "Error al crear el artículo", Toast.LENGTH_SHORT).show();
-        //                     }
-        //                 }
-        //             }
-        //         })
-        //         .setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
-        //             @Override
-        //             public void onClick(DialogInterface dialog, int which) {
-        //                 // Acción al hacer clic en el botón de cancelar
-        //                 dismiss();
-        //             }
-        //         });
 
         return dialog;
     }

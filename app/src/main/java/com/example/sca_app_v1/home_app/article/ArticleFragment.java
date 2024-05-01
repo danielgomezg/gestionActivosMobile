@@ -39,6 +39,7 @@ public class ArticleFragment extends Fragment {
 
     private Integer offset = 0;
     private Integer limit  = 6;
+    private Integer count = 0;
 
     // Referencia al ArticleFragment
     public ArticleFragment articleFragment = ArticleFragment.this;
@@ -50,6 +51,8 @@ public class ArticleFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_article, container, false);
         articleList = view.findViewById(R.id.list_articles);
+        count = Article.getArticlesCount(getContext());
+        System.out.println("count: " + count);
 
         articleList.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -62,12 +65,16 @@ public class ArticleFragment extends Fragment {
                     int visibleItemCount = layoutManager.getChildCount();
                     int totalItemCount = layoutManager.getItemCount();
                     int firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition();
+                    System.out.println("visibleItemCount > " + visibleItemCount);
+                    System.out.println("totalItemCount > " + totalItemCount);
+                    System.out.println("firstVisibleItemPosition > " + firstVisibleItemPosition);
 
-                    if ((visibleItemCount + firstVisibleItemPosition) >= totalItemCount
+                    if ((visibleItemCount + firstVisibleItemPosition) >= count
                             && firstVisibleItemPosition >= 0) {
                         // Llegamos al final del RecyclerView, cargar más datos aquí
                         System.out.println("Se llega al final del scroll");
                         offset += limit;
+                        System.out.println("offset " + offset);
                     //    showArticles(getContext());
                         // recyclerView.post(new Runnable() {
                         //     @Override
@@ -75,6 +82,9 @@ public class ArticleFragment extends Fragment {
                         //         showArticles(getContext());
                         //     }
                         // });
+                    }
+                    else {
+                        System.out.println("scrolling...");
                     }
                 }
             }
@@ -117,7 +127,7 @@ public class ArticleFragment extends Fragment {
     public void showArticles(Context context) {
         System.out.println("IN SHOW ARTICLES");
         Article article = new Article();
-        articles = article.getArticles(context, offset);
+        articles = article.getArticles(context, offset, limit);
         System.out.println("articles size: " + articles.size());
 
         adapterArticle.notifyDataSetChanged();
@@ -126,7 +136,7 @@ public class ArticleFragment extends Fragment {
     public void updateArticles(Context context, int position) {
         System.out.println("IN UPDATE SHOW ARTICLES");
         Article article = new Article();
-        articles = article.getArticles(context, offset);
+        articles = article.getArticles(context, offset, limit);
         adapterArticle.notifyItemChanged(position);
     }
 

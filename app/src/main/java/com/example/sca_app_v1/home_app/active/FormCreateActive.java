@@ -189,7 +189,7 @@ public class FormCreateActive extends BottomSheetDialogFragment{
         TextInputLayout textInputLayoutArticle = view.findViewById(R.id.article_options);
         AutoCompleteTextView autoCompleteTextViewArticle = textInputLayoutArticle.findViewById(R.id.article_select);
         Article article = new Article();
-        List<Article> articleList = article.getArticles(requireContext(), 0);
+        List<Article> articleList = article.getArticlesName(requireContext());
         System.out.println("ARTICLE LIST " + articleList);
         List<String> items = articleList.stream()
                 .map(Article::getName)

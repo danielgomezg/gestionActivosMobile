@@ -229,9 +229,9 @@ public class Article implements Serializable {
                 '}';
     }
 
-    public List<Article> getArticles(Context context, Integer offset) {
+    public List<Article> getArticles(Context context, Integer offset, Integer limit) {
         System.out.println("IN GET ALL ARTICLES");
-        String sql = "SELECT * FROM articulo WHERE removed = 0 ORDER BY id DESC LIMIT  " + offset + ", 50";
+        String sql = "SELECT * FROM articulo WHERE removed = 0 ORDER BY id DESC LIMIT  " + offset + ", " + limit;
 
         try {
 
@@ -254,6 +254,56 @@ public class Article implements Serializable {
             return  null;
         }
 
+    }
+
+    public static Integer getArticlesCount(Context context) {
+        System.out.println("IN GET ALL ARTICLES COUNT");
+        String sql = "SELECT COUNT(*) FROM articulo WHERE removed = 0";
+
+        try {
+
+            DatabaseHelper dbHelper = new DatabaseHelper(context);
+            Cursor cursor = dbHelper.executeQuery(sql);
+
+            Integer count = 0;
+
+            if (cursor.moveToFirst()) {
+                count = cursor.getInt(0);
+            }
+
+            cursor.close();
+            return count;
+        
+        } catch (Exception e) {
+            e.printStackTrace();
+            return  null;
+        }
+    }
+
+    public List<Article> getArticlesName(Context context) {
+        System.out.println("IN GET ALL ARTICLES Name");
+        String sql = "SELECT id, name FROM articulo WHERE removed = 0";
+
+        try {
+
+            DatabaseHelper dbHelper = new DatabaseHelper(context);
+            Cursor cursor = dbHelper.executeQuery(sql);
+
+            List<Article> articles = new ArrayList<>();
+
+            if (cursor.moveToFirst()) {
+                do {
+                    articles.add(new Article(cursor));
+                } while (cursor.moveToNext());
+            }
+
+            cursor.close();
+            return articles;
+        
+        } catch (Exception e) {
+            e.printStackTrace();
+            return  null;
+        }
     }
 
     public boolean createArticle(Context context) {
@@ -537,6 +587,13 @@ public class Article implements Serializable {
 
         // Variable para almacenar `photoName`
         final String[] photoName = new String[1];
+        String[] photos = this.getPhoto().split(",");
+        List<String> photosUpload = new ArrayList<>();
+        for (int i = 0; i < photos.length; i++) {
+            if (photos[i].contains("mobile_local")) {
+                photosUpload.add(photos[i]);
+            }
+        }
 
         // Definir un callback para manejar el resultado de `uploadImage()`
         UploadImageCallback callback = new UploadImageCallback() {
@@ -630,34 +687,47 @@ public class Article implements Serializable {
         String url = "http://10.0.2.2:9000/article";
         RequestQueue queue = Volley.newRequestQueue(context);
         Integer idArt = this.getId();
-
-        // Variable para almacenar `photoName`
-        final String[] photoName = new String[1];
+        String[] photos = this.getPhoto().split(",");
+        List<String> photosUpload = new ArrayList<>();
+        for (int i = 0; i < photos.length; i++) {
+            if (photos[i].contains("mobile_local")) {
+                photosUpload.add(photos[i]);
+            }
+        }
+        System.out.println("photosUpload > " + photosUpload);
+        final int[] errorUpload = {0};
+        List<String> photoNameUpload = new ArrayList<>();
 
         // Definir un callback para manejar el resultado de `uploadImage()`
         UploadImageCallback callback = new UploadImageCallback() {
             @Override
             public void onSuccess(String photoUrl) {
                 // Almacenar la URL de la imagen
-                photoName[0] = photoUrl;
+//                photoName[0] = photoUrl;
+                photoNameUpload.add(photoUrl);
                 // Lógica para crear y enviar la solicitud JSON a la API
-                createArticleAPI(context, token, queue, url, photoName[0]);
+                if (photoNameUpload.size() == photosUpload.size() || photoNameUpload.size() == photosUpload.size() + errorUpload[0]) {
+                    createArticleAPI(context, token, queue, url, photoUrl);
+                }
             }
 
             @Override
             public void onError(String errorMessage) {
                 // Manejar el error de `uploadImage()`
+                errorUpload[0]++;
                 System.out.println("Error al subir la imagen: " + errorMessage);
             }
         };
 
         // Llamar a `uploadImage()` si es necesario o asignar `photoName[0]` directamente
-        if (this.getPhoto().contains("mobile")) {
-            uploadImage(token, this.getCompany_id(), this.getPhoto(), callback);
+
+        if (photosUpload.size() > 0) {
+            for (int i = 0; i < photosUpload.size(); i++) {
+                uploadImage(token, this.getCompany_id(), photosUpload.get(i), callback);
+            }
         } else {
-            photoName[0] = this.getPhoto();
             // Lógica para crear y enviar la solicitud JSON a la API
-            createArticleAPI(context, token, queue, url, photoName[0]);
+            createArticleAPI(context, token, queue, url, this.getPhoto());
         }
 
 
@@ -861,7 +931,7 @@ public class Article implements Serializable {
             String uuid = UUID.randomUUID().toString();
 
             // Crear el nombre del archivo con el UUID y "article_photo.jpg"
-            String fileName = uuid + "-" + "mobile" + "-" + nameArt + ".jpg";
+            String fileName = uuid + "-" + "mobile_local" + "-" + nameArt + ".jpg";
 
             // Crear un archivo para guardar la imagen en la carpeta imagesArticles
             File imageFile = new File(imagesDir, fileName);

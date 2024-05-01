@@ -482,7 +482,7 @@ public class DialogFragmentActive extends DialogFragment {
         autoCompleteTextViewArticles = textInputLayoutArticle.findViewById(R.id.article_select);
 
         Article article = new Article();
-        List<Article> articleList = article.getArticles(requireContext(), 0);
+        List<Article> articleList = article.getArticlesName(requireContext());
 
         List<String> items = articleList.stream()
                 .map(Article::getName)
