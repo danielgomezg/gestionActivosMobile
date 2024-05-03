@@ -578,8 +578,8 @@ public class DialogFragmentActive extends DialogFragment {
     }
 
     public void initializeOffice(View view, Integer idSucursal) {
-        //textInputLayoutOffices = view.findViewById(R.id.office);
-        //autoCompleteTextViewOffices = textInputLayoutOffices.findViewById(R.id.office_select);
+        textInputLayoutOffices = view.findViewById(R.id.office);
+        autoCompleteTextViewOffices = textInputLayoutOffices.findViewById(R.id.office_select);
 
         if (adapterOffices != null) {
             adapterOffices.clear();

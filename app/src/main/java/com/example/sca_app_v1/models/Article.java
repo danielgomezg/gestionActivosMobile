@@ -33,10 +33,13 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import okhttp3.*;
 
@@ -580,46 +583,104 @@ public class Article implements Serializable {
     }
 
     public void syncUpdate(Context context, String token, Integer companyId) {
-        // PETICION A LA API PARA ACTUALIZAR EL ARTICULO
+        // URL para actualizar el artículo
         String url = "http://10.0.2.2:9000/article/" + this.getId();
-        Integer idArt = this.getId();
         RequestQueue queue = Volley.newRequestQueue(context);
 
-        // Variable para almacenar `photoName`
-        final String[] photoName = new String[1];
-        String[] photos = this.getPhoto().split(",");
-        List<String> photosUpload = new ArrayList<>();
-        for (int i = 0; i < photos.length; i++) {
-            if (photos[i].contains("mobile_local")) {
-                photosUpload.add(photos[i]);
-            }
-        }
+        // Lista para almacenar las URLs de las imágenes subidas correctamente
+        List<String> photoUrls = new ArrayList<>();
 
-        // Definir un callback para manejar el resultado de `uploadImage()`
-        UploadImageCallback callback = new UploadImageCallback() {
+        // `StringBuilder` para concatenar las imágenes subidas
+        StringBuilder photoUrlsString = new StringBuilder();
+
+        // Dividir la cadena de fotos del artículo en un array
+        String[] photosArticle = this.getPhoto().split(",");
+
+        // Contador para llevar un registro de cuántas imágenes se han procesado
+        final AtomicInteger handledCount = new AtomicInteger(0);
+        final int totalPhotos = photosArticle.length;
+
+        // Lista para mantener un registro de las imágenes subidas
+        Set<String> uploadedPhotos = new HashSet<>();
+
+        // Definir el callback para manejar la subida de imágenes
+        UploadImageCallback uploadCallback = new UploadImageCallback() {
             @Override
             public void onSuccess(String photoUrl) {
-                // Almacenar la URL de la imagen
-                photoName[0] = photoUrl;
-                // Lógica para crear y enviar la solicitud JSON a la API
-                updateArticleAPI(context, token, companyId, queue, url, photoName[0]);
+                // Almacenar la URL de la imagen subida y marcarla como subida
+                System.out.println("Imagen subida: " + photoUrl);
+                photoUrls.add(photoUrl);
+                handledCount.incrementAndGet();
+
+                // Verificar si se ha terminado de procesar todas las imágenes
+                checkCompletion();
             }
 
             @Override
             public void onError(String errorMessage) {
                 // Manejar el error de `uploadImage()`
                 System.out.println("Error al subir la imagen: " + errorMessage);
+                handledCount.incrementAndGet();
+
+                // Verificar si se ha terminado de procesar todas las imágenes
+                checkCompletion();
+            }
+
+            // Método para verificar si todas las imágenes se han procesado
+            private void checkCompletion() {
+                System.out.println("Verificando si todas las imágenes se han procesado");
+                if (handledCount.get() == totalPhotos) {
+                    System.out.println("Todas las imágenes procesadas");
+                    // Combinar las URLs de imágenes subidas
+                    for (String url : photoUrls) {
+                        if (photoUrlsString.length() > 0) {
+                            photoUrlsString.append(",");
+                        }
+                        photoUrlsString.append(url);
+                    }
+                    System.out.println("URLS combinadas: " + photoUrlsString.toString());
+
+                    // Actualizar el artículo
+                    updateArticleAPI(context, token, companyId, queue, url, photoUrlsString.toString());
+                }
             }
         };
 
-        // Llamar a `uploadImage()` si es necesario o asignar `photoName[0]` directamente
-        if (this.getPhoto().contains("mobile")) {
-            uploadImage(token, companyId, this.getPhoto(), callback);
-        } else {
-            photoName[0] = this.getPhoto();
-            // Lógica para crear y enviar la solicitud JSON a la API
-            updateArticleAPI(context, token, companyId, queue, url, photoName[0]);
+        // Subir solo las imágenes que contienen "mobile_local"
+        for (String photo : photosArticle) {
+            System.out.println("Procesando imagen: " + photo);
+            if (photo.contains("mobile_local")) {
+                // Solo subir imágenes nuevas (no duplicadas)
+                if (!uploadedPhotos.contains(photo)) {
+                    uploadedPhotos.add(photo);
+                    System.out.println("Subiendo imagen: " + photo);
+                    uploadImage(token, companyId, photo, uploadCallback);
+                }
+            } else {
+                // Si la imagen ya está subida, agregarla a la lista de URLs
+                System.out.println("Imagen ya subida o no requiere subida: " + photo);
+                if (!uploadedPhotos.contains(photo)) {
+                    uploadedPhotos.add(photo);
+                    photoUrls.add(photo);
+                    handledCount.incrementAndGet();
+                }
+            }
         }
+
+        // Si no hay imágenes que subir o ya están todas subidas, verifica si se puede actualizar el artículo
+       /* if (handledCount.get() == totalPhotos) {
+            // Combinar todas las URLs de imágenes subidas
+            for (String photoUrl : photoUrls) {
+                if (photoUrlsString.length() > 0) {
+                    photoUrlsString.append(",");
+                }
+                photoUrlsString.append(photoUrl);
+            }
+
+            // Actualizar el artículo
+            System.out.println("Actualizando artículo con las URLS combinadas: " + photoUrlsString.toString());
+            updateArticleAPI(context, token, companyId, queue, url, photoUrlsString.toString());
+        }*/
     }
 
     // ACTUALIZA EL ARTICULO DE LA API

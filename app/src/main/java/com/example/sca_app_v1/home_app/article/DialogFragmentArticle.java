@@ -78,6 +78,8 @@ public class DialogFragmentArticle extends DialogFragment {
     //Si la foto proviene de la galeria se guarda aca
     private Uri selectedImageUri = null;
     private List<Uri> photosGallery = new ArrayList<>();
+    //Variable usada para saber si habian fotos een el articulo a editar
+    private String photosArticleEdit = "";
 
     // Método estático para crear una instancia del DialogFragment en modo edicion
     public static DialogFragmentArticle newInstance(int mode, int position, Article article, ArticleFragment parentFragment) {
@@ -250,10 +252,14 @@ public class DialogFragmentArticle extends DialogFragment {
             // Volver a activar el filtrado automático
             categorySelect.setThreshold(1);
 
-            String photosArticle = article.getPhoto();
-            System.out.println("images articulos " + photosArticle);
-            String[] photosUrl = photosArticle.split(",");
-            countAddImage = photosUrl.length;
+            photosArticleEdit = article.getPhoto();
+            System.out.println("images articulos " + photosArticleEdit);
+            if (photosArticleEdit.isEmpty()) {
+                countAddImage = 0;
+            } else {
+                String[] photosUrl = photosArticleEdit.split(",");
+                countAddImage = photosUrl.length;
+            }
         }
 
         photoArticle = view.findViewById(R.id.imageView);
@@ -426,22 +432,25 @@ public class DialogFragmentArticle extends DialogFragment {
                             newArticle.setCategory_id(idCategory);
                             List<String> photosUrl = new ArrayList<>();
                             boolean success = true;
+                            Integer contNamePhoto = 0;
                             for(int i = 0; i < photosCam.size(); i++){
-                                String url = article.savePhoto(requireContext(), photosCam.get(i), newName);
+                                String url = article.savePhoto(requireContext(), photosCam.get(i),String.valueOf(contNamePhoto) + newName);
                                 if (url == null) {
                                     success = false;
                                 }
                                 else {
                                     photosUrl.add(url);
+                                    contNamePhoto++;
                                 }
                             }
                             for(int i = 0; i < photosGallery.size(); i++){
-                                String url = article.savePhoto(requireContext(), photosGallery.get(i), newName);
+                                String url = article.savePhoto(requireContext(), photosGallery.get(i), String.valueOf(contNamePhoto) + newName);
                                 if (url == null) {
                                     success = false;
                                 }
                                 else {
                                     photosUrl.add(url);
+                                    contNamePhoto++;
                                 }
                             }
 
@@ -470,7 +479,12 @@ public class DialogFragmentArticle extends DialogFragment {
 
                                 newArticle.setId(article.getId());
                                 newArticle.setSync(article.getSync());
-                                newArticle.setPhoto(article.getPhoto() + "," + photoPath);
+                                if (photosArticleEdit.isEmpty()){
+                                    newArticle.setPhoto(photoPath);
+                                }else {
+                                    newArticle.setPhoto(article.getPhoto() + "," + photoPath);
+                                }
+
                                 // Actualizar el artículo en la base de datos
                                 boolean updateSuccessful = newArticle.updateArticle(getContext());
                                 System.out.println(updateSuccessful);
