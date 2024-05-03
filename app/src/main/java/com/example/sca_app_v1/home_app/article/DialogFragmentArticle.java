@@ -37,6 +37,7 @@ import com.example.sca_app_v1.models.Category;
 import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -74,12 +75,16 @@ public class DialogFragmentArticle extends DialogFragment {
     private String photoPath = "";
     //Si la foto proviene de la camara se guarda aca
     private Bitmap photoCam = null;
-    private List<Bitmap> photosCam = new ArrayList<>();
+    private List<Bitmap> photosCam = new ArrayList<>(Arrays.asList(null, null, null, null));
     //Si la foto proviene de la galeria se guarda aca
     private Uri selectedImageUri = null;
-    private List<Uri> photosGallery = new ArrayList<>();
+    private List<Uri> photosGallery = new ArrayList<>(Arrays.asList(null, null, null, null));
     //Variable usada para saber si habian fotos een el articulo a editar
     private String photosArticleEdit = "";
+    private Button btnDeleteImg1;
+    private Button btnDeleteImg2;
+    private Button btnDeleteImg3;
+    private Button btnDeleteImg4;
 
     // Método estático para crear una instancia del DialogFragment en modo edicion
     public static DialogFragmentArticle newInstance(int mode, int position, Article article, ArticleFragment parentFragment) {
@@ -129,24 +134,28 @@ public class DialogFragmentArticle extends DialogFragment {
                     public void onActivityResult(ActivityResult result) {
                         if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
                             selectedImageUri = result.getData().getData();
-                            photosGallery.add(selectedImageUri);
+
                             photoCam = null;
 
-
-                            if (countAddImage == 0) {
+                            if (photosGallery.get(0) == null && photosCam.get(0) == null) {
                                 photoArticle.setImageURI(selectedImageUri);
+                                photosGallery.set(0, selectedImageUri);
+                                
                                 countAddImage++;
                             }
-                            else if (countAddImage == 1) {
+                            else if (photosGallery.get(1) == null && photosCam.get(1) == null) {
                                 photoArticle2.setImageURI(selectedImageUri);
+                                photosGallery.set(1, selectedImageUri);
                                 countAddImage++;
                             }
-                            else if (countAddImage == 2) {
+                            else if (photosGallery.get(2) == null && photosCam.get(2) == null) {
                                 photoArticle3.setImageURI(selectedImageUri);
+                                photosGallery.set(2, selectedImageUri);
                                 countAddImage++;
                             }
-                            else if (countAddImage == 3) {
+                            else if (photosGallery.get(3) == null && photosCam.get(3) == null) {
                                 photoArticle4.setImageURI(selectedImageUri);
+                                photosGallery.set(3, selectedImageUri);
                                 countAddImage++;
                             }
                             else {
@@ -173,23 +182,27 @@ public class DialogFragmentArticle extends DialogFragment {
                         if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
                             Bundle extras = result.getData().getExtras();
                             photoCam = (Bitmap) extras.get("data");
-                            photosCam.add(photoCam);
+
                             selectedImageUri = null;
 
-                            if (countAddImage == 0) {
+                            if (photosGallery.get(0) == null && photosCam.get(0) == null) {
                                 photoArticle.setImageBitmap(photoCam);
+                                photosCam.set(0, photoCam);
                                 countAddImage++;
                             }
-                            else if (countAddImage == 1) {
+                            else if (photosGallery.get(1) == null && photosCam.get(1) == null) {
                                 photoArticle2.setImageBitmap(photoCam);
+                                photosCam.set(1, photoCam);
                                 countAddImage++;
                             }
-                            else if (countAddImage == 2) {
+                            else if (photosGallery.get(2) == null && photosCam.get(2) == null) {
                                 photoArticle3.setImageBitmap(photoCam);
+                                photosCam.set(2, photoCam);
                                 countAddImage++;
                             }
-                            else if (countAddImage == 3) {
+                            else if (photosGallery.get(3) == null && photosCam.get(3) == null) {
                                 photoArticle4.setImageBitmap(photoCam);
+                                photosCam.set(3, photoCam);
                                 countAddImage++;
                             }
                             else {
@@ -275,7 +288,50 @@ public class DialogFragmentArticle extends DialogFragment {
                 onAddPhotoClick();
             }
         });
-
+        btnDeleteImg1 = view.findViewById(R.id.btnDeleteImg1);
+        btnDeleteImg1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                photoArticle.setImageResource(R.drawable.photo);
+                buttonAddPhoto.setEnabled(true);
+                photosCam.set(0, null);
+                photosGallery.set(0, null);
+                countAddImage--;
+            }
+        });
+        btnDeleteImg2 = view.findViewById(R.id.btnDeleteImg2);
+        btnDeleteImg2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                photoArticle2.setImageResource(R.drawable.photo);
+                buttonAddPhoto.setEnabled(true);
+                photosCam.set(1, null);
+                photosGallery.set(1, null);
+                countAddImage--;
+            }
+        });
+        btnDeleteImg3 = view.findViewById(R.id.btnDeleteImg3);
+        btnDeleteImg3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                photoArticle3.setImageResource(R.drawable.photo);
+                buttonAddPhoto.setEnabled(true);
+                photosCam.set(2, null);
+                photosGallery.set(2, null);
+                countAddImage--;
+            }
+        });
+        btnDeleteImg4 = view.findViewById(R.id.btnDeleteImg4);
+        btnDeleteImg4.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                photoArticle4.setImageResource(R.drawable.photo);
+                buttonAddPhoto.setEnabled(true);
+                photosCam.set(3, null);
+                photosGallery.set(3, null);
+                countAddImage--;
+            }
+        });
 
         categorySelect.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -434,6 +490,9 @@ public class DialogFragmentArticle extends DialogFragment {
                             boolean success = true;
                             Integer contNamePhoto = 0;
                             for(int i = 0; i < photosCam.size(); i++){
+                                if (photosCam.get(i) == null) {
+                                    continue;
+                                }
                                 String url = article.savePhoto(requireContext(), photosCam.get(i),String.valueOf(contNamePhoto) + newName);
                                 if (url == null) {
                                     success = false;
@@ -444,6 +503,9 @@ public class DialogFragmentArticle extends DialogFragment {
                                 }
                             }
                             for(int i = 0; i < photosGallery.size(); i++){
+                                if (photosGallery.get(i) == null) {
+                                    continue;
+                                }
                                 String url = article.savePhoto(requireContext(), photosGallery.get(i), String.valueOf(contNamePhoto) + newName);
                                 if (url == null) {
                                     success = false;
