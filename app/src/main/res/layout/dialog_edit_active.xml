@@ -220,5 +220,106 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="147dp"
+                android:orientation="horizontal">
+
+                <FrameLayout
+                    android:layout_width="147dp"
+                    android:layout_height="147dp">
+
+                    <ImageView
+                        android:id="@+id/imageView"
+                        android:layout_width="147dp"
+                        android:layout_height="147dp"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/photo" />
+
+                    <Button
+                        android:id="@+id/btnDeleteImg1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="top|end"
+                        android:text="X" />
+
+                </FrameLayout>
+
+                <FrameLayout
+                    android:layout_width="147dp"
+                    android:layout_height="147dp">
+
+                    <ImageView
+                        android:id="@+id/imageView2"
+                        android:layout_width="147dp"
+                        android:layout_height="147dp"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/photo" />
+
+                    <Button
+                        android:id="@+id/btnDeleteImg2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="top|end"
+                        android:text="X" />
+
+                </FrameLayout>
+
+                <FrameLayout
+                    android:layout_width="147dp"
+                    android:layout_height="147dp">
+
+                    <ImageView
+                        android:id="@+id/imageView3"
+                        android:layout_width="147dp"
+                        android:layout_height="147dp"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/photo" />
+
+                    <Button
+                        android:id="@+id/btnDeleteImg3"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="top|end"
+                        android:text="X" />
+
+                </FrameLayout>
+
+                <FrameLayout
+                    android:layout_width="147dp"
+                    android:layout_height="147dp">
+
+                    <ImageView
+                        android:id="@+id/imageView4"
+                        android:layout_width="147dp"
+                        android:layout_height="147dp"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/photo" />
+
+                    <Button
+                        android:id="@+id/btnDeleteImg4"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="top|end"
+                        android:text="X" />
+
+                </FrameLayout>
+
+            </LinearLayout>
+
+        </HorizontalScrollView>
+
+        <Button
+            android:id="@+id/buttonAddPhoto"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Añadir Foto"
+            android:layout_gravity="center"
+            android:layout_marginTop="16dp" />
+
     </LinearLayout>
 </ScrollView>

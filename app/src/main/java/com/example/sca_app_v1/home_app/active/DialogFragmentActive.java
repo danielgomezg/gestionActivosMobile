@@ -1,10 +1,17 @@
 package com.example.sca_app_v1.home_app.active;
 
+import android.Manifest;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -15,8 +22,15 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
 
 import com.example.sca_app_v1.R;
@@ -29,6 +43,7 @@ import com.example.sca_app_v1.models.Store;
 import com.google.android.material.textfield.TextInputLayout;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
@@ -78,6 +93,20 @@ public class DialogFragmentActive extends DialogFragment {
     int articleId = 0;
     String stateActive = "";
     private String selectedDate = "";
+    private static final int REQUEST_CAMERA_PERMISSION = 100;
+    private ImageView photoActive, photoActive2, photoActive3, photoActive4;
+    private Integer countAddImage = 0;
+    private Button buttonAddPhoto;
+    private Button btnDeleteImg1, btnDeleteImg2, btnDeleteImg3, btnDeleteImg4;
+    private String photosActiveEdit = "";
+    private ActivityResultLauncher<Intent> galleryLauncher;
+    private ActivityResultLauncher<Intent> cameraLauncher;
+    //Si la foto proviene de la camara se guarda aca
+    private Bitmap photoCam = null;
+    private List<Bitmap> photosCam = new ArrayList<>(Arrays.asList(null, null, null, null));
+    //Si la foto proviene de la galeria se guarda aca
+    private Uri selectedImageUri = null;
+    private List<Uri> photosGallery = new ArrayList<>(Arrays.asList(null, null, null, null));
 
     // Método estático para crear una instancia del DialogFragment modo edit
     public static DialogFragmentActive newInstance(int mode, int position, Active active, ActiveFragment parentFragment) {
@@ -115,6 +144,100 @@ public class DialogFragmentActive extends DialogFragment {
                 active = (Active) getArguments().getSerializable(ARG_ACTIVE);
             }
         }
+
+        // Inicializar los ActivityResultLauncher para la galería y la cámara
+        // Callback de la galería
+        galleryLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+                new ActivityResultCallback<ActivityResult>() {
+                    @Override
+                    public void onActivityResult(ActivityResult result) {
+                        if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                            selectedImageUri = result.getData().getData();
+
+                            photoCam = null;
+
+                            if (photosGallery.get(0) == null && photosCam.get(0) == null) {
+                                photoActive.setImageURI(selectedImageUri);
+                                photosGallery.set(0, selectedImageUri);
+
+                                countAddImage++;
+                            }
+                            else if (photosGallery.get(1) == null && photosCam.get(1) == null) {
+                                photoActive2.setImageURI(selectedImageUri);
+                                photosGallery.set(1, selectedImageUri);
+                                countAddImage++;
+                            }
+                            else if (photosGallery.get(2) == null && photosCam.get(2) == null) {
+                                photoActive3.setImageURI(selectedImageUri);
+                                photosGallery.set(2, selectedImageUri);
+                                countAddImage++;
+                            }
+                            else if (photosGallery.get(3) == null && photosCam.get(3) == null) {
+                                photoActive4.setImageURI(selectedImageUri);
+                                photosGallery.set(3, selectedImageUri);
+                                countAddImage++;
+                            }
+                            else {
+                                System.out.println("No hay espacio para más fotos");
+                                Toast.makeText(getContext(), "Solo se pueden agregar hasta 4 imagenes", Toast.LENGTH_SHORT).show();
+                            }
+
+                            if (countAddImage == 4) {
+                                // Desabilitar buttonAddPhoto
+                                buttonAddPhoto.setEnabled(false);
+                            }
+
+                            //
+
+                        }
+                    }
+                }
+        );
+        // Callback de la cámara
+        cameraLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+                new ActivityResultCallback<ActivityResult>() {
+                    @Override
+                    public void onActivityResult(ActivityResult result) {
+                        if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                            Bundle extras = result.getData().getExtras();
+                            photoCam = (Bitmap) extras.get("data");
+
+                            selectedImageUri = null;
+
+                            if (photosGallery.get(0) == null && photosCam.get(0) == null) {
+                                photoActive.setImageBitmap(photoCam);
+                                photosCam.set(0, photoCam);
+                                countAddImage++;
+                            }
+                            else if (photosGallery.get(1) == null && photosCam.get(1) == null) {
+                                photoActive2.setImageBitmap(photoCam);
+                                photosCam.set(1, photoCam);
+                                countAddImage++;
+                            }
+                            else if (photosGallery.get(2) == null && photosCam.get(2) == null) {
+                                photoActive3.setImageBitmap(photoCam);
+                                photosCam.set(2, photoCam);
+                                countAddImage++;
+                            }
+                            else if (photosGallery.get(3) == null && photosCam.get(3) == null) {
+                                photoActive4.setImageBitmap(photoCam);
+                                photosCam.set(3, photoCam);
+                                countAddImage++;
+                            }
+                            else {
+                                System.out.println("No hay espacio para más fotos");
+                                Toast.makeText(getContext(), "Solo se pueden agregar hasta 4 imagenes", Toast.LENGTH_SHORT).show();
+                            }
+
+                            if (countAddImage == 4) {
+                                // Desabilitar buttonAddPhoto
+                                buttonAddPhoto.setEnabled(false);
+                            }
+
+                        }
+                    }
+                }
+        );
     }
 
     // Método para establecer el fragmento padre (ActiveFragment)
@@ -198,9 +321,65 @@ public class DialogFragmentActive extends DialogFragment {
             }
         });
 
+        photoActive = view.findViewById(R.id.imageView);
+        photoActive2 = view.findViewById(R.id.imageView2);
+        photoActive3 = view.findViewById(R.id.imageView3);
+        photoActive4 = view.findViewById(R.id.imageView4);
+
+        buttonAddPhoto = view.findViewById(R.id.buttonAddPhoto);
+        buttonAddPhoto.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onAddPhotoClick();
+            }
+        });
+
+        btnDeleteImg1 = view.findViewById(R.id.btnDeleteImg1);
+        btnDeleteImg1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                photoActive.setImageResource(R.drawable.photo);
+                buttonAddPhoto.setEnabled(true);
+                photosCam.set(0, null);
+                photosGallery.set(0, null);
+                countAddImage--;
+            }
+        });
+        btnDeleteImg2 = view.findViewById(R.id.btnDeleteImg2);
+        btnDeleteImg2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                photoActive2.setImageResource(R.drawable.photo);
+                buttonAddPhoto.setEnabled(true);
+                photosCam.set(1, null);
+                photosGallery.set(1, null);
+                countAddImage--;
+            }
+        });
+        btnDeleteImg3 = view.findViewById(R.id.btnDeleteImg3);
+        btnDeleteImg3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                photoActive3.setImageResource(R.drawable.photo);
+                buttonAddPhoto.setEnabled(true);
+                photosCam.set(2, null);
+                photosGallery.set(2, null);
+                countAddImage--;
+            }
+        });
+        btnDeleteImg4 = view.findViewById(R.id.btnDeleteImg4);
+        btnDeleteImg4.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                photoActive4.setImageResource(R.drawable.photo);
+                buttonAddPhoto.setEnabled(true);
+                photosCam.set(3, null);
+                photosGallery.set(3, null);
+                countAddImage--;
+            }
+        });
 
         // setea los campos de activo
-
         if(active != null){
             editTextBarcode.setText(active.getBar_code());
             editTextModel.setText(active.getModel());
@@ -216,6 +395,71 @@ public class DialogFragmentActive extends DialogFragment {
             selectedDate = active.getAcquisition_date();
             officeId = active.getOffice_id();
             stateActive = active.getState();
+
+            //photosActiveEdit = active.getPhoto1();
+            photosActiveEdit = (active.getPhoto1() == null) ? "" : active.getPhoto1();
+            System.out.println("images articulos " + photosActiveEdit);
+            if(!photosActiveEdit.isEmpty() && photosActiveEdit != null){
+                countAddImage++;
+            }
+            photosActiveEdit = (active.getPhoto2() == null) ? "" : active.getPhoto2();
+            if(!photosActiveEdit.isEmpty()){
+                countAddImage++;
+            }
+            photosActiveEdit = (active.getPhoto3() == null) ? "" : active.getPhoto3();
+            if(!photosActiveEdit.isEmpty()){
+                countAddImage++;
+            }
+            photosActiveEdit = (active.getPhoto4() == null) ? "" : active.getPhoto4();
+            if(!photosActiveEdit.isEmpty()){
+                countAddImage++;
+            }
+
+            try{
+                Uri photoUri;
+                // Verificar si las rutas de las fotos no es nula
+                if (!active.getPhoto1().isEmpty()) {
+                    photoUri = Uri.parse(active.getPhoto1());
+                    if (active.getPhoto1().contains("mobile_local")) {
+                        photoActive.setImageURI(photoUri);
+                    }
+                    else {
+                        photoActive.setImageResource(R.drawable.sca_logo_2);
+                    }
+                }
+
+                if (!active.getPhoto2().isEmpty()) {
+                    photoUri = Uri.parse(active.getPhoto2());
+                    if (active.getPhoto2().contains("mobile_local")) {
+                        photoActive2.setImageURI(photoUri);
+                    }
+                    else {
+                        photoActive2.setImageResource(R.drawable.sca_logo_2);
+                    }
+                }
+
+                if (!active.getPhoto3().isEmpty()) {
+                    photoUri = Uri.parse(active.getPhoto3());
+                    if (active.getPhoto3().contains("mobile_local")) {
+                        photoActive3.setImageURI(photoUri);
+                    }
+                    else {
+                        photoActive3.setImageResource(R.drawable.sca_logo_2);
+                    }
+                }
+
+                if (!active.getPhoto4().isEmpty()) {
+                    photoUri = Uri.parse(active.getPhoto4());
+                    if (active.getPhoto4().contains("mobile_local")) {
+                        photoActive4.setImageURI(photoUri);
+                    }
+                    else {
+                        photoActive4.setImageResource(R.drawable.sca_logo_2);
+                    }
+                }
+            } catch (Exception e) {
+                System.out.println("Error al cargar la foto, Mostrando imagen por defecto.");
+            }
         }
 
         AlertDialog dialog = builder.setView(view)
@@ -242,8 +486,9 @@ public class DialogFragmentActive extends DialogFragment {
                         // Variable para indicar si se debe continuar con la ejecución
                         boolean continueExecution = true;
 
-                        // Creacion del artículo
+                        // Creacion del activo
                         String newBarcode = editTextBarcode.getText().toString();
+                        //String newVirtualcode = editTextBarcode.getText().toString();
                         String newModel = editTextModel.getText().toString();
                         String newSerie = editTextSerie.getText().toString();
                         String newcomment = editTextcomment.getText().toString();
@@ -342,9 +587,64 @@ public class DialogFragmentActive extends DialogFragment {
                             newActive.setOffice_id(officeId);
                             newActive.setState(stateActive);
 
+                            String nameImgActive = newBarcode;
+
+                            List<String> photosUrl = new ArrayList<>();
+                            boolean success = true;
+                            Integer contNamePhoto = 0;
+                            for(int i = 0; i < photosCam.size(); i++){
+                                if (photosCam.get(i) == null) {
+                                    continue;
+                                }
+                                String url = active.savePhoto(requireContext(), photosCam.get(i),String.valueOf(contNamePhoto) + nameImgActive);
+                                if (url == null) {
+                                    success = false;
+                                }
+                                else {
+                                    photosUrl.add(url);
+                                    contNamePhoto++;
+                                }
+                            }
+                            for(int i = 0; i < photosGallery.size(); i++){
+                                if (photosGallery.get(i) == null) {
+                                    continue;
+                                }
+                                String url = active.savePhoto(requireContext(), photosGallery.get(i), String.valueOf(contNamePhoto) + nameImgActive);
+                                if (url == null) {
+                                    success = false;
+                                }
+                                else {
+                                    photosUrl.add(url);
+                                    contNamePhoto++;
+                                }
+                            }
+                            if (!success) {
+                                // Manejar el error de guardar la foto
+                                Toast.makeText(requireContext(), "Error al guardar la foto seleecionada", Toast.LENGTH_SHORT).show();
+                            }
+                            photoCam = null;
+                            selectedImageUri = null;
+
                             if (mode == MODE_EDIT) {
                                 newActive.setId(active.getId());
                                 newActive.setSync(active.getSync());
+                                if (!photosUrl.isEmpty()){
+                                    for (int i = 0; i < photosUrl.size(); i++){
+                                        if(active.getPhoto1().isEmpty() && i == 0){
+                                            newActive.setPhoto1(photosUrl.get(i));
+                                        }
+                                        if(active.getPhoto2().isEmpty() && i == 1){
+                                            newActive.setPhoto2(photosUrl.get(i));
+                                        }
+                                        if(active.getPhoto3().isEmpty() && i == 2){
+                                            newActive.setPhoto3(photosUrl.get(i));
+                                        }
+                                        if(active.getPhoto4().isEmpty() && i == 3){
+                                            newActive.setPhoto4(photosUrl.get(i));
+                                        }
+                                    }
+                                }
+
 
                                 // Actualizar el artículo en la base de datos
                                 boolean updateSuccessful = newActive.updateActive(getContext());
@@ -366,6 +666,27 @@ public class DialogFragmentActive extends DialogFragment {
                             } else {
 
                                 newActive.setAccounting_document("");
+                                if (!photosUrl.isEmpty()){
+                                    for (int i = 0; i < photosUrl.size(); i++){
+                                        if(i == 0){
+                                            newActive.setPhoto1(photosUrl.get(i));
+                                        }
+                                        if(i == 1){
+                                            newActive.setPhoto2(photosUrl.get(i));
+                                        }
+                                        if(i == 2){
+                                            newActive.setPhoto3(photosUrl.get(i));
+                                        }
+                                        if(i == 3){
+                                            newActive.setPhoto4(photosUrl.get(i));
+                                        }
+                                    }
+                                }else {
+                                    newActive.setPhoto1("");
+                                    newActive.setPhoto2("");
+                                    newActive.setPhoto3("");
+                                    newActive.setPhoto4("");
+                                }
 
                                 boolean createSuccessful = newActive.createActive(getContext());
                                 System.out.println(createSuccessful);
@@ -388,92 +709,41 @@ public class DialogFragmentActive extends DialogFragment {
         });
 
         return dialog;
+    }
 
-        /*builder.setView(view)
-                .setTitle(mode == MODE_EDIT ? "Editar activo" : "Crear nuevo activo")
-                .setPositiveButton("Guardar", new DialogInterface.OnClickListener() {
+    // Método llamado cuando el usuario hace clic en el botón "Añadir Foto"
+    public void onAddPhotoClick() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        builder.setTitle("Seleccionar Fuente de Imagen")
+                .setItems(new CharSequence[]{"Galería", "Cámara"}, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        // Procesar la edición del artículo
-                        String newBarcode = editTextBarcode.getText().toString();
-                        String newModel = editTextModel.getText().toString();
-                        String newSerie = editTextSerie.getText().toString();
-                        String newcomment = editTextcomment.getText().toString();
-                        String newRecordNumber = editTextRecordnumber.getText().toString();
-                        String newNameCharge = editTextNamecharge.getText().toString();
-                        String newRutCharge = editTextRutcharge.getText().toString();
-                        String newBrand = editTextbrand.getText().toString();
-                        //String newDateAquisition = adquisitionDateEditText.getText().toString();
-
-                        // Crear un objeto Article con los nuevos valores
-                        Active newActive = new Active();
-                        newActive.setBar_code(newBarcode);
-                        newActive.setModel(newModel);
-                        newActive.setSerie(newSerie);
-                        newActive.setComment(newcomment);
-                        newActive.setAccounting_record_number(newRecordNumber);
-                        newActive.setName_in_charge_active(newNameCharge);
-                        newActive.setRut_in_charge_active(newRutCharge);
-                        newActive.setAccounting_document("");
-                        newActive.setBrand(newBrand);
-
-                        newActive.setAcquisition_date(selectedDate);
-                        newActive.setArticle_id(articleId);
-                        newActive.setOffice_id(officeId);
-                        newActive.setState(stateActive);
-
-                        System.out.println("selected Date " + selectedDate);
-
-                        if(mode == MODE_EDIT){
-                            newActive.setId(active.getId());
-
-                            // Actualizar el artículo en la base de datos
-                            boolean updateSuccessful = newActive.updateActive(getContext());
-                            System.out.println(updateSuccessful);
-
-                            if (updateSuccessful && parentFragment != null) {
-                                // La actualización fue exitosa
-                                Toast.makeText(getContext(), "Artículo actualizado correctamente", Toast.LENGTH_SHORT).show();
-
-                                // Actualizar la lista de artículos en el fragmento padre (ArticleFragment)
-                                parentFragment.updateActives(getContext(), position);
-                            } else {
-                                // Ocurrió un error durante la actualización
-                                Toast.makeText(getContext(), "Error al actualizar el artículo", Toast.LENGTH_SHORT).show();
-                            }
+                        switch (which) {
+                            case 0:
+                                // Abrir la galería
+                                Intent galleryIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                                galleryLauncher.launch(galleryIntent);
+                                break;
+                            case 1:
+                                // Verificar los permisos de la cámara
+                                if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                                    // No hay permisos de cámara, solicitarlos
+                                    ActivityCompat.requestPermissions(requireActivity(), new String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA_PERMISSION);
+                                } else {
+                                    // Ya se tienen permisos de cámara, abrir la cámara
+                                    openCamera();
+                                }
+                                break;
                         }
-
-                        else{
-                            newActive.setAccounting_document("");
-
-                            boolean createSuccessful = newActive.createActive(getContext());
-                            System.out.println(createSuccessful);
-
-                            if (createSuccessful && parentFragment != null) {
-                                // La actualización fue exitosa
-                                Toast.makeText(getContext(), "Activo creado correctamente", Toast.LENGTH_SHORT).show();
-
-                                // Actualizar la lista de artículos en el fragmento padre (ArticleFragment)
-                                parentFragment.showActives(getContext());
-                            } else {
-                                // Ocurrió un error durante la actualización
-                                Toast.makeText(getContext(), "Error al crear el activo", Toast.LENGTH_SHORT).show();
-                            }
-                        }
-
-                        // Lógica para guardar los cambios
-
                     }
                 })
-                .setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        // Acción al hacer clic en el botón de cancelar
-                        dismiss();
-                    }
-                });
+                .show();
+    }
 
-        return builder.create();*/
+    // Método para abrir la cámara
+    private void openCamera() {
+        Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        cameraLauncher.launch(cameraIntent);
     }
 
     public void initializeArticle(View view) {

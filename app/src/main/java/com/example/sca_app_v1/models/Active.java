@@ -4,6 +4,9 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Bitmap;
+import android.net.Uri;
+import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
@@ -17,6 +20,13 @@ import com.example.sca_app_v1.home_app.bdLocal.DatabaseHelper;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -25,11 +35,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.UUID;
 
 public class Active implements Serializable {
 
     private Integer id;
     private String bar_code;
+    private String virtual_code;
     private String comment;
     private String acquisition_date;
     private String accounting_document;
@@ -40,6 +52,10 @@ public class Active implements Serializable {
     private String model;
     private String state;
     private String brand;
+    private String photo1;
+    private String photo2;
+    private String photo3;
+    private String photo4;
     private String creation_date;
     private Integer removed;
     private Integer office_id;
@@ -55,6 +71,9 @@ public class Active implements Serializable {
 
         int _bar_codeIndex = cursor.getColumnIndex("bar_code");
         if (_bar_codeIndex != -1) this.bar_code = cursor.getString(_bar_codeIndex);
+
+        int _virtual_codeIndex = cursor.getColumnIndex("virtual_code");
+        if (_virtual_codeIndex != -1) this.virtual_code = cursor.getString(_virtual_codeIndex);
 
         int _commentIndex = cursor.getColumnIndex("comment");
         if (_commentIndex != -1) this.comment = cursor.getString(_commentIndex);
@@ -86,6 +105,18 @@ public class Active implements Serializable {
         int _brandIndex = cursor.getColumnIndex("brand");
         if (_brandIndex != -1) this.brand = cursor.getString(_brandIndex);
 
+        int _photo1Index = cursor.getColumnIndex("photo1");
+        if (_photo1Index != -1) this.photo1 = cursor.getString(_photo1Index);
+
+        int _photo2Index = cursor.getColumnIndex("photo2");
+        if (_photo2Index != -1) this.photo2 = cursor.getString(_photo2Index);
+
+        int _photo3Index = cursor.getColumnIndex("photo3");
+        if (_photo3Index != -1) this.photo3 = cursor.getString(_photo3Index);
+
+        int _photo4Index = cursor.getColumnIndex("photo4");
+        if (_photo4Index != -1) this.photo4 = cursor.getString(_photo4Index);
+
         int _creation_dateIndex = cursor.getColumnIndex("creation_date");
         if (_creation_dateIndex != -1) this.creation_date = cursor.getString(_creation_dateIndex);
 
@@ -103,9 +134,10 @@ public class Active implements Serializable {
 
     }
 
-    public Active(Integer id, String bar_code, String comment, String acquisition_date, String accounting_document, String accounting_record_number, String name_in_charge_active, String rut_in_charge_active, String serie, String model, String state, String brand, String creation_date, Integer removed, Integer office_id, Integer article_id) {
+    public Active(Integer id, String bar_code, String virtual_code, String comment, String acquisition_date, String accounting_document, String accounting_record_number, String name_in_charge_active, String rut_in_charge_active, String serie, String model, String state, String brand, String photo1, String photo2, String photo3, String photo4, String creation_date, Integer removed, Integer office_id, Integer article_id) {
         this.id = id;
         this.bar_code = bar_code;
+        this.virtual_code = virtual_code;
         this.comment = comment;
         this.acquisition_date = acquisition_date;
         this.accounting_document = accounting_document;
@@ -116,6 +148,10 @@ public class Active implements Serializable {
         this.model = model;
         this.state = state;
         this.brand = brand;
+        this.photo1 = photo1;
+        this.photo2 = photo2;
+        this.photo3 = photo3;
+        this.photo4 = photo4;
         this.creation_date = creation_date;
         this.removed = removed;
         this.office_id = office_id;
@@ -125,6 +161,7 @@ public class Active implements Serializable {
     public Active(JSONObject active) throws JSONException {
         this.id = (int) active.getInt("id");
         this.bar_code = active.getString("bar_code");
+        this.virtual_code = active.getString("virtual_code");
         this.comment = active.getString("comment");
         this.acquisition_date = active.getString("acquisition_date");
         this.accounting_document = active.getString("accounting_document");
@@ -135,6 +172,10 @@ public class Active implements Serializable {
         this.model = active.getString("model");
         this.state = active.getString("state");
         this.brand = active.getString("brand");
+        this.photo1 = active.getString("photo1");
+        this.photo2 = active.getString("photo2");
+        this.photo3 = active.getString("photo3");
+        this.photo4 = active.getString("photo4");
         this.creation_date = active.getString("creation_date");
         this.removed = (int) active.getInt("removed");
         this.office_id = (int) active.getInt("office_id");
@@ -155,6 +196,14 @@ public class Active implements Serializable {
 
     public void setBar_code(String bar_code) {
         this.bar_code = bar_code;
+    }
+
+    public String getVirtual_code() {
+        return virtual_code;
+    }
+
+    public void setVirtual_code(String virtual_code) {
+        this.virtual_code = virtual_code;
     }
 
     public String getComment() {
@@ -235,6 +284,38 @@ public class Active implements Serializable {
 
     public void setBrand(String brand) {
         this.brand = brand;
+    }
+
+    public String getPhoto1() {
+        return photo1;
+    }
+
+    public void setPhoto1(String photo1) {
+        this.photo1 = photo1;
+    }
+
+    public String getPhoto2() {
+        return photo2;
+    }
+
+    public void setPhoto2(String photo2) {
+        this.photo2 = photo2;
+    }
+
+    public String getPhoto3() {
+        return photo3;
+    }
+
+    public void setPhoto3(String photo3) {
+        this.photo3 = photo3;
+    }
+
+    public String getPhoto4() {
+        return photo4;
+    }
+
+    public void setPhoto4(String photo4) {
+        this.photo4 = photo4;
     }
 
     public String getCreation_date() {
@@ -325,6 +406,10 @@ public class Active implements Serializable {
             values.put("model", this.model);
             values.put("state", this.state);
             values.put("brand", this.brand);
+            values.put("photo1", this.photo1);
+            values.put("photo2", this.photo2);
+            values.put("photo3", this.photo3);
+            values.put("photo4", this.photo4);
             values.put("sync", 1);
             values.put("creation_date", currentDate);
             //values.put("creation_date", this.removed);
@@ -372,6 +457,10 @@ public class Active implements Serializable {
             values.put("model", this.model);
             values.put("state", this.state);
             values.put("brand", this.brand);
+            values.put("photo1", this.photo1);
+            values.put("photo2", this.photo2);
+            values.put("photo3", this.photo3);
+            values.put("photo4", this.photo4);
             values.put("sync", 2);
             values.put("office_id", this.office_id);
             values.put("article_id", this.article_id);
@@ -706,4 +795,59 @@ public class Active implements Serializable {
         queue.add(jsonRequest);
     }
 
+    public static String savePhoto(Context context, Object imageSource, String nameAct) {
+        try {
+            InputStream inputStream = null;
+
+            // Determinar el tipo de source (Bitmap o Uri)
+            if (imageSource instanceof Uri) {
+                // Si es un Uri, obtener el InputStream desde el Uri
+                inputStream = context.getContentResolver().openInputStream((Uri) imageSource);
+            } else if (imageSource instanceof Bitmap) {
+                // Si es un Bitmap, convertirlo en un ByteArrayInputStream
+                Bitmap bitmap = (Bitmap) imageSource;
+                ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
+                byte[] bitmapData = byteArrayOutputStream.toByteArray();
+                inputStream = new ByteArrayInputStream(bitmapData);
+            }
+
+            // Crear la carpeta imagesArticles en el almacenamiento interno si no existe
+            File imagesDir = new File(context.getFilesDir(), "imagesActives");
+            if (!imagesDir.exists()) {
+                imagesDir.mkdirs();
+            }
+
+            // Generar un UUID para el nombre del archivo
+            String uuid = UUID.randomUUID().toString();
+
+            // Crear el nombre del archivo con el UUID y "article_photo.jpg"
+            String fileName = uuid + "-" + "mobile_local" + "-" + nameAct + ".jpg";
+
+            // Crear un archivo para guardar la imagen en la carpeta imagesArticles
+            File imageFile = new File(imagesDir, fileName);
+            OutputStream outputStream = new FileOutputStream(imageFile);
+
+            // Copiar la imagen del InputStream al OutputStream
+            byte[] buffer = new byte[1024];
+            int length;
+            while ((length = inputStream.read(buffer)) > 0) {
+                outputStream.write(buffer, 0, length);
+            }
+
+            // Cerrar los flujos de entrada y salida
+            inputStream.close();
+            outputStream.close();
+
+            // Mostrar un mensaje indicando que la imagen ha sido guardada
+            Toast.makeText(context, "Imagen guardada exitosamente", Toast.LENGTH_SHORT).show();
+
+            // Devolver la ruta absoluta del archivo
+            return imageFile.getAbsolutePath();
+        } catch (IOException e) {
+            e.printStackTrace();
+            Toast.makeText(context, "Error al guardar la imagen", Toast.LENGTH_SHORT).show();
+            return null;
+        }
+    }
 }

@@ -453,6 +453,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 values.put("model", active.getModel());
                 values.put("state", active.getState());
                 values.put("brand", active.getBrand());
+                values.put("photo1", active.getPhoto1());
+                values.put("photo2", active.getPhoto2());
+                values.put("photo3", active.getPhoto3());
+                values.put("photo4", active.getPhoto4());
                 values.put("creation_date", active.getCreation_date());
                 values.put("removed", active.getRemoved());
                 values.put("office_id", active.getOffice_id());

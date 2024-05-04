@@ -112,7 +112,6 @@ public class DialogFragmentArticle extends DialogFragment {
         return fragment;
     }
 
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -122,9 +121,7 @@ public class DialogFragmentArticle extends DialogFragment {
                 position = getArguments().getInt(ARG_POSITION);
                 article = (Article) getArguments().getSerializable(ARG_ARTICLE);
             }
-
         }
-
 
         // Inicializar los ActivityResultLauncher para la galería y la cámara
         // Callback de la galería
@@ -172,7 +169,8 @@ public class DialogFragmentArticle extends DialogFragment {
 
                         }
                     }
-                });
+                }
+        );
 
         // Callback de la cámara
         cameraLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
@@ -217,7 +215,8 @@ public class DialogFragmentArticle extends DialogFragment {
 
                         }
                     }
-                });
+                }
+        );
     }
 
     // Método para establecer el fragmento padre (ArticleFragment)
@@ -336,8 +335,6 @@ public class DialogFragmentArticle extends DialogFragment {
         categorySelect.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                System.out.println(parent);
-                System.out.println("position " + position);
                 String item = parent.getItemAtPosition(position).toString();
                 Toast.makeText(requireContext(), "Item: "+item, Toast.LENGTH_SHORT).show();
             }
@@ -406,8 +403,6 @@ public class DialogFragmentArticle extends DialogFragment {
                             }
                         }
                     }
-//                    Uri photoUri = Uri.parse(photoPath);
-//                    photoArticle.setImageURI(photoUri);
                     System.out.println("Mostrando foto en ImageView: " + photoPath);
                 } catch (Exception e) {
                     photoArticle.setImageResource(R.drawable.photo);
@@ -516,11 +511,6 @@ public class DialogFragmentArticle extends DialogFragment {
                                 }
                             }
 
-//                            if(photosCam.size() > 0){
-////                              photoPath = article.savePhoto(requireContext(), photoCam, newName);
-//                            }else if(selectedImageUri != null){
-//                                photoPath = article.savePhoto(requireContext(), selectedImageUri, newName);
-//                            }
                             if (!success) {
                                 // Manejar el error de guardar la foto
                                 photoPath = "";
