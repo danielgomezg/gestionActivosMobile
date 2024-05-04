@@ -107,6 +107,7 @@ public class DialogFragmentActive extends DialogFragment {
     //Si la foto proviene de la galeria se guarda aca
     private Uri selectedImageUri = null;
     private List<Uri> photosGallery = new ArrayList<>(Arrays.asList(null, null, null, null));
+    private List<String> photosServer = new ArrayList<>(Arrays.asList(null, null, null, null));
 
     // Método estático para crear una instancia del DialogFragment modo edit
     public static DialogFragmentActive newInstance(int mode, int position, Active active, ActiveFragment parentFragment) {
@@ -156,23 +157,22 @@ public class DialogFragmentActive extends DialogFragment {
 
                             photoCam = null;
 
-                            if (photosGallery.get(0) == null && photosCam.get(0) == null) {
+                            if (photosGallery.get(0) == null && photosCam.get(0) == null && photosServer.get(0) == null){
                                 photoActive.setImageURI(selectedImageUri);
                                 photosGallery.set(0, selectedImageUri);
-
                                 countAddImage++;
                             }
-                            else if (photosGallery.get(1) == null && photosCam.get(1) == null) {
+                            else if (photosGallery.get(1) == null && photosCam.get(1) == null && photosServer.get(1) == null){
                                 photoActive2.setImageURI(selectedImageUri);
                                 photosGallery.set(1, selectedImageUri);
                                 countAddImage++;
                             }
-                            else if (photosGallery.get(2) == null && photosCam.get(2) == null) {
+                            else if (photosGallery.get(2) == null && photosCam.get(2) == null && photosServer.get(2) == null){
                                 photoActive3.setImageURI(selectedImageUri);
                                 photosGallery.set(2, selectedImageUri);
                                 countAddImage++;
                             }
-                            else if (photosGallery.get(3) == null && photosCam.get(3) == null) {
+                            else if (photosGallery.get(3) == null && photosCam.get(3) == null && photosServer.get(3) == null){
                                 photoActive4.setImageURI(selectedImageUri);
                                 photosGallery.set(3, selectedImageUri);
                                 countAddImage++;
@@ -204,22 +204,22 @@ public class DialogFragmentActive extends DialogFragment {
 
                             selectedImageUri = null;
 
-                            if (photosGallery.get(0) == null && photosCam.get(0) == null) {
+                            if (photosGallery.get(0) == null && photosCam.get(0) == null && photosServer.get(0) == null){
                                 photoActive.setImageBitmap(photoCam);
                                 photosCam.set(0, photoCam);
                                 countAddImage++;
                             }
-                            else if (photosGallery.get(1) == null && photosCam.get(1) == null) {
+                            else if (photosGallery.get(1) == null && photosCam.get(1) == null && photosServer.get(1) == null){
                                 photoActive2.setImageBitmap(photoCam);
                                 photosCam.set(1, photoCam);
                                 countAddImage++;
                             }
-                            else if (photosGallery.get(2) == null && photosCam.get(2) == null) {
+                            else if (photosGallery.get(2) == null && photosCam.get(2) == null && photosServer.get(2) == null){
                                 photoActive3.setImageBitmap(photoCam);
                                 photosCam.set(2, photoCam);
                                 countAddImage++;
                             }
-                            else if (photosGallery.get(3) == null && photosCam.get(3) == null) {
+                            else if (photosGallery.get(3) == null && photosCam.get(3) == null && photosServer.get(3) == null){
                                 photoActive4.setImageBitmap(photoCam);
                                 photosCam.set(3, photoCam);
                                 countAddImage++;
@@ -425,6 +425,9 @@ public class DialogFragmentActive extends DialogFragment {
                     }
                     else {
                         photoActive.setImageResource(R.drawable.sca_logo_2);
+                        // photosGallery.set(0, photoUri);
+                        photosServer.set(0, "photoLoad");
+                        btnDeleteImg1.setEnabled(false);
                     }
                 }
 
@@ -435,6 +438,9 @@ public class DialogFragmentActive extends DialogFragment {
                     }
                     else {
                         photoActive2.setImageResource(R.drawable.sca_logo_2);
+                        // photosGallery.set(1, photoUri);
+                        photosServer.set(1, "photoLoad");
+                        btnDeleteImg2.setEnabled(false);
                     }
                 }
 
@@ -445,6 +451,9 @@ public class DialogFragmentActive extends DialogFragment {
                     }
                     else {
                         photoActive3.setImageResource(R.drawable.sca_logo_2);
+                        // photosGallery.set(2, photoUri);
+                        photosServer.set(2, "photoLoad");
+                        btnDeleteImg3.setEnabled(false);
                     }
                 }
 
@@ -455,6 +464,9 @@ public class DialogFragmentActive extends DialogFragment {
                     }
                     else {
                         photoActive4.setImageResource(R.drawable.sca_logo_2);
+                        // photosGallery.set(3, photoUri);
+                        photosServer.set(3, "photoLoad");
+                        btnDeleteImg4.setEnabled(false);
                     }
                 }
             } catch (Exception e) {
@@ -596,7 +608,7 @@ public class DialogFragmentActive extends DialogFragment {
                                 if (photosCam.get(i) == null) {
                                     continue;
                                 }
-                                String url = active.savePhoto(requireContext(), photosCam.get(i),String.valueOf(contNamePhoto) + nameImgActive);
+                                String url = Active.savePhoto(requireContext(), photosCam.get(i),String.valueOf(contNamePhoto) + nameImgActive);
                                 if (url == null) {
                                     success = false;
                                 }
@@ -609,7 +621,7 @@ public class DialogFragmentActive extends DialogFragment {
                                 if (photosGallery.get(i) == null) {
                                     continue;
                                 }
-                                String url = active.savePhoto(requireContext(), photosGallery.get(i), String.valueOf(contNamePhoto) + nameImgActive);
+                                String url = Active.savePhoto(requireContext(), photosGallery.get(i), String.valueOf(contNamePhoto) + nameImgActive);
                                 if (url == null) {
                                     success = false;
                                 }
@@ -626,20 +638,25 @@ public class DialogFragmentActive extends DialogFragment {
                             selectedImageUri = null;
 
                             if (mode == MODE_EDIT) {
+                                newActive.setPhoto1(active.getPhoto1());
+                                newActive.setPhoto2(active.getPhoto2());
+                                newActive.setPhoto3(active.getPhoto3());
+                                newActive.setPhoto4(active.getPhoto4());
+
                                 newActive.setId(active.getId());
                                 newActive.setSync(active.getSync());
                                 if (!photosUrl.isEmpty()){
                                     for (int i = 0; i < photosUrl.size(); i++){
-                                        if(active.getPhoto1().isEmpty() && i == 0){
+                                        if(active.getPhoto1().isEmpty()){
                                             newActive.setPhoto1(photosUrl.get(i));
                                         }
-                                        if(active.getPhoto2().isEmpty() && i == 1){
+                                        else if(active.getPhoto2().isEmpty()){
                                             newActive.setPhoto2(photosUrl.get(i));
                                         }
-                                        if(active.getPhoto3().isEmpty() && i == 2){
+                                        else if(active.getPhoto3().isEmpty()){
                                             newActive.setPhoto3(photosUrl.get(i));
                                         }
-                                        if(active.getPhoto4().isEmpty() && i == 3){
+                                        else if(active.getPhoto4().isEmpty()){
                                             newActive.setPhoto4(photosUrl.get(i));
                                         }
                                     }

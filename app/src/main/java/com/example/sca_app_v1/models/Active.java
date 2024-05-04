@@ -287,6 +287,9 @@ public class Active implements Serializable {
     }
 
     public String getPhoto1() {
+        if (photo1 == null || "null".equals(photo1)) {
+            return "";
+        }
         return photo1;
     }
 
@@ -295,6 +298,9 @@ public class Active implements Serializable {
     }
 
     public String getPhoto2() {
+        if (photo2 == null || "null".equals(photo2)) {
+            return "";
+        }
         return photo2;
     }
 
@@ -303,6 +309,9 @@ public class Active implements Serializable {
     }
 
     public String getPhoto3() {
+        if (photo3 == null || "null".equals(photo3)) {
+            return "";
+        }
         return photo3;
     }
 
@@ -311,6 +320,9 @@ public class Active implements Serializable {
     }
 
     public String getPhoto4() {
+        if (photo4 == null || "null".equals(photo4)) {
+            return "";
+        }
         return photo4;
     }
 

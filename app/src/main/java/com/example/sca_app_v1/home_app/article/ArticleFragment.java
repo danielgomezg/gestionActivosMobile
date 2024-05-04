@@ -38,7 +38,7 @@ public class ArticleFragment extends Fragment {
     private AdapterArticle adapterArticle;
 
     private Integer offset = 0;
-    private Integer limit  = 6;
+    private Integer limit  = 50;
     private Integer count = 0;
 
     // Referencia al ArticleFragment

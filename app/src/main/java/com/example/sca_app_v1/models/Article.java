@@ -157,6 +157,9 @@ public class Article implements Serializable {
     }
 
     public String getPhoto() {
+        if (photo == null || "null".equals(photo)) {
+            return "";
+        }
         return photo;
     }
 

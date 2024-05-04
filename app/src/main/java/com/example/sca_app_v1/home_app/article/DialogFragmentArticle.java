@@ -375,7 +375,10 @@ public class DialogFragmentArticle extends DialogFragment {
                                 photoArticle.setImageURI(photoUri);
                             }
                             else {
+                                //Caso donde el articulo tiene imagen desde el server, se muestra una por defecto.
                                 photoArticle.setImageResource(R.drawable.sca_logo_2);
+                                photosGallery.set(0, photoUri);
+                                btnDeleteImg1.setEnabled(false);
                             }
                         }
                         else if (i == 1) {
@@ -384,6 +387,8 @@ public class DialogFragmentArticle extends DialogFragment {
                             }
                             else {
                                 photoArticle2.setImageResource(R.drawable.sca_logo_2);
+                                photosGallery.set(1, photoUri);
+                                btnDeleteImg2.setEnabled(false);
                             }
                         }
                         else if (i == 2) {
@@ -392,6 +397,8 @@ public class DialogFragmentArticle extends DialogFragment {
                             }
                             else {
                                 photoArticle3.setImageResource(R.drawable.sca_logo_2);
+                                photosGallery.set(2, photoUri);
+                                btnDeleteImg3.setEnabled(false);
                             }
                         }
                         else if (i == 3) {
@@ -400,6 +407,8 @@ public class DialogFragmentArticle extends DialogFragment {
                             }
                             else {
                                 photoArticle4.setImageResource(R.drawable.sca_logo_2);
+                                photosGallery.set(3, photoUri);
+                                btnDeleteImg4.setEnabled(false);
                             }
                         }
                     }
