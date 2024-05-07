@@ -152,10 +152,20 @@ public class ActiveFragment  extends Fragment {
                 System.out.println("actives size imp: " + actives.size());
                 Active active = actives.get(position);
                 System.out.println(active);
-                System.out.println(active.getBar_code());
-                System.out.println(active.getModel());
+                System.out.println("------");
+                System.out.println("barcode ===> " + active.getBar_code());
+                System.out.println("model ===> " + active.getModel());
+                System.out.println("virtualcode ==> " + active.getVirtual_code());
 
-                tvBarcode.setText(active.getBar_code());
+                if (active.getVirtual_code().isEmpty() || active.getVirtual_code().equals("false"))
+                    tvBarcode.setText(active.getBar_code());
+                else if (active.getVirtual_code().equals("true"))
+                    tvBarcode.setText("codigo virtual por generar");
+                else
+                    tvBarcode.setText(active.getVirtual_code() + "(virtual)");
+
+                System.out.println("Codigo virtual " + active.getVirtual_code());
+
                 tvModel.setText(active.getModel());
                 tvSerie.setText(active.getSerie());
                 tvActiveDate.setText(active.getAcquisition_date());

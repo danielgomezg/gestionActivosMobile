@@ -209,6 +209,7 @@ public class Active implements Serializable {
     }
 
     public String getVirtual_code() {
+        if (virtual_code == null) return "";
         return virtual_code;
     }
 
@@ -418,6 +419,7 @@ public class Active implements Serializable {
             // Crear un ContentValues con los valores del nuevo artículo
             ContentValues values = new ContentValues();
             values.put("bar_code", this.bar_code);
+            values.put("virtual_code", this.virtual_code);
             values.put("comment", this.comment);
             values.put("acquisition_date", this.acquisition_date);
             values.put("accounting_document", this.accounting_document);
@@ -708,6 +710,10 @@ public class Active implements Serializable {
             }
         };
 
+        if (this.getPhoto1().equals("") && this.getPhoto2().equals("") && this.getPhoto3().equals("") && this.getPhoto4().equals("")) {
+            updateActiveAPI(context, token, companyId, queue, url, photoUrls);
+        }
+
         // Subir solo las imágenes que contienen "mobile_local"
         for (int index = 0; index < photosActive.length; index++) {
             String photo = photosActive[index];
@@ -931,6 +937,10 @@ public class Active implements Serializable {
             }
 
         };
+        if (this.getPhoto1().equals("") && this.getPhoto2().equals("") && this.getPhoto3().equals("") && this.getPhoto4().equals("")) {
+            createActiveAPI(context, token, queue, companyId, url, photoUrls);
+
+        }
 
         // Subir solo las imágenes que contienen "mobile_local"
         for (int index = 0; index < photosActive.length; index++) {

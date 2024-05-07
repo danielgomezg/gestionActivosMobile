@@ -443,6 +443,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 ContentValues values = new ContentValues();
                 values.put("id", active.getId());
                 values.put("bar_code", active.getBar_code());
+                values.put("virtual_code", active.getVirtual_code());
                 values.put("comment", active.getComment());
                 values.put("acquisition_date", active.getAcquisition_date());
                 values.put("accounting_document", active.getAccounting_document());

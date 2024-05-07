@@ -20,6 +20,8 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -108,6 +110,7 @@ public class DialogFragmentActive extends DialogFragment {
     private Uri selectedImageUri = null;
     private List<Uri> photosGallery = new ArrayList<>(Arrays.asList(null, null, null, null));
     private List<String> photosServer = new ArrayList<>(Arrays.asList(null, null, null, null));
+    private CheckBox virtualCode;
 
     // Método estático para crear una instancia del DialogFragment modo edit
     public static DialogFragmentActive newInstance(int mode, int position, Active active, ActiveFragment parentFragment) {
@@ -275,6 +278,22 @@ public class DialogFragmentActive extends DialogFragment {
 
         TextInputLayout textInputLayoutRutCharge = view.findViewById(R.id.editTextRutCharge);
         editTextRutcharge = textInputLayoutRutCharge.getEditText();
+
+        virtualCode = view.findViewById(R.id.virtualCode);
+        virtualCode.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+//                    Toast.makeText(getContext(), "virtual checked", Toast.LENGTH_SHORT).show();
+                    editTextBarcode.setEnabled(false);
+                    editTextBarcode.setText("");
+                }
+                else {
+//                    Toast.makeText(getContext(), "no virtual checked", Toast.LENGTH_SHORT).show();
+                    editTextBarcode.setEnabled(true);
+                }
+            }
+        });
 
         editTextRutcharge.addTextChangedListener(new TextWatcher() {
             @Override
@@ -513,9 +532,10 @@ public class DialogFragmentActive extends DialogFragment {
                         String newRutCharge = editTextRutcharge.getText().toString();
                         String newBrand = editTextbrand.getText().toString();
 
+                        System.out.println("Virtual code " + virtualCode.isChecked());
                         // Validacion de datos.
-                        if (newBarcode.isEmpty()) {
-                            textInputLayoutBarcode.setError("Codigo de barra requerido");
+                        if (newBarcode.isEmpty() && !virtualCode.isChecked()) {
+                            textInputLayoutBarcode.setError("Codigo de barra o virtual requerido");
                             continueExecution = false;
                         } else {
                             textInputLayoutBarcode.setError(null);
@@ -698,6 +718,12 @@ public class DialogFragmentActive extends DialogFragment {
                             } else {
 
                                 newActive.setAccounting_document("");
+                                newActive.setVirtual_code("false");
+                                if (virtualCode.isChecked()) {
+                                    newActive.setVirtual_code("true");
+                                }
+
+
                                 if (!photosUrl.isEmpty()){
                                     for (int i = 0; i < photosUrl.size(); i++){
                                         if(i == 0){

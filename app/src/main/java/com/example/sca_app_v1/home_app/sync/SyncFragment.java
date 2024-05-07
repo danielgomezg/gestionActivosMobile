@@ -2,6 +2,7 @@ package com.example.sca_app_v1.home_app.sync;
 
 import static android.content.Context.MODE_PRIVATE;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -16,6 +17,8 @@ import androidx.fragment.app.Fragment;
 
 import com.example.sca_app_v1.R;
 import com.example.sca_app_v1.home_app.HomeActivity;
+import com.example.sca_app_v1.home_app.bdLocal.GetLocalBD;
+import com.example.sca_app_v1.home_app.bdLocal.LoadData;
 import com.example.sca_app_v1.models.Active;
 import com.example.sca_app_v1.models.Article;
 
@@ -50,6 +53,8 @@ public class SyncFragment extends Fragment {
 
                 boolean UnsyncedArticles = Article.hasUnsyncedArticles(getContext());
                 boolean UnsyncedActives = Active.hasUnsyncedActive(getContext());
+                System.out.println("UnsyncedActives --> " + UnsyncedActives);
+                System.out.println("UnsyncedArticles --> " + UnsyncedArticles);
 
                 if (UnsyncedArticles) {
 
@@ -71,7 +76,43 @@ public class SyncFragment extends Fragment {
         btnSyncDownload.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                System.out.println("Llamar a funcion download, la creada en load data.");
+                boolean UnsyncedArticles = Article.hasUnsyncedArticles(getContext());
+                boolean UnsyncedActives = Active.hasUnsyncedActive(getContext());
+                System.out.println("UnsyncedActives --> " + UnsyncedActives);
+                System.out.println("UnsyncedArticles --> " + UnsyncedArticles);
+
+                if (UnsyncedArticles) {
+                    Toast.makeText(getContext(), "Tienes articulos sin subir", Toast.LENGTH_SHORT).show();
+                }
+                if (UnsyncedActives) {
+                    Toast.makeText(getContext(), "Tienes activos sin subir", Toast.LENGTH_SHORT).show();
+                }
+
+                if (!UnsyncedArticles && !UnsyncedActives) {
+                    Toast.makeText(getContext(), "Inicio descarga", Toast.LENGTH_SHORT).show();
+                    GetLocalBD.syncProductionDB(getContext(), token, companyId, new GetLocalBD.GetLocalBDCallback(){
+                        @Override
+                        public void onSuccess(String response) {
+                            System.out.println("SUCCESS SYNC");
+                            Toast.makeText(getContext(), "Descarga completada", Toast.LENGTH_SHORT).show();
+
+//                            layoutLoading.setVisibility(View.INVISIBLE);
+//                            Intent intent = new Intent(getContext(), HomeActivity.class);
+//                            startActivity(intent);
+                        }
+
+                        @Override
+                        public void onError(String error) {
+                            System.out.println("ERROR SYNC");
+                            Toast.makeText(getContext(), "Error al descargar", Toast.LENGTH_SHORT).show();
+
+//                            layoutLoading.setVisibility(View.INVISIBLE);
+//                            Toast.makeText(getContext(), "Error al sincronizar.", Toast.LENGTH_SHORT).show();
+
+                        }
+                    });
+                }
+
             }
         });
 
