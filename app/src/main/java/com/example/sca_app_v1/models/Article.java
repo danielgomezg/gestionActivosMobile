@@ -667,21 +667,6 @@ public class Article implements Serializable {
                 }
             }
         }
-
-        // Si no hay imágenes que subir o ya están todas subidas, verifica si se puede actualizar el artículo
-       /* if (handledCount.get() == totalPhotos) {
-            // Combinar todas las URLs de imágenes subidas
-            for (String photoUrl : photoUrls) {
-                if (photoUrlsString.length() > 0) {
-                    photoUrlsString.append(",");
-                }
-                photoUrlsString.append(photoUrl);
-            }
-
-            // Actualizar el artículo
-            System.out.println("Actualizando artículo con las URLS combinadas: " + photoUrlsString.toString());
-            updateArticleAPI(context, token, companyId, queue, url, photoUrlsString.toString());
-        }*/
     }
 
     // ACTUALIZA EL ARTICULO DE LA API
@@ -1002,7 +987,6 @@ public class Article implements Serializable {
             }
         });
     }
-
 
     public static String savePhoto(Context context, Object imageSource, String nameArt) {
         try {

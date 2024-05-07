@@ -422,6 +422,7 @@ public class DialogFragmentActive extends DialogFragment {
                     photoUri = Uri.parse(active.getPhoto1());
                     if (active.getPhoto1().contains("mobile_local")) {
                         photoActive.setImageURI(photoUri);
+                        photosGallery.set(0, photoUri);
                     }
                     else {
                         photoActive.setImageResource(R.drawable.sca_logo_2);
@@ -435,6 +436,7 @@ public class DialogFragmentActive extends DialogFragment {
                     photoUri = Uri.parse(active.getPhoto2());
                     if (active.getPhoto2().contains("mobile_local")) {
                         photoActive2.setImageURI(photoUri);
+                        photosGallery.set(1, photoUri);
                     }
                     else {
                         photoActive2.setImageResource(R.drawable.sca_logo_2);
@@ -448,6 +450,7 @@ public class DialogFragmentActive extends DialogFragment {
                     photoUri = Uri.parse(active.getPhoto3());
                     if (active.getPhoto3().contains("mobile_local")) {
                         photoActive3.setImageURI(photoUri);
+                        photosGallery.set(2, photoUri);
                     }
                     else {
                         photoActive3.setImageResource(R.drawable.sca_logo_2);
@@ -461,6 +464,7 @@ public class DialogFragmentActive extends DialogFragment {
                     photoUri = Uri.parse(active.getPhoto4());
                     if (active.getPhoto4().contains("mobile_local")) {
                         photoActive4.setImageURI(photoUri);
+                        photosGallery.set(3, photoUri);
                     }
                     else {
                         photoActive4.setImageResource(R.drawable.sca_logo_2);
@@ -621,6 +625,13 @@ public class DialogFragmentActive extends DialogFragment {
                                 if (photosGallery.get(i) == null) {
                                     continue;
                                 }
+                                if (mode == MODE_EDIT){
+                                    if (photosGallery.get(i).toString().equals(active.getPhoto1()) || photosGallery.get(i).toString().equals(active.getPhoto2())
+                                            || photosGallery.get(i).toString().equals(active.getPhoto3()) || photosGallery.get(i).toString().equals(active.getPhoto4())){
+                                        continue;
+                                    }
+                                }
+
                                 String url = Active.savePhoto(requireContext(), photosGallery.get(i), String.valueOf(contNamePhoto) + nameImgActive);
                                 if (url == null) {
                                     success = false;
@@ -647,17 +658,21 @@ public class DialogFragmentActive extends DialogFragment {
                                 newActive.setSync(active.getSync());
                                 if (!photosUrl.isEmpty()){
                                     for (int i = 0; i < photosUrl.size(); i++){
-                                        if(active.getPhoto1().isEmpty()){
+                                        if(active.getPhoto1().isEmpty() || !(photosGallery.get(0).toString().equals(active.getPhoto1())) ){
                                             newActive.setPhoto1(photosUrl.get(i));
+                                            active.setPhoto1(photosUrl.get(i));
                                         }
-                                        else if(active.getPhoto2().isEmpty()){
+                                        else if(active.getPhoto2().isEmpty() || !(photosGallery.get(1).toString().equals(active.getPhoto2())) ){
                                             newActive.setPhoto2(photosUrl.get(i));
+                                            active.setPhoto2(photosUrl.get(i));
                                         }
-                                        else if(active.getPhoto3().isEmpty()){
+                                        else if(active.getPhoto3().isEmpty() || !(photosGallery.get(2).toString().equals(active.getPhoto3())) ){
                                             newActive.setPhoto3(photosUrl.get(i));
+                                            active.setPhoto3(photosUrl.get(i));
                                         }
-                                        else if(active.getPhoto4().isEmpty()){
+                                        else if(active.getPhoto4().isEmpty() || !(photosGallery.get(3).toString().equals(active.getPhoto4())) ){
                                             newActive.setPhoto4(photosUrl.get(i));
+                                            active.setPhoto4(photosUrl.get(i));
                                         }
                                     }
                                 }
