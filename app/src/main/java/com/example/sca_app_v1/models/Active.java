@@ -651,7 +651,7 @@ public class Active implements Serializable {
 
     public void syncUpdate(Context context, String token, Integer companyId) {
         //PETICION A LA API PARA ACTUALIZAR EL ACTIVO
-        String url = "http://10.0.2.2:9000/active/" + this.getId();
+        String url = "http://192.168.100.8:9000/active/" + this.getId();
         RequestQueue queue = Volley.newRequestQueue(context);
 
         // Lista para almacenar las URLs de las imágenes subidas correctamente
@@ -813,7 +813,7 @@ public class Active implements Serializable {
 
     public void syncUpdate2(Context context, String token, Integer companyId){
         //PETICION A LA API PARA ACTUALIZAR EL ACTIVO
-        String url = "http://10.0.2.2:9000/active/" + this.getId();
+        String url = "http://192.168.100.8:9000/active/" + this.getId();
         RequestQueue queue = Volley.newRequestQueue(context);
 
         // Crear el objeto JSON para enviar en el cuerpo de la solicitud
@@ -878,7 +878,7 @@ public class Active implements Serializable {
 
     public void syncCreate(Context context, String token, Integer companyId){
         //PETICION A LA API PARA CREAR EL ACTIVE
-        String url = "http://10.0.2.2:9000/active";
+        String url = "http://192.168.100.8:9000/active";
         RequestQueue queue = Volley.newRequestQueue(context);
 
         // Lista para almacenar las URLs de las imágenes subidas correctamente
@@ -1029,7 +1029,7 @@ public class Active implements Serializable {
     }
     public void syncCreate2(Context context, String token, Integer companyId){
         //PETICION A LA API PARA CREAR EL ACTIVE
-        String url = "http://10.0.2.2:9000/active";
+        String url = "http://192.168.100.8:9000/active";
         RequestQueue queue = Volley.newRequestQueue(context);
 
         // Crear el objeto JSON para enviar en el cuerpo de la solicitud
@@ -1094,7 +1094,7 @@ public class Active implements Serializable {
 
     public void syncDelete(Context context, String token, Integer companyId){
         //PETICION A LA API PARA ELIMINAR EL ARTICULO
-        String url = "http://10.0.2.2:9000/active/" + this.getId();
+        String url = "http://192.168.100.8:9000/active/" + this.getId();
         RequestQueue queue = Volley.newRequestQueue(context);
 
         JsonObjectRequest jsonRequest = new JsonObjectRequest(Request.Method.DELETE, url, null,
@@ -1196,7 +1196,7 @@ public class Active implements Serializable {
 
     public void uploadImage(String token, Integer companyId, String imagePath, int index, Active.UploadImageCallback callback) {
         // URL del endpoint
-        String url = "http://10.0.2.2:9000/image_active";
+        String url = "http://192.168.100.8:9000/image_active";
 
         // Crear un objeto File para la imagen
         File imageFile = new File(imagePath);

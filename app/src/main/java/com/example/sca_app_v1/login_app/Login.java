@@ -22,7 +22,7 @@ package com.example.sca_app_v1.login_app;
  public class Login {
 
      public static void signIn(Context context, String email, String password, final LoginCallback callback) {
-        String url = "http://10.0.2.2:9000/login/app/android"; // Reemplaza con la URL de tu servidor
+        String url = "http://192.168.100.8:9000/login/app/android"; // Reemplaza con la URL de tu servidor
          RequestQueue queue = Volley.newRequestQueue(context);
          
         // Crear el objeto JSON para enviar en el cuerpo de la solicitud
@@ -89,7 +89,7 @@ package com.example.sca_app_v1.login_app;
             @Override
             public void onErrorResponse(VolleyError error) {
                 // Se llamó a la devolución de llamada en caso de error
-                callback.onError("Error durante el inicio de sesión: " + error.getMessage());
+                callback.onError("Error al iniciar sesión ");
             }
         });
 

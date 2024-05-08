@@ -133,7 +133,7 @@ public class LoadData extends AppCompatActivity {
         RequestQueue queue = Volley.newRequestQueue(this);
         SharedPreferences sharedPreferences = getSharedPreferences("session", MODE_PRIVATE);
         String token = sharedPreferences.getString("accessToken", null);
-        String url = "http://10.0.2.2:9000/companiesIdName?limit=200";
+        String url = "http://192.168.100.8:9000/companiesIdName?limit=200";
 
         JsonObjectRequest jsonRequest = new JsonObjectRequest(Request.Method.GET, url, null,
 
@@ -192,8 +192,22 @@ public class LoadData extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View _view, int position, long id) {
                 try {
-                    JSONObject company = companies.getJSONObject(position);
-                    companyId = company.getInt("id");
+                    System.out.println("click opt " + position);
+                    System.out.println("long id " + id);
+                    String companySelected = (String) parent.getItemAtPosition(position);
+                    for (int i = 0; i < companies.length(); i++) {
+                        JSONObject jsonObject = companies.getJSONObject(i);
+                        if (jsonObject.getString("name").equals(companySelected)) {
+                            
+                            companyId = jsonObject.getInt("id");
+                            break;
+                            
+                        }
+                    }
+                    // System.out.println("companySelected " + companySelected);
+                    // System.out.println("companies " + companies);
+                    // JSONObject company = companies.getJSONObject(position);
+                    // companyId = company.getInt("id");
                 } catch (JSONException e) {
                     throw new RuntimeException(e);
 

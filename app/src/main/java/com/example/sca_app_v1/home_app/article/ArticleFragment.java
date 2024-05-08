@@ -73,7 +73,7 @@ public class ArticleFragment extends Fragment {
                             && firstVisibleItemPosition >= 0) {
                         // Llegamos al final del RecyclerView, cargar más datos aquí
                         System.out.println("Se llega al final del scroll");
-                        offset += limit;
+//                        offset += limit;
                         System.out.println("offset " + offset);
                     //    showArticles(getContext());
                         // recyclerView.post(new Runnable() {

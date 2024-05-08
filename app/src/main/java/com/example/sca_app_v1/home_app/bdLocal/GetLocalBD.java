@@ -38,7 +38,7 @@ public class GetLocalBD {
     }
 
     public static void syncProductionDB(Context context, String token, Integer companyId, final GetLocalBDCallback callback) {
-        String url = "http://10.0.2.2:9000/all/data";
+        String url = "http://192.168.100.8:9000/all/data";
         RequestQueue queue = Volley.newRequestQueue(context);
 
         // Crear el objeto JSON para enviar en el cuerpo de la solicitud
@@ -221,7 +221,7 @@ public class GetLocalBD {
         System.out.println("get local bd");
 //        SharedPreferences sharedPreferences = getSharedPreferences("session", MODE_PRIVATE);
 //        String token = sharedPreferences.getString("accessToken", null);
-        String url = "http://10.0.2.2:9000/all/data";
+        String url = "http://192.168.100.8:9000/all/data";
         System.out.println("token: " + token);
         RequestQueue queue = Volley.newRequestQueue(context);
         JsonObjectRequest jsonRequest = new JsonObjectRequest(Request.Method.GET, url, null,

@@ -585,7 +585,7 @@ public class Article implements Serializable {
 
     public void syncUpdate(Context context, String token, Integer companyId) {
         // URL para actualizar el artículo
-        String url = "http://10.0.2.2:9000/article/" + this.getId();
+        String url = "http://192.168.100.8:9000/article/" + this.getId();
         RequestQueue queue = Volley.newRequestQueue(context);
 
         // Lista para almacenar las URLs de las imágenes subidas correctamente
@@ -731,7 +731,7 @@ public class Article implements Serializable {
 
     public void syncCreate(Context context, String token) {
         //PETICION A LA API PARA CREAR EL ARTICULO
-        String url = "http://10.0.2.2:9000/article";
+        String url = "http://192.168.100.8:9000/article";
         RequestQueue queue = Volley.newRequestQueue(context);
 
         // Lista para almacenar las URLs de las imágenes subidas correctamente
@@ -872,7 +872,7 @@ public class Article implements Serializable {
 
     public void syncDelete(Context context, String token, Integer companyId) {
         //PETICION A LA API PARA ELIMINAR EL ARTICULO
-        String url = "http://10.0.2.2:9000/article/" + this.getId();
+        String url = "http://192.168.100.8:9000/article/" + this.getId();
         RequestQueue queue = Volley.newRequestQueue(context);
         Integer idArt = this.getId();
 
@@ -922,7 +922,7 @@ public class Article implements Serializable {
 
     public void uploadImage(String token, Integer companyId, String imagePath, UploadImageCallback callback) {
         // URL del endpoint
-        String url = "http://10.0.2.2:9000/image_article";
+        String url = "http://192.168.100.8:9000/image_article";
 
         // Crear un objeto File para la imagen
         File imageFile = new File(imagePath);

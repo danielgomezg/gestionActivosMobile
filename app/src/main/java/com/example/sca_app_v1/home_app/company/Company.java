@@ -31,7 +31,7 @@ public class Company {
         System.out.println("get company List");
 //        SharedPreferences sharedPreferences = getSharedPreferences("session", MODE_PRIVATE);
 //        String token = sharedPreferences.getString("accessToken", null);
-        String url = "http://10.0.2.2:9000/companiesIdName";
+        String url = "http://192.168.100.8:9000/companiesIdName";
         System.out.println("token: " + token);
         RequestQueue queue = Volley.newRequestQueue(context);
         JsonObjectRequest jsonRequest = new JsonObjectRequest(Request.Method.GET, url, null,
