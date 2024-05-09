@@ -8,13 +8,13 @@
     <fragment
         android:id="@+id/nav_article"
         android:name="com.example.sca_app_v1.home_app.article.ArticleFragment"
-        android:label="Article"
+        android:label="Artículos"
         tools:layout="@layout/fragment_article" />
 
     <fragment
         android:id="@+id/nav_active"
         android:name="com.example.sca_app_v1.home_app.active.ActiveFragment"
-        android:label="Active"
+        android:label="Activos"
         tools:layout="@layout/fragment_active" />
 
     <fragment

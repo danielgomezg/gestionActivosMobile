@@ -532,7 +532,7 @@ public class Article implements Serializable {
         }
     }
 
-    public static void syncUploadArticles(Context context, String token, Integer companyId) {
+    public static void syncUploadArticles(Context context, String token, Integer companyId, SyncCallback callback) {
         System.out.println("SYNC UPLOAD ARTICLES");
         String sql = "SELECT * FROM articulo WHERE sync <> 0";
 
@@ -578,14 +578,18 @@ public class Article implements Serializable {
 
             cursor.close();
 
+            callback.onSuccess();
+
         } catch (Exception e) {
             e.printStackTrace();
+            callback.onError(e);
         }
     }
 
     public void syncUpdate(Context context, String token, Integer companyId) {
         // URL para actualizar el artículo
-        String url = "http://192.168.100.8:9000/article/" + this.getId();
+        //String url = "http://192.168.100.8:9000/article/" + this.getId();
+        String url = "http://10.0.2.2:9000/article/" + this.getId();
         RequestQueue queue = Volley.newRequestQueue(context);
 
         // Lista para almacenar las URLs de las imágenes subidas correctamente
@@ -646,6 +650,10 @@ public class Article implements Serializable {
                 }
             }
         };
+
+        if (this.getPhoto().equals("")){
+            createArticleAPI(context, token, queue, url, "");
+        }
 
         // Subir solo las imágenes que contienen "mobile_local"
         for (String photo : photosArticle) {
@@ -731,7 +739,8 @@ public class Article implements Serializable {
 
     public void syncCreate(Context context, String token) {
         //PETICION A LA API PARA CREAR EL ARTICULO
-        String url = "http://192.168.100.8:9000/article";
+        //String url = "http://192.168.100.8:9000/article";
+        String url = "http://10.0.2.2:9000/article";
         RequestQueue queue = Volley.newRequestQueue(context);
 
         // Lista para almacenar las URLs de las imágenes subidas correctamente
@@ -794,6 +803,10 @@ public class Article implements Serializable {
             }
 
         };
+
+        if (this.getPhoto().equals("")){
+            createArticleAPI(context, token, queue, url, "");
+        }
 
         // Subir solo las imágenes que contienen "mobile_local"
         for (String photo : photosArticle) {
@@ -872,7 +885,8 @@ public class Article implements Serializable {
 
     public void syncDelete(Context context, String token, Integer companyId) {
         //PETICION A LA API PARA ELIMINAR EL ARTICULO
-        String url = "http://192.168.100.8:9000/article/" + this.getId();
+        //String url = "http://192.168.100.8:9000/article/" + this.getId();
+        String url = "http://10.0.2.2:9000/article/" + this.getId();
         RequestQueue queue = Volley.newRequestQueue(context);
         Integer idArt = this.getId();
 
@@ -922,7 +936,8 @@ public class Article implements Serializable {
 
     public void uploadImage(String token, Integer companyId, String imagePath, UploadImageCallback callback) {
         // URL del endpoint
-        String url = "http://192.168.100.8:9000/image_article";
+        //String url = "http://192.168.100.8:9000/image_article";
+        String url = "http://10.0.2.2:9000/image_article";
 
         // Crear un objeto File para la imagen
         File imageFile = new File(imagePath);
@@ -1047,6 +1062,11 @@ public class Article implements Serializable {
     interface UploadImageCallback {
         void onSuccess(String photoUrl);
         void onError(String errorMessage);
+    }
+
+    public interface SyncCallback {
+        void onSuccess();
+        void onError(Exception e);
     }
 
 

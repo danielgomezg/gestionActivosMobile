@@ -52,19 +52,58 @@ public class SyncFragment extends Fragment {
                 System.out.println("UPLOAD!!!");
 
                 boolean UnsyncedArticles = Article.hasUnsyncedArticles(getContext());
-                boolean UnsyncedActives = Active.hasUnsyncedActive(getContext());
-                System.out.println("UnsyncedActives --> " + UnsyncedActives);
+                //boolean UnsyncedActives = Active.hasUnsyncedActive(getContext());
+                //System.out.println("UnsyncedActives --> " + UnsyncedActives);
                 System.out.println("UnsyncedArticles --> " + UnsyncedArticles);
 
                 if (UnsyncedArticles) {
 
-                    Article.syncUploadArticles(getContext(), token, companyId);
+                    Article.syncUploadArticles(getContext(), token, companyId, new Article.SyncCallback() {
+                        @Override
+                        public void onSuccess() {
+                            syncActives(UnsyncedArticles);
+                        }
 
-                }
-                if (UnsyncedActives) {
-                    Active.syncUploadActives(getContext(), token, companyId);
-                }
+                        @Override
+                        public void onError(Exception e) {
+                            System.err.println("Error sincronizando artículos: " + e.getMessage());
+                        }
+                    });
 
+                }else {
+                    syncActives(UnsyncedArticles);
+                }
+                //if (UnsyncedActives) {
+                  //  Active.syncUploadActives(getContext(), token, companyId);
+                //}
+
+            }
+
+            private void syncActives(boolean syncArticles) {
+                boolean unsyncedActives = Active.hasUnsyncedActive(getContext());
+                System.out.println("UnsyncedActives --> " + unsyncedActives);
+
+                // Si UnsyncedActives es verdadero, ejecuta la sincronización de activos
+                if (unsyncedActives) {
+                    Active.syncUploadActives(getContext(), token, companyId, new Active.syncCallback(){
+                        @Override
+                        public void onSuccess() {
+                            Toast.makeText(getContext(),"Se han sincronizado los datos exitosamente.", Toast.LENGTH_SHORT).show();
+                        }
+
+                        @Override
+                        public void onError(Exception e) {
+                            System.err.println("Error sincronizando artículos: " + e.getMessage());
+                            Toast.makeText(getContext(),"ha ocurrido un error sincronizando los datos.", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }else {
+                    if (syncArticles){
+                        Toast.makeText(getContext(),"Se han sincronizado los datos exitosamente.", Toast.LENGTH_SHORT).show();
+                    }else {
+                        Toast.makeText(getContext(),"Los datos están sincronizados.", Toast.LENGTH_SHORT).show();
+                    }
+                }
             }
         });
 

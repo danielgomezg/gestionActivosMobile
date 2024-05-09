@@ -44,6 +44,8 @@ import com.example.sca_app_v1.models.Office;
 import com.example.sca_app_v1.models.Store;
 import com.google.android.material.textfield.TextInputLayout;
 
+import org.json.JSONObject;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -622,6 +624,7 @@ public class DialogFragmentActive extends DialogFragment {
                             newActive.setArticle_id(articleId);
                             newActive.setOffice_id(officeId);
                             newActive.setState(stateActive);
+                            System.out.println("office id " + officeId);
 
                             String nameImgActive = newBarcode;
 
@@ -755,6 +758,7 @@ public class DialogFragmentActive extends DialogFragment {
 
                                     // Actualizar la lista de artículos en el fragmento padre (ArticleFragment)
                                     parentFragment.showActives(getContext());
+                                    dialog.dismiss();
                                 } else {
                                     // Ocurrió un error durante la actualización
                                     Toast.makeText(getContext(), "Error al crear el activo", Toast.LENGTH_SHORT).show();
@@ -838,11 +842,18 @@ public class DialogFragmentActive extends DialogFragment {
         autoCompleteTextViewArticles.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View _view, int position, long id) {
-                Article articleSelected = articleList.get(position);
-                articleId = articleSelected.getId();
-
-                String item = parent.getItemAtPosition(position).toString();
-                Toast.makeText(requireContext(), "Item: "+item, Toast.LENGTH_SHORT).show();
+                Article articleSelected;
+                System.out.println("position " + position);
+                String nameArticleSelected = (String) parent.getItemAtPosition(position);
+                for (int i = 0; i < articleList.size(); i++) {
+                    articleSelected = articleList.get(i);
+                    if (articleSelected.getName().equals(nameArticleSelected)){
+                        System.out.println(articleSelected.getName());
+                        System.out.println(articleSelected.getId());
+                        articleId = articleSelected.getId();
+                        break;
+                    }
+                }
             }
         });
 
@@ -890,16 +901,21 @@ public class DialogFragmentActive extends DialogFragment {
         autoCompleteTextViewStores.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View _view, int position, long id) {
-                System.out.println(parent);
+                Store storeSelected;
                 System.out.println("position " + position);
-                Store storeSelected = storeList.get(position);
-                System.out.println(storeSelected.getId());
-                System.out.println(storeSelected.getAddress());
-                storeId = storeSelected.getId();
-                initializeOffice(view, storeId);
-
-                String item = parent.getItemAtPosition(position).toString();
-                Toast.makeText(requireContext(), "Item: "+item, Toast.LENGTH_SHORT).show();
+                String nameStoreSelected = (String) parent.getItemAtPosition(position);
+                for (int i = 0; i < storeList.size(); i++) {
+                    storeSelected = storeList.get(i);
+                    if (storeSelected.getFullName().equals(nameStoreSelected)){
+                        System.out.println(storeSelected.getFullName());
+                        System.out.println(storeSelected.getId());
+                        storeId = storeSelected.getId();
+                        initializeOffice(view, storeId);
+                        String item = parent.getItemAtPosition(position).toString();
+                        Toast.makeText(requireContext(), "Item: "+item, Toast.LENGTH_SHORT).show();
+                        break;
+                    }
+                }
             }
         });
 
@@ -944,8 +960,18 @@ public class DialogFragmentActive extends DialogFragment {
         autoCompleteTextViewOffices.setOnItemClickListener(new AdapterView.OnItemClickListener(){
             @Override
             public void onItemClick(AdapterView<?> parent, View _view, int position, long id) {
-                Office officeSelected = officeList.get(position);
-                officeId = officeSelected.getId();
+                Office officeSelected;
+                System.out.println("position " + position);
+                String nameOfficeSelected = (String) parent.getItemAtPosition(position);
+                for (int i = 0; i < officeList.size(); i++) {
+                    officeSelected = officeList.get(i);
+                    if (officeSelected.getFullName().equals(nameOfficeSelected)){
+                        System.out.println(officeSelected.getFullName());
+                        System.out.println(officeSelected.getId());
+                        officeId = officeSelected.getId();
+                        break;
+                    }
+                }
             }
         });
     }

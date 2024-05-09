@@ -597,7 +597,7 @@ public class Active implements Serializable {
         }
     }
 
-    public static void syncUploadActives(Context context, String token, Integer companyId) {
+    public static void syncUploadActives(Context context, String token, Integer companyId, syncCallback callback) {
         System.out.println("SYNC UPLOAD ACTIVES");
         String sql = "SELECT * FROM activo WHERE sync <> 0";
 
@@ -643,15 +643,18 @@ public class Active implements Serializable {
             }
 
             cursor.close();
+            callback.onSuccess();
 
         } catch (Exception e) {
             e.printStackTrace();
+            callback.onError(e);
         }
     }
 
     public void syncUpdate(Context context, String token, Integer companyId) {
         //PETICION A LA API PARA ACTUALIZAR EL ACTIVO
-        String url = "http://192.168.100.8:9000/active/" + this.getId();
+        //String url = "http://192.168.100.8:9000/active/" + this.getId();
+        String url = "http://10.0.2.2:9000/active/" + this.getId();
         RequestQueue queue = Volley.newRequestQueue(context);
 
         // Lista para almacenar las URLs de las imágenes subidas correctamente
@@ -811,74 +814,10 @@ public class Active implements Serializable {
         }
     }
 
-    public void syncUpdate2(Context context, String token, Integer companyId){
-        //PETICION A LA API PARA ACTUALIZAR EL ACTIVO
-        String url = "http://192.168.100.8:9000/active/" + this.getId();
-        RequestQueue queue = Volley.newRequestQueue(context);
-
-        // Crear el objeto JSON para enviar en el cuerpo de la solicitud
-        JSONObject jsonBody = new JSONObject();
-        try {
-            jsonBody.put("bar_code", this.getBar_code());
-            jsonBody.put("comment", this.getComment());
-            jsonBody.put("acquisition_date", this.getAcquisition_date());
-            jsonBody.put("accounting_document", this.getAccounting_document());
-            jsonBody.put("accounting_record_number", this.getAccounting_record_number());
-            jsonBody.put("name_in_charge_active", this.getName_in_charge_active());
-            jsonBody.put("rut_in_charge_active", this.getRut_in_charge_active());
-            jsonBody.put("serie", this.getSerie());
-            jsonBody.put("model", this.getModel());
-            jsonBody.put("state", this.getState());
-            jsonBody.put("brand", this.getBrand());
-            jsonBody.put("office_id", this.getOffice_id());
-            jsonBody.put("article_id", this.getArticle_id());
-        } catch (JSONException e) {
-            throw new RuntimeException(e);
-        }
-        JsonObjectRequest jsonRequest = new JsonObjectRequest(Request.Method.PUT, url, jsonBody,
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        System.out.println("RESPONSE UPDATE ACTIVE");
-                        System.out.println(response.toString());
-                        String code = "0";
-                        try {
-                            code = response.getString("code");
-                        } catch (JSONException e) {
-                            throw new RuntimeException(e);
-                        }
-                        if(code.equals("201")){
-                            boolean successful = updateActiveSync(context);
-                            if (successful){
-                                System.out.println("UPDATED ACTIVE");
-                            }
-                        }
-                    }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                error.printStackTrace();
-                System.out.println("Error: " + error);
-            }
-        }
-        )
-        {
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                Map<String, String> headers = new HashMap<>();
-                headers.put("Content-Type", "application/json");
-                headers.put("Authorization", "Bearer " + token); // Reemplaza 'token' con tu token de autenticación
-                headers.put("companyId", String.valueOf(companyId));
-                return headers;
-            }
-        };
-        // Agregar la solicitud a la cola
-        queue.add(jsonRequest);
-    }
-
     public void syncCreate(Context context, String token, Integer companyId){
         //PETICION A LA API PARA CREAR EL ACTIVE
-        String url = "http://192.168.100.8:9000/active";
+        //String url = "http://192.168.100.8:9000/active";
+        String url = "http://10.0.2.2:9000/active";
         RequestQueue queue = Volley.newRequestQueue(context);
 
         // Lista para almacenar las URLs de las imágenes subidas correctamente
@@ -1027,74 +966,11 @@ public class Active implements Serializable {
         // Agregar la solicitud a la cola
         queue.add(jsonRequest);
     }
-    public void syncCreate2(Context context, String token, Integer companyId){
-        //PETICION A LA API PARA CREAR EL ACTIVE
-        String url = "http://192.168.100.8:9000/active";
-        RequestQueue queue = Volley.newRequestQueue(context);
-
-        // Crear el objeto JSON para enviar en el cuerpo de la solicitud
-        JSONObject jsonBody = new JSONObject();
-        try {
-            jsonBody.put("bar_code", this.getBar_code());
-            jsonBody.put("comment", this.getComment());
-            jsonBody.put("acquisition_date", this.getAcquisition_date());
-            jsonBody.put("accounting_document", this.getAccounting_document());
-            jsonBody.put("accounting_record_number", this.getAccounting_record_number());
-            jsonBody.put("name_in_charge_active", this.getName_in_charge_active());
-            jsonBody.put("rut_in_charge_active", this.getRut_in_charge_active());
-            jsonBody.put("serie", this.getSerie());
-            jsonBody.put("model", this.getModel());
-            jsonBody.put("state", this.getState());
-            jsonBody.put("brand", this.getBrand());
-            jsonBody.put("office_id", this.getOffice_id());
-            jsonBody.put("article_id", this.getArticle_id());
-        } catch (JSONException e) {
-            throw new RuntimeException(e);
-        }
-        JsonObjectRequest jsonRequest = new JsonObjectRequest(Request.Method.POST, url, jsonBody,
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        System.out.println("RESPONSE CREATE ACTIVE");
-                        System.out.println(response.toString());
-                        String code = "0";
-                        try {
-                            code = response.getString("code");
-                        } catch (JSONException e) {
-                            throw new RuntimeException(e);
-                        }
-                        if(code.equals("201")){
-                            boolean successful = updateActiveSync(context);
-                            if (successful){
-                                System.out.println("CREATED ACTIVE");
-                            }
-                        }
-                    }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                error.printStackTrace();
-                System.out.println("Error: " + error);
-            }
-        }
-        )
-        {
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                Map<String, String> headers = new HashMap<>();
-                headers.put("Content-Type", "application/json");
-                headers.put("Authorization", "Bearer " + token);
-                headers.put("companyId", String.valueOf(companyId));
-                return headers;
-            }
-        };
-        // Agregar la solicitud a la cola
-        queue.add(jsonRequest);
-    }
 
     public void syncDelete(Context context, String token, Integer companyId){
         //PETICION A LA API PARA ELIMINAR EL ARTICULO
-        String url = "http://192.168.100.8:9000/active/" + this.getId();
+        //String url = "http://192.168.100.8:9000/active/" + this.getId();
+        String url = "http://10.0.2.2:9000/active/" + this.getId();
         RequestQueue queue = Volley.newRequestQueue(context);
 
         JsonObjectRequest jsonRequest = new JsonObjectRequest(Request.Method.DELETE, url, null,
@@ -1196,7 +1072,8 @@ public class Active implements Serializable {
 
     public void uploadImage(String token, Integer companyId, String imagePath, int index, Active.UploadImageCallback callback) {
         // URL del endpoint
-        String url = "http://192.168.100.8:9000/image_active";
+        //String url = "http://192.168.100.8:9000/image_active";
+        String url = "http://10.0.2.2:9000/image_active";
 
         // Crear un objeto File para la imagen
         File imageFile = new File(imagePath);
@@ -1265,5 +1142,10 @@ public class Active implements Serializable {
     interface UploadImageCallback {
         void onSuccess(String photoUrl, int index);
         void onError(String errorMessage);
+    }
+
+    public interface syncCallback {
+        void onSuccess();
+        void onError(Exception e);
     }
 }
