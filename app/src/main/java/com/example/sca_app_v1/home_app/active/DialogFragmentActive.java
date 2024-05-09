@@ -402,7 +402,14 @@ public class DialogFragmentActive extends DialogFragment {
 
         // setea los campos de activo
         if(active != null){
-            editTextBarcode.setText(active.getBar_code());
+            if (active.getBar_code().equals("")){
+                editTextBarcode.setEnabled(false);
+                virtualCode.setChecked(true);
+                virtualCode.setEnabled(false);
+            }else {
+                editTextBarcode.setText(active.getBar_code());
+                virtualCode.setEnabled(false);
+            }
             editTextModel.setText(active.getModel());
             editTextSerie.setText(active.getSerie());
             editTextcomment.setText(active.getComment());

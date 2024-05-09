@@ -241,7 +241,7 @@ public class DialogFragmentArticle extends DialogFragment {
         TextInputLayout textInputLayoutCategory = view.findViewById(R.id.editTextCategoryS);
         categorySelect = view.findViewById(R.id.category_select);
         Category category = new Category();
-        List<Category> categoryList = category.getCategories(requireContext());
+        List<Category> categoryList = category.getCategoriesFinals(requireContext());
         System.out.println("CATEGORY LIST " + categoryList);
         List<String> items = categoryList.stream()
         .map(Category::getDescription)

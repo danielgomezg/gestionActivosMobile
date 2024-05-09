@@ -121,6 +121,47 @@ public class Category {
         }
     }
 
+    public List<Category> getCategoriesFinals(Context context) {
+        // Consulta para obtener las categorías que no tienen subcategorías y donde `removed` es 0
+        String sql = "SELECT * FROM Categoria " +
+                "WHERE id NOT IN (" +
+                "    SELECT parent_id " +
+                "    FROM Categoria " +
+                "    WHERE removed = 0 " +
+                "    GROUP BY parent_id" +
+                ") " +
+                "AND removed = 0";
+
+        try {
+            // Instancia de DatabaseHelper para ejecutar la consulta
+            DatabaseHelper dbHelper = new DatabaseHelper(context);
+            Cursor cursor = dbHelper.executeQuery(sql);
+
+            // Lista para almacenar las categorías obtenidas
+            List<Category> categories = new ArrayList<>();
+
+            // Recorre el cursor para obtener las categorías
+            if (cursor.moveToFirst()) {
+                do {
+                    // Crea una nueva instancia de Category con los datos del cursor y agrégala a la lista
+                    categories.add(new Category(cursor));
+                } while (cursor.moveToNext());
+            }
+
+            // Cierra el cursor
+            cursor.close();
+
+            // Devuelve la lista de categorías
+            return categories;
+
+        } catch (Exception e) {
+            // Manejo de excepciones
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+
     public Category getCategoryById(Context context, Integer categoryId) {
         String sql = "SELECT * FROM categoria WHERE id = ?";
 
