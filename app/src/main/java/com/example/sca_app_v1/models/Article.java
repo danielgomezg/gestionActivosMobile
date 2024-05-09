@@ -854,12 +854,15 @@ public class Article implements Serializable {
                         String code = "0";
                         try {
                             code = response.getString("code");
+                            if(code.equals("201")){
+                                JSONObject result = response.getJSONObject("result");
+                                Active.updateArticleIdServer(context, id, result.getInt("id"));
+                                boolean successful = updateArticleSync(context);
+                            }
                         } catch (JSONException e) {
                             throw new RuntimeException(e);
                         }
-                        if(code.equals("201")){
-                            boolean successful = updateArticleSync(context);
-                        }
+
                     }
                 }, new Response.ErrorListener() {
             @Override

@@ -20,7 +20,7 @@ import java.util.Map;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final int DATABASE_VERSION = 1;
-    private static final String DATABASE_NAME = "sca_gestion_activos_12.db";
+    private static final String DATABASE_NAME = "sca_gestion_activos_13.db";
 
     // Constructor
     public DatabaseHelper(Context context) {
@@ -188,6 +188,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "removed INTEGER DEFAULT 0 NOT NULL," +
                 "office_id INTEGER," +
                 "article_id INTEGER," +
+                "article_id_server INTEGER," +
                 "sync INTEGER DEFAULT 0 NOT NULL," +
                 "FOREIGN KEY (office_id) REFERENCES oficina(id)," +
                 "FOREIGN KEY (article_id) REFERENCES articulo(id)" +
@@ -462,6 +463,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 values.put("removed", active.getRemoved());
                 values.put("office_id", active.getOffice_id());
                 values.put("article_id", active.getArticle_id());
+                values.put("article_id_server", active.getArticle_id());
 
                 db.insert("activo", null, values);
             }

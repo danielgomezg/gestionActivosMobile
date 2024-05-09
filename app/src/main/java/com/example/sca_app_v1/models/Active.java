@@ -70,6 +70,7 @@ public class Active implements Serializable {
     private Integer removed;
     private Integer office_id;
     private Integer article_id;
+    private Integer article_id_server;
     private Integer sync;
 
     public Active(){}
@@ -142,6 +143,9 @@ public class Active implements Serializable {
         int _sync_idIndex = cursor.getColumnIndex("sync");
         if (_sync_idIndex != -1) this.sync = cursor.getInt(_sync_idIndex);
 
+        int _articleIdServerIndex = cursor.getColumnIndex("article_id_server");
+        if (_articleIdServerIndex != -1) this.article_id_server = cursor.getInt(_articleIdServerIndex);
+
     }
 
     public Active(Integer id, String bar_code, String virtual_code, String comment, String acquisition_date, String accounting_document, String accounting_record_number, String name_in_charge_active, String rut_in_charge_active, String serie, String model, String state, String brand, String photo1, String photo2, String photo3, String photo4, String creation_date, Integer removed, Integer office_id, Integer article_id) {
@@ -191,7 +195,9 @@ public class Active implements Serializable {
         this.office_id = (int) active.getInt("office_id");
         this.article_id = (int) active.getInt("article_id");
     }
-
+    public Integer getArticle_id_server() {
+        return article_id_server;
+    }
     public Integer getId() {
         return id;
     }
@@ -439,6 +445,7 @@ public class Active implements Serializable {
             //values.put("creation_date", this.removed);
             values.put("office_id", this.office_id);
             values.put("article_id", this.article_id);
+            values.put("article_id_server", this.article_id);
 
             // Insertar el nuevo registro en la base de datos
             long newRowId = db.insert("activo", null, values);
@@ -488,6 +495,7 @@ public class Active implements Serializable {
             values.put("sync", 2);
             values.put("office_id", this.office_id);
             values.put("article_id", this.article_id);
+            values.put("article_id_server", this.article_id);
 
             // Insertar el nuevo registro en la base de datos
             long newRowId = db.update("activo", values, "id = ?", new String[]{String.valueOf(this.id)});
@@ -762,7 +770,7 @@ public class Active implements Serializable {
             jsonBody.put("photo3", photosUrl.get(2));
             jsonBody.put("photo4", photosUrl.get(3));
             jsonBody.put("office_id", this.getOffice_id());
-            jsonBody.put("article_id", this.getArticle_id());
+            jsonBody.put("article_id", this.getArticle_id_server());
 
             System.out.println("JSONBODYYYY " + jsonBody);
 
@@ -926,7 +934,7 @@ public class Active implements Serializable {
             jsonBody.put("photo3", photosUrl.get(2));
             jsonBody.put("photo4", photosUrl.get(3));
             jsonBody.put("office_id", this.getOffice_id());
-            jsonBody.put("article_id", this.getArticle_id());
+            jsonBody.put("article_id", this.getArticle_id_server());
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }
@@ -1147,5 +1155,33 @@ public class Active implements Serializable {
     public interface syncCallback {
         void onSuccess();
         void onError(Exception e);
+    }
+
+    public static void updateArticleIdServer(Context context, Integer localArticleId, Integer serverArticleId) {
+
+        SQLiteDatabase db = null;
+        try {
+            DatabaseHelper dbHelper = new DatabaseHelper(context);
+            db = dbHelper.getWritableDatabase();
+
+            // db.beginTransaction();
+
+            // Crear un ContentValues con los nuevos valores del artículo
+            ContentValues values = new ContentValues();
+            values.put("article_id_server", serverArticleId);
+
+            // Definir la condición WHERE para la actualización (basado en el ID del artículo)
+            String whereClause = "article_id = ?";
+            String[] whereArgs = {String.valueOf(localArticleId)};
+
+            // Actualizar el registro en la base de datos
+            int rowsAffected = db.update("activo", values, whereClause, whereArgs);
+
+            // db.setTransactionSuccessful();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 }
