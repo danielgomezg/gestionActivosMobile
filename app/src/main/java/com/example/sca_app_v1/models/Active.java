@@ -379,6 +379,21 @@ public class Active implements Serializable {
         this.article_id = article_id;
     }
 
+    public String printData() {
+        return "Active{" +
+                "id=" + id +
+                ", BarCode='" + bar_code + '\'' +
+                ", virtual_code='" + virtual_code + '\'' +
+                ", model='" + model + '\'' +
+                ", serie='" + serie + '\'' +
+                ", brand=" + brand +
+                ", creation_date='" + creation_date + '\'' +
+                ", removed=" + removed +
+                ", article_id=" + article_id +
+                ", office_id=" + office_id +
+                '}';
+    }
+
     public List<Active> getActives(Context context) {
         System.out.println("IN GET ALL ACTIVES");
         String sql = "SELECT * FROM activo WHERE removed = 0 ORDER BY id DESC";
@@ -492,7 +507,7 @@ public class Active implements Serializable {
             values.put("photo2", this.photo2);
             values.put("photo3", this.photo3);
             values.put("photo4", this.photo4);
-            values.put("sync", 2);
+            if (this.sync == 0) values.put("sync", 2);
             values.put("office_id", this.office_id);
             values.put("article_id", this.article_id);
             values.put("article_id_server", this.article_id);
@@ -621,6 +636,8 @@ public class Active implements Serializable {
                     System.out.println(cursor);
                     Active active = new Active(cursor);
                     System.out.println(active.getId());
+                    System.out.println("DATOS");
+                    System.out.println(active.printData());
 
                     switch (active.getSync()) {
                         case 1:
@@ -739,11 +756,11 @@ public class Active implements Serializable {
             } else {
                 // Si la imagen ya está subida, agregarla a la lista de URLs
                 System.out.println("Imagen ya subida o no requiere subida: " + photo);
-                if (!uploadedPhotos.contains(photo)) {
-                    uploadedPhotos.add(photo);
-                    photoUrls.set(index,photo);
-                    handledCount.incrementAndGet();
-                }
+
+                uploadedPhotos.add(photo);
+                photoUrls.set(index,photo);
+                handledCount.incrementAndGet();
+
             }
         }
     }
@@ -780,7 +797,7 @@ public class Active implements Serializable {
                         @Override
                         public void onResponse(JSONObject response) {
                             // Manejar la respuesta exitosa
-                            System.out.println("RESPONSE UPDATE ARTICLE");
+                            System.out.println("RESPONSE UPDATE ACTIVE");
                             System.out.println(response.toString());
 
                             try {
@@ -903,11 +920,9 @@ public class Active implements Serializable {
             } else {
                 // Si la imagen ya está subida, agregarla a la lista de URLs
                 System.out.println("Imagen ya subida o no requiere subida: " + photo);
-                if (!uploadedPhotos.contains(photo)) {
-                    uploadedPhotos.add(photo);
-                    photoUrls.set(index,photo);
-                    handledCount.incrementAndGet();
-                }
+                uploadedPhotos.add(photo);
+                photoUrls.set(index,photo);
+                handledCount.incrementAndGet();
             }
         }
     }
@@ -947,11 +962,16 @@ public class Active implements Serializable {
                         String code = "0";
                         try {
                             code = response.getString("code");
+                            System.out.println("CODE " + code);
+                            JSONObject result = response.getJSONObject("result");
+                            if(code.equals("201")){
+                                System.out.println("RESULT " + result);
+                                String virtual_code = result.getString("virtual_code");
+                                System.out.println("VC " + virtual_code);
+                                boolean successful = updateActiveSync(context);
+                            }
                         } catch (JSONException e) {
                             throw new RuntimeException(e);
-                        }
-                        if(code.equals("201")){
-                            boolean successful = updateActiveSync(context);
                         }
                     }
                 }, new Response.ErrorListener() {
@@ -1158,6 +1178,9 @@ public class Active implements Serializable {
     }
 
     public static void updateArticleIdServer(Context context, Integer localArticleId, Integer serverArticleId) {
+        System.out.println("DATOS");
+        System.out.println("local " + localArticleId);
+        System.out.println("SERVER " + serverArticleId);
 
         SQLiteDatabase db = null;
         try {

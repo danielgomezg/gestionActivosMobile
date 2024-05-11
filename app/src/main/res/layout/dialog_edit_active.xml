@@ -65,6 +65,20 @@
             android:text="Generar código virtual" />
 
         <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/article_options"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:hint="@string/article">
+
+            <AutoCompleteTextView
+                android:id="@+id/article_select"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/editTextBrand"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
@@ -197,20 +211,6 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/article_options"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
-            android:hint="@string/article">
-
-            <AutoCompleteTextView
-                android:id="@+id/article_select"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/editTextRecordNumber"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
@@ -248,8 +248,8 @@
 
                     <Button
                         android:id="@+id/btnDeleteImg1"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
                         android:layout_gravity="top|end"
                         android:text="X" />
 
@@ -268,8 +268,8 @@
 
                     <Button
                         android:id="@+id/btnDeleteImg2"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
                         android:layout_gravity="top|end"
                         android:text="X" />
 
@@ -288,8 +288,8 @@
 
                     <Button
                         android:id="@+id/btnDeleteImg3"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
                         android:layout_gravity="top|end"
                         android:text="X" />
 
@@ -308,8 +308,8 @@
 
                     <Button
                         android:id="@+id/btnDeleteImg4"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
                         android:layout_gravity="top|end"
                         android:text="X" />
 

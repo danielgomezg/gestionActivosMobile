@@ -541,6 +541,8 @@ public class Article implements Serializable {
             DatabaseHelper dbHelper = new DatabaseHelper(context);
             Cursor cursor = dbHelper.executeQuery(sql);
 
+            AtomicInteger operationCounter = new AtomicInteger(cursor.getCount());
+
             if (cursor.moveToFirst()) {
                 do {
                     System.out.println(cursor);
@@ -553,32 +555,30 @@ public class Article implements Serializable {
                             // Sincronizar nuevo activo
                             System.out.println("1111111111");
                             System.out.println(article.getSync());
-                            article.syncCreate(context, token);
+                            article.syncCreate(context, token, operationCounter, callback);
                             break;
                         
                         case 2:
                             // Sincronizar activo modificado
                             System.out.println("222222222222");
                             System.out.println(article.getSync());
-                            article.syncUpdate(context, token, companyId);
+                            article.syncUpdate(context, token, companyId, operationCounter, callback);
                             break;
 
                         case 3:
                             // Sincronizar activo eliminado
                             System.out.println("33333333333333");
                             System.out.println(article.getSync());
-                            article.syncDelete(context, token, companyId);
+                            article.syncDelete(context, token, companyId, operationCounter, callback);
                             break;
                         
                     }
-
-
                 } while (cursor.moveToNext());
             }
 
             cursor.close();
 
-            callback.onSuccess();
+            //callback.onSuccess();
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -586,7 +586,7 @@ public class Article implements Serializable {
         }
     }
 
-    public void syncUpdate(Context context, String token, Integer companyId) {
+    public void syncUpdate(Context context, String token, Integer companyId, AtomicInteger operationCounter, SyncCallback callback) {
         // URL para actualizar el artículo
         //String url = "http://192.168.100.8:9000/article/" + this.getId();
         String url = "http://10.0.2.2:9000/article/" + this.getId();
@@ -646,13 +646,13 @@ public class Article implements Serializable {
                     System.out.println("URLS combinadas: " + photoUrlsString.toString());
 
                     // Actualizar el artículo
-                    updateArticleAPI(context, token, companyId, queue, url, photoUrlsString.toString());
+                    updateArticleAPI(context, token, companyId, queue, url, photoUrlsString.toString(), operationCounter, callback);
                 }
             }
         };
 
         if (this.getPhoto().equals("")){
-            createArticleAPI(context, token, queue, url, "");
+            updateArticleAPI(context, token, companyId, queue, url, "", operationCounter, callback);
         }
 
         // Subir solo las imágenes que contienen "mobile_local"
@@ -668,17 +668,17 @@ public class Article implements Serializable {
             } else {
                 // Si la imagen ya está subida, agregarla a la lista de URLs
                 System.out.println("Imagen ya subida o no requiere subida: " + photo);
-                if (!uploadedPhotos.contains(photo)) {
-                    uploadedPhotos.add(photo);
-                    photoUrls.add(photo);
-                    handledCount.incrementAndGet();
-                }
+
+                uploadedPhotos.add(photo);
+                photoUrls.add(photo);
+                handledCount.incrementAndGet();
+
             }
         }
     }
 
     // ACTUALIZA EL ARTICULO DE LA API
-    private void updateArticleAPI(Context context, String token, Integer companyId, RequestQueue queue, String url, String photoName) {
+    private void updateArticleAPI(Context context, String token, Integer companyId, RequestQueue queue, String url, String photoName, AtomicInteger operationCounter, SyncCallback callback) {
         JSONObject jsonBody = new JSONObject();
         try {
             jsonBody.put("name", getName());
@@ -704,6 +704,7 @@ public class Article implements Serializable {
                                 if (code.equals("201")) {
                                     boolean successful = updateArticleSync(context);
                                     System.out.println("SUCCESSFUL " + successful);
+                                    operationCompleted(operationCounter, callback);
                                 }
                             } catch (JSONException e) {
                                 System.out.println("Error al acceder al JSON de respuesta: " + e.getMessage());
@@ -737,7 +738,7 @@ public class Article implements Serializable {
         }
     }
 
-    public void syncCreate(Context context, String token) {
+    public void syncCreate(Context context, String token, AtomicInteger operationCounter, SyncCallback callbackSync) {
         //PETICION A LA API PARA CREAR EL ARTICULO
         //String url = "http://192.168.100.8:9000/article";
         String url = "http://10.0.2.2:9000/article";
@@ -798,14 +799,14 @@ public class Article implements Serializable {
                     System.out.println("URLS combinadas: " + photoUrlsString.toString());
 
                     // Crear el artículo
-                    createArticleAPI(context, token, queue, url, photoUrlsString.toString());
+                    createArticleAPI(context, token, queue, url, photoUrlsString.toString(), operationCounter, callbackSync);
                 }
             }
 
         };
 
         if (this.getPhoto().equals("")){
-            createArticleAPI(context, token, queue, url, "");
+            createArticleAPI(context, token, queue, url, "", operationCounter, callbackSync);
         }
 
         // Subir solo las imágenes que contienen "mobile_local"
@@ -821,17 +822,17 @@ public class Article implements Serializable {
             } else {
                 // Si la imagen ya está subida, agregarla a la lista de URLs
                 System.out.println("Imagen ya subida o no requiere subida: " + photo);
-                if (!uploadedPhotos.contains(photo)) {
-                    uploadedPhotos.add(photo);
-                    photoUrls.add(photo);
-                    handledCount.incrementAndGet();
-                }
+                //if (!uploadedPhotos.contains(photo)) {
+                uploadedPhotos.add(photo);
+                photoUrls.add(photo);
+                handledCount.incrementAndGet();
+                //}
             }
         }
 
     }
 
-    public void createArticleAPI(Context context, String token, RequestQueue queue, String url, String photoName) {
+    public void createArticleAPI(Context context, String token, RequestQueue queue, String url, String photoName, AtomicInteger operationCounter, SyncCallback callback) {
 
         // Crear el objeto JSON para enviar en el cuerpo de la solicitud
         JSONObject jsonBody = new JSONObject();
@@ -858,6 +859,8 @@ public class Article implements Serializable {
                                 JSONObject result = response.getJSONObject("result");
                                 Active.updateArticleIdServer(context, id, result.getInt("id"));
                                 boolean successful = updateArticleSync(context);
+                                operationCompleted(operationCounter, callback);
+
                             }
                         } catch (JSONException e) {
                             throw new RuntimeException(e);
@@ -886,7 +889,7 @@ public class Article implements Serializable {
         queue.add(jsonRequest);
     }
 
-    public void syncDelete(Context context, String token, Integer companyId) {
+    public void syncDelete(Context context, String token, Integer companyId, AtomicInteger operationCounter, SyncCallback callback) {
         //PETICION A LA API PARA ELIMINAR EL ARTICULO
         //String url = "http://192.168.100.8:9000/article/" + this.getId();
         String url = "http://10.0.2.2:9000/article/" + this.getId();
@@ -912,6 +915,7 @@ public class Article implements Serializable {
                                 art = art.getArticleById(context, idArt);
                                 System.out.println("FIN");
                                 System.out.println(art.getSync());
+                                operationCompleted(operationCounter, callback);
                             }
                         }
                     }
@@ -1072,5 +1076,11 @@ public class Article implements Serializable {
         void onError(Exception e);
     }
 
-
+    private static void operationCompleted(AtomicInteger operationCounter, SyncCallback callback) {
+        // Decrementar el contador de operaciones y verificar si todas las operaciones han finalizado
+        if (operationCounter.decrementAndGet() == 0) {
+            // Todas las operaciones han finalizado, llamar a onSuccess()
+            callback.onSuccess();
+        }
+    }
 }
