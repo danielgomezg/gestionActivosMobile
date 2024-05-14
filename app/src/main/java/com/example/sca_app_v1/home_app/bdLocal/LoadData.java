@@ -49,6 +49,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -107,8 +108,13 @@ public class LoadData extends AppCompatActivity {
             public void onError(String error) {
                 System.out.println("ERROR SYNC");
                 layoutLoading.setVisibility(View.INVISIBLE);
-                Toast.makeText(LoadData.this, "Error al sincronizar.", Toast.LENGTH_SHORT).show();
-
+                // Toast.makeText(LoadData.this, "Error al sincronizar.", Toast.LENGTH_SHORT).show();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(LoadData.this, "Error al sincronizar.", Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
         });
 
@@ -212,6 +218,109 @@ public class LoadData extends AppCompatActivity {
             }
         });
 
+    }
+
+    public static CompletableFuture<JSONObject> requesGetOffices(Context context, String token, Integer companyId, Integer limit, Integer offset) {
+
+        CompletableFuture<JSONObject> futureResponse = new CompletableFuture<>();
+        RequestQueue queue = Volley.newRequestQueue(context);
+        String url = "http://10.0.2.2:9000/offices?limit=" + limit + "&offset=" + offset;
+        System.out.println("URL GET OFFICE " + url);
+        JsonObjectRequest jsonRequest = new JsonObjectRequest(Request.Method.GET, url, null,
+            new Response.Listener<JSONObject>() {
+                @Override
+                public void onResponse(JSONObject response) {
+
+                    System.out.println(response.toString());
+                    try {
+                        int status = response.getInt("code");
+                        if (status == 200) {
+
+                            futureResponse.complete(response);
+
+                        }
+                        else {
+                            futureResponse.complete(null);
+                        }
+
+                    } catch (JSONException e) {
+                        // throw new RuntimeException(e);
+                        futureResponse.complete(null);
+                    }
+
+                }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    error.printStackTrace();
+                    futureResponse.complete(null);
+                }
+            }
+        )
+        {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<>();
+                headers.put("Content-Type", "application/json");
+                headers.put("Authorization", "Bearer " + token); // Reemplaza 'token' con tu token de autenticación
+                headers.put("companyId", String.valueOf(companyId));
+                return headers;
+            }
+        };
+
+        queue.add(jsonRequest);
+        return futureResponse;
+
+    }
+
+    public static CompletableFuture<JSONObject> requestGet(Context context, String url, String token, Integer companyId) {
+
+        CompletableFuture<JSONObject> futureResponse = new CompletableFuture<>();
+        RequestQueue queue = Volley.newRequestQueue(context);
+        JsonObjectRequest jsonRequest = new JsonObjectRequest(Request.Method.GET, url, null,
+            new Response.Listener<JSONObject>() {
+                @Override
+                public void onResponse(JSONObject response) {
+
+                    System.out.println(response.toString());
+                    try {
+                        int status = response.getInt("code");
+                        if (status == 200) {
+                            // response.put("code", "400");
+                            futureResponse.complete(response);
+                        }
+                        else {
+                            futureResponse.complete(null);
+                        }
+
+                    } catch (JSONException e) {
+                        // throw new RuntimeException(e);
+                        futureResponse.complete(null);
+                    }
+
+                }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    error.printStackTrace();
+                    futureResponse.complete(null);
+                }
+            }
+        )
+        {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<>();
+                headers.put("Content-Type", "application/json");
+                headers.put("Authorization", "Bearer " + token); // Reemplaza 'token' con tu token de autenticación
+                headers.put("companyId", String.valueOf(companyId));
+                return headers;
+            }
+        };
+
+        queue.add(jsonRequest);
+        return futureResponse;
+    
     }
 
 }

@@ -27,112 +27,142 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
 
 public class GetLocalBD {
 
     private ActivityMainBinding binding;
     AutoCompleteTextView companySelect;
+    private static List<Integer> failsOffsetStore = new ArrayList<>();
+    private static List<Integer> failsOffsetOffice = new ArrayList<>();
+    private static List<Integer> failsOffsetActive = new ArrayList<>();
+    private static List<Integer> failsOffsetArticle = new ArrayList<>();
+    private static List<Integer> failsOffsetCategory = new ArrayList<>();
 
     public static void deleteLocalTables(Context context) {
         DatabaseHelper dbHelper = new DatabaseHelper(context);
         dbHelper.deleteAllTables();
     }
 
+
+
     private static CompletableFuture<Void> fetchOficinas(Context context, String token, Integer companyId) {
         return CompletableFuture.runAsync(() -> {
             int limit = 5;
             String url = "";
-            int[] count = {0};
-            int[] offset = {0};
+            int count = 0;
+            int offset = 0;
             DatabaseHelper dbHelper = null;
             List<Integer> failsOffset = new ArrayList<>();
             List<Office> officeList = new ArrayList<>();
             RequestQueue queue = Volley.newRequestQueue(context);
 
-            try {
-                dbHelper = new DatabaseHelper(context);
-                do {
-                    CountDownLatch latch = new CountDownLatch(1);
+            if (failsOffsetOffice.size() > 0) {
 
-                    url = "http://10.0.2.2:9000/offices?limit=" + limit + "&offset=" + offset[0];
-                    System.out.println("url --> " + url);
-                    JsonObjectRequest jsonRequest = new JsonObjectRequest(Request.Method.GET, url, null,
-                            new Response.Listener<JSONObject>() {
-                                @Override
-                                public void onResponse(JSONObject response) {
-
-                                    System.out.println("RESPONSE GET OFFICCES");
-                                    System.out.println(response.toString());
-                                    try {
-                                        int status = response.getInt("code");
-                                        if (status == 200) {
-
-                                            count[0] = response.getInt("count");
-
-                                            // GET CATEGORIAS
-                                            JSONArray offices = response.getJSONArray("result");
-
-                                            for (int i = 0; i < offices.length(); i++){
-                                                Office office = new Office(offices.getJSONObject(i));
-                                                officeList.add(office);
-                                            }
-
-                                        }
-                                        else {
-
-                                        }
-
-                                    } catch (JSONException e) {
-                                        throw new RuntimeException(e);
-                                    }
-
-                                    latch.countDown(); // Decrementa el contador del latch
-
+                System.out.println("SEARCH OFFSET FAIL");
+                for (Integer off : failsOffsetOffice) {
+                    url = "http://10.0.2.2:9000/offices?limit=" + limit + "&offset=" + offset;
+                    try {
+    
+                        CompletableFuture<JSONObject> futureOffice = LoadData.requestGet(context, url, token, companyId);
+                        JSONObject response = null;
+                        response = futureOffice.get();
+                
+                        if (response == null) {
+                            System.out.println("Error en la respuesta de oficinas A");
+                            failsOffset.add(offset);
+                            failsOffsetOffice.add(offset);
+                        }
+                        else {
+                            int status = response.getInt("code");
+                            if (status == 200) {
+                                count = response.getInt("count");
+                                // GET CATEGORIAS
+                                JSONArray offices = response.getJSONArray("result");
+                                for (int i = 0; i < offices.length(); i++){
+                                    Office office = new Office(offices.getJSONObject(i));
+                                    officeList.add(office);
                                 }
-                            }, new Response.ErrorListener() {
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-                            error.printStackTrace();
-                            System.out.println("Error: "+error);
-                            failsOffset.add(offset[0]);
-
-                            latch.countDown(); // Decrementa el contador del latch
+                            }
+                            else {
+                                System.out.println("Error en la respuesta de oficinas B");
+                                failsOffset.add(offset);
+                                failsOffsetOffice.add(offset);
+                            }
                         }
+
+                    } catch (JSONException | InterruptedException | ExecutionException e) {
+                        throw new RuntimeException(e);
                     }
-                    )
-                    {
-                        @Override
-                        public Map<String, String> getHeaders() throws AuthFailureError {
-                            Map<String, String> headers = new HashMap<>();
-                            headers.put("Content-Type", "application/json");
-                            headers.put("Authorization", "Bearer " + token); // Reemplaza 'token' con tu token de autenticación
-                            headers.put("companyId", String.valueOf(companyId));
-                            return headers;
-                        }
-                    };
 
-                    queue.add(jsonRequest);
-
-                    latch.await();
-
-                    offset[0] += limit;
-                    System.out.println("offset: " + offset);
-
-
-                } while (offset[0] < count[0]);
-
-                dbHelper.insertOfficeTransaction(officeList);
-                String selectSql = "SELECT * FROM oficina";
-                List<Map<String, String>> results_cat = dbHelper.executeSqlQuery(selectSql);
-                System.out.println(results_cat.size());
-                for (Map<String, String> row : results_cat) {
-                    System.out.println("---");
-                    System.out.println(row);
                 }
 
-            } catch (InterruptedException e) {
-                e.printStackTrace();
             }
+            else {
+
+                System.out.println("SEARCH OFFSET NORMAL");
+                try {
+                    dbHelper = new DatabaseHelper(context);
+                    do {
+    
+                        url = "http://10.0.2.2:9000/offices?limit=" + limit + "&offset=" + offset;
+                        CompletableFuture<JSONObject> futureOffice = LoadData.requestGet(context, url, token, companyId);
+                        JSONObject response = futureOffice.get();
+    
+                        try {
+                            if (response == null) {
+                                System.out.println("Error en la respuesta de oficinas A");
+                                failsOffset.add(offset);
+                                failsOffsetOffice.add(offset);
+                            }
+                            else {
+                                int status = response.getInt("code");
+                                if (status == 200) {
+                                    count = response.getInt("count");
+                                    // GET CATEGORIAS
+                                    JSONArray offices = response.getJSONArray("result");
+                                    for (int i = 0; i < offices.length(); i++){
+                                        Office office = new Office(offices.getJSONObject(i));
+                                        officeList.add(office);
+                                    }
+                                }
+                                else {
+                                    System.out.println("Error en la respuesta de oficinas B");
+                                    failsOffset.add(offset);
+                                    failsOffsetOffice.add(offset);
+                                }
+                            }
+    
+                        } catch (JSONException e) {
+                            throw new RuntimeException(e);
+                        }
+    
+                        offset += limit;
+                        System.out.println("offset offices: " + offset);
+    
+    
+                    } while (offset < count);
+    
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } catch (ExecutionException e) {
+                    throw new RuntimeException(e);
+                }
+
+            }
+
+            System.out.println("FAIL OFFSET OFFICES size " + failsOffset.size());
+            System.out.println("FAIL OFFSET OFFICES" + failsOffset);
+
+            dbHelper.insertOfficeTransaction(officeList);
+            String selectSql = "SELECT * FROM oficina";
+            List<Map<String, String>> results_cat = dbHelper.executeSqlQuery(selectSql);
+            System.out.println(results_cat.size());
+            for (Map<String, String> row : results_cat) {
+                System.out.println("---");
+                System.out.println(row);
+            }
+
         });
     }
 
@@ -556,7 +586,18 @@ public class GetLocalBD {
             // Encadena el callback después de que todas las operaciones se completen
             allFutures.thenRun(() -> {
                 System.out.println("Todas las operaciones se han completado");
-                callback.onSuccess("Datos descargados con éxito");
+                System.out.println("FAIL OFFSET STORE size " + failsOffsetOffice.size());
+                boolean allSuccess = failsOffsetStore.size() == 0 && failsOffsetOffice.size() == 0 && failsOffsetActive.size() == 0 && failsOffsetArticle.size() == 0 && failsOffsetCategory.size() == 0;
+                
+                if (allSuccess) {
+                    callback.onSuccess("Datos descargados con éxito");
+                } else {
+                    callback.onError("Error durante la sincronización");
+                }
+                // callback.onSuccess("Datos descargados con éxito");
+
+
+
             }).exceptionally(ex -> {
                 System.out.println("Error durante la sincronización: " + ex.getMessage());
                 callback.onError("Error durante la sincronización: " + ex.getMessage());
