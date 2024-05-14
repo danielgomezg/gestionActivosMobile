@@ -78,11 +78,6 @@ public class MainActivity extends AppCompatActivity {
                     return;
                 }
 
-//                if (rutcompany.isEmpty()) {
-//                    Toast.makeText(MainActivity.this, "Falta ingresar el rut de la compañia", Toast.LENGTH_SHORT).show();
-//                    return;
-//                }
-
                 if(!EmailValidator.validate(email)){
                     Toast.makeText(MainActivity.this, "Correo inválido", Toast.LENGTH_SHORT).show();
                     return;
@@ -91,9 +86,6 @@ public class MainActivity extends AppCompatActivity {
                 //iniciar sesión
                 login(v, email, password);
 
-
-                // Simulamos un inicio de sesión exitoso para este ejemplo
-//                Toast.makeText(MainActivity.this, "Inicio de sesión exitoso " + email, Toast.LENGTH_SHORT).show();
             }
         });
     }

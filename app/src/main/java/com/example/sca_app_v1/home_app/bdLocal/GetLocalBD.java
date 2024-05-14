@@ -40,19 +40,295 @@ public class GetLocalBD {
 
     private static CompletableFuture<Void> fetchOficinas(Context context, String token, Integer companyId) {
         return CompletableFuture.runAsync(() -> {
+            int limit = 5;
+            String url = "";
+            int[] count = {0};
+            int[] offset = {0};
+            DatabaseHelper dbHelper = null;
+            List<Integer> failsOffset = new ArrayList<>();
+            List<Office> officeList = new ArrayList<>();
+            RequestQueue queue = Volley.newRequestQueue(context);
 
+            try {
+                dbHelper = new DatabaseHelper(context);
+                do {
+                    CountDownLatch latch = new CountDownLatch(1);
+
+                    url = "http://10.0.2.2:9000/offices?limit=" + limit + "&offset=" + offset[0];
+                    System.out.println("url --> " + url);
+                    JsonObjectRequest jsonRequest = new JsonObjectRequest(Request.Method.GET, url, null,
+                            new Response.Listener<JSONObject>() {
+                                @Override
+                                public void onResponse(JSONObject response) {
+
+                                    System.out.println("RESPONSE GET OFFICCES");
+                                    System.out.println(response.toString());
+                                    try {
+                                        int status = response.getInt("code");
+                                        if (status == 200) {
+
+                                            count[0] = response.getInt("count");
+
+                                            // GET CATEGORIAS
+                                            JSONArray offices = response.getJSONArray("result");
+
+                                            for (int i = 0; i < offices.length(); i++){
+                                                Office office = new Office(offices.getJSONObject(i));
+                                                officeList.add(office);
+                                            }
+
+                                        }
+                                        else {
+
+                                        }
+
+                                    } catch (JSONException e) {
+                                        throw new RuntimeException(e);
+                                    }
+
+                                    latch.countDown(); // Decrementa el contador del latch
+
+                                }
+                            }, new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            error.printStackTrace();
+                            System.out.println("Error: "+error);
+                            failsOffset.add(offset[0]);
+
+                            latch.countDown(); // Decrementa el contador del latch
+                        }
+                    }
+                    )
+                    {
+                        @Override
+                        public Map<String, String> getHeaders() throws AuthFailureError {
+                            Map<String, String> headers = new HashMap<>();
+                            headers.put("Content-Type", "application/json");
+                            headers.put("Authorization", "Bearer " + token); // Reemplaza 'token' con tu token de autenticación
+                            headers.put("companyId", String.valueOf(companyId));
+                            return headers;
+                        }
+                    };
+
+                    queue.add(jsonRequest);
+
+                    latch.await();
+
+                    offset[0] += limit;
+                    System.out.println("offset: " + offset);
+
+
+                } while (offset[0] < count[0]);
+
+                dbHelper.insertOfficeTransaction(officeList);
+                String selectSql = "SELECT * FROM oficina";
+                List<Map<String, String>> results_cat = dbHelper.executeSqlQuery(selectSql);
+                System.out.println(results_cat.size());
+                for (Map<String, String> row : results_cat) {
+                    System.out.println("---");
+                    System.out.println(row);
+                }
+
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         });
     }
 
     private static CompletableFuture<Void> fetchSucursales(Context context, String token, Integer companyId) {
         return CompletableFuture.runAsync(() -> {
+            int limit = 5;
+            String url = "";
+            int[] count = {0};
+            int[] offset = {0};
+            DatabaseHelper dbHelper = null;
+            List<Integer> failsOffset = new ArrayList<>();
+            List<Store> sucursalesList = new ArrayList<>();
+            RequestQueue queue = Volley.newRequestQueue(context);
 
+            try {
+                dbHelper = new DatabaseHelper(context);
+                do {
+                    CountDownLatch latch = new CountDownLatch(1);
+
+                    url = "http://10.0.2.2:9000/sucursales?limit=" + limit + "&offset=" + offset[0];
+                    System.out.println("url --> " + url);
+                    JsonObjectRequest jsonRequest = new JsonObjectRequest(Request.Method.GET, url, null,
+                            new Response.Listener<JSONObject>() {
+                                @Override
+                                public void onResponse(JSONObject response) {
+
+                                    System.out.println("RESPONSE GET SUCURSALES");
+                                    System.out.println(response.toString());
+                                    try {
+                                        int status = response.getInt("code");
+                                        if (status == 200) {
+
+                                            count[0] = response.getInt("count");
+
+                                            // GET SUCURSALES
+                                            JSONArray sucursales = response.getJSONArray("result");
+
+                                            for (int i = 0; i < sucursales.length(); i++){
+                                                Store sucursal = new Store(sucursales.getJSONObject(i));
+                                                sucursalesList.add(sucursal);
+                                            }
+
+                                        }
+                                        else {
+
+                                        }
+
+                                    } catch (JSONException e) {
+                                        throw new RuntimeException(e);
+                                    }
+
+                                    latch.countDown(); // Decrementa el contador del latch
+
+                                }
+                            }, new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            error.printStackTrace();
+                            System.out.println("Error: "+error);
+                            failsOffset.add(offset[0]);
+
+                            latch.countDown(); // Decrementa el contador del latch
+                        }
+                    }
+                    )
+                    {
+                        @Override
+                        public Map<String, String> getHeaders() throws AuthFailureError {
+                            Map<String, String> headers = new HashMap<>();
+                            headers.put("Content-Type", "application/json");
+                            headers.put("Authorization", "Bearer " + token); // Reemplaza 'token' con tu token de autenticación
+                            headers.put("companyId", String.valueOf(companyId));
+                            return headers;
+                        }
+                    };
+
+                    queue.add(jsonRequest);
+
+                    latch.await();
+
+                    offset[0] += limit;
+                    System.out.println("offset: " + offset);
+
+
+                } while (offset[0] < count[0]);
+
+                dbHelper.insertSucursalTransaction(sucursalesList);
+                String selectSql = "SELECT * FROM sucursal";
+                List<Map<String, String>> results_cat = dbHelper.executeSqlQuery(selectSql);
+                System.out.println(results_cat.size());
+                for (Map<String, String> row : results_cat) {
+                    System.out.println("---");
+                    System.out.println(row);
+                }
+
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         });
     }
 
     private static CompletableFuture<Void> fetchActivos(Context context, String token, Integer companyId) {
         return CompletableFuture.runAsync(() -> {
+            int limit = 5;
+            String url = "";
+            int[] count = {0};
+            int[] offset = {0};
+            DatabaseHelper dbHelper = null;
+            List<Integer> failsOffset = new ArrayList<>();
+            List<Active> activeList = new ArrayList<>();
+            RequestQueue queue = Volley.newRequestQueue(context);
 
+            try {
+                dbHelper = new DatabaseHelper(context);
+                do {
+                    CountDownLatch latch = new CountDownLatch(1);
+
+                    url = "http://10.0.2.2:9000/actives?limit=" + limit + "&offset=" + offset[0];
+                    System.out.println("url --> " + url);
+                    JsonObjectRequest jsonRequest = new JsonObjectRequest(Request.Method.GET, url, null,
+                            new Response.Listener<JSONObject>() {
+                                @Override
+                                public void onResponse(JSONObject response) {
+
+                                    System.out.println("RESPONSE GET ACTIVES");
+                                    System.out.println(response.toString());
+                                    try {
+                                        int status = response.getInt("code");
+                                        if (status == 200) {
+
+                                            count[0] = response.getInt("count");
+
+                                            // GET CATEGORIAS
+                                            JSONArray actives = response.getJSONArray("result");
+
+                                            for (int i = 0; i < actives.length(); i++){
+                                                Active active = new Active(actives.getJSONObject(i));
+                                                activeList.add(active);
+                                            }
+
+                                        }
+                                        else {
+
+                                        }
+
+                                    } catch (JSONException e) {
+                                        throw new RuntimeException(e);
+                                    }
+
+                                    latch.countDown(); // Decrementa el contador del latch
+
+                                }
+                            }, new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            error.printStackTrace();
+                            System.out.println("Error: "+error);
+                            failsOffset.add(offset[0]);
+
+                            latch.countDown(); // Decrementa el contador del latch
+                        }
+                    }
+                    )
+                    {
+                        @Override
+                        public Map<String, String> getHeaders() throws AuthFailureError {
+                            Map<String, String> headers = new HashMap<>();
+                            headers.put("Content-Type", "application/json");
+                            headers.put("Authorization", "Bearer " + token); // Reemplaza 'token' con tu token de autenticación
+                            headers.put("companyId", String.valueOf(companyId));
+                            return headers;
+                        }
+                    };
+
+                    queue.add(jsonRequest);
+
+                    latch.await();
+
+                    offset[0] += limit;
+                    System.out.println("offset: " + offset);
+
+
+                } while (offset[0] < count[0]);
+
+                dbHelper.insertActiveTransaction(activeList);
+                String selectSql = "SELECT * FROM activo";
+                List<Map<String, String>> results_cat = dbHelper.executeSqlQuery(selectSql);
+                System.out.println(results_cat.size());
+                for (Map<String, String> row : results_cat) {
+                    System.out.println("---");
+                    System.out.println(row);
+                }
+
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         });
     }
 
@@ -80,7 +356,7 @@ public class GetLocalBD {
                             @Override
                             public void onResponse(JSONObject response) {
     
-                                System.out.println("RESPONSE GET CATEGORIES");
+                                System.out.println("RESPONSE GET ARTICLES");
                                 System.out.println(response.toString());
                                 try {
                                     int status = response.getInt("code");
@@ -89,7 +365,7 @@ public class GetLocalBD {
                                         count[0] = response.getInt("count");
 
                                         // GET ARTICULOS
-                                        JSONArray articles = response.getJSONArray("articles");
+                                        JSONArray articles = response.getJSONArray("result");
                                         for (int i = 0; i < articles.length(); i++) {
                                             Article article = new Article(articles.getJSONObject(i));
                                             articlesList.add(article);
@@ -259,18 +535,43 @@ public class GetLocalBD {
     public static void syncProductionDB(Context context, String token, Integer companyId, final GetLocalBDCallback callback) {
 
         // Borrar todas las tablas de la base de datos local
+        DatabaseHelper dbHelper = null;
+        try {
 
-        // 
-        CompletableFuture<Void> futureActivos = fetchActivos(context, token, companyId);
-        CompletableFuture<Void> futureOficinas = fetchOficinas(context, token, companyId);
-        CompletableFuture<Void> futureArticulos = fetchArticulos(context, token, companyId);
-        CompletableFuture<Void> futureCategories = fetchCategories(context, token, companyId);
-        CompletableFuture<Void> futureSucursales = fetchSucursales(context, token, companyId);
+            dbHelper = new DatabaseHelper(context);
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+            dbHelper.deleteAllDataFromDatabase();
 
-        CompletableFuture.allOf(futureCategories).thenRun(() -> {
-            System.out.println("All tasks are completed now");
-        });
+            CompletableFuture<Void> futureActivos = fetchActivos(context, token, companyId);
+            CompletableFuture<Void> futureOficinas = fetchOficinas(context, token, companyId);
+            CompletableFuture<Void> futureArticulos = fetchArticulos(context, token, companyId);
+            CompletableFuture<Void> futureCategories = fetchCategories(context, token, companyId);
+            CompletableFuture<Void> futureSucursales = fetchSucursales(context, token, companyId);
 
+            // Espera a que todas las futuras operaciones se completen
+            CompletableFuture<Void> allFutures = CompletableFuture.allOf(
+                    futureActivos, futureOficinas, futureArticulos, futureCategories, futureSucursales
+            );
+
+            // Encadena el callback después de que todas las operaciones se completen
+            allFutures.thenRun(() -> {
+                System.out.println("Todas las operaciones se han completado");
+                callback.onSuccess("Datos descargados con éxito");
+            }).exceptionally(ex -> {
+                System.out.println("Error durante la sincronización: " + ex.getMessage());
+                callback.onError("Error durante la sincronización: " + ex.getMessage());
+                return null;
+            });
+
+        } finally {
+            System.out.println("FINALLY");
+            if (dbHelper != null) {
+                dbHelper.close();
+            }
+        }
+
+
+        //
         // Funcion actual para sync de la base de datos
         //fetchAll(context, token, companyId, callback);
 
