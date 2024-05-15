@@ -23,8 +23,10 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
@@ -33,11 +35,11 @@ public class GetLocalBD {
 
     private ActivityMainBinding binding;
     AutoCompleteTextView companySelect;
-    private static List<Integer> failsOffsetStore = new ArrayList<>();
-    private static List<Integer> failsOffsetOffice = new ArrayList<>();
-    private static List<Integer> failsOffsetActive = new ArrayList<>();
-    private static List<Integer> failsOffsetArticle = new ArrayList<>();
-    private static List<Integer> failsOffsetCategory = new ArrayList<>();
+    private static Set<Integer> failsOffsetStore = new HashSet<>();
+    private static Set<Integer> failsOffsetOffice = new HashSet<>();
+    private static Set<Integer> failsOffsetActive = new HashSet<>();
+    private static Set<Integer> failsOffsetArticle = new HashSet<>();
+    private static Set<Integer> failsOffsetCategory = new HashSet<>();
 
     public static void deleteLocalTables(Context context) {
         DatabaseHelper dbHelper = new DatabaseHelper(context);
@@ -49,15 +51,13 @@ public class GetLocalBD {
     private static CompletableFuture<Void> fetchOficinas(Context context, String token, Integer companyId) {
         return CompletableFuture.runAsync(() -> {
             int limit = 5;
-            String url = "";
             int count = 0;
             int offset = 0;
-            DatabaseHelper dbHelper = new DatabaseHelper(context);
-            List<Integer> failsOffset = new ArrayList<>();
+            String url = "";
             List<Office> officeList = new ArrayList<>();
-            RequestQueue queue = Volley.newRequestQueue(context);
+            DatabaseHelper dbHelper = new DatabaseHelper(context);
 
-            if (failsOffsetOffice.size() > 0) {
+            if (failsOffsetOffice.size() > 0 && !failsOffsetOffice.contains(0)) {
 
                 System.out.println("SEARCH OFFSET FAIL");
                 for (Integer off : failsOffsetOffice) {
@@ -70,8 +70,6 @@ public class GetLocalBD {
                 
                         if (response == null) {
                             System.out.println("Error en la respuesta de oficinas A");
-                            failsOffset.add(off);
-                            //failsOffsetOffice.add(offset);
                         }
                         else {
                             int status = response.getInt("code");
@@ -87,8 +85,6 @@ public class GetLocalBD {
                             }
                             else {
                                 System.out.println("Error en la respuesta de oficinas B");
-                                failsOffset.add(off);
-                                //failsOffsetOffice.add(offset);
                             }
                         }
 
@@ -100,7 +96,7 @@ public class GetLocalBD {
 
             }
             else {
-
+                failsOffsetOffice.remove(0);
                 System.out.println("SEARCH OFFSET NORMAL");
                 try {
                     //dbHelper = new DatabaseHelper(context);
@@ -113,13 +109,13 @@ public class GetLocalBD {
                         try {
                             if (response == null) {
                                 System.out.println("Error en la respuesta de oficinas A");
-                                failsOffset.add(offset);
                                 failsOffsetOffice.add(offset);
                             }
                             else {
                                 int status = response.getInt("code");
                                 if (status == 200) {
                                     count = response.getInt("count");
+                                    
                                     // GET CATEGORIAS
                                     JSONArray offices = response.getJSONArray("result");
                                     for (int i = 0; i < offices.length(); i++){
@@ -129,7 +125,6 @@ public class GetLocalBD {
                                 }
                                 else {
                                     System.out.println("Error en la respuesta de oficinas B");
-                                    failsOffset.add(offset);
                                     failsOffsetOffice.add(offset);
                                 }
                             }
@@ -152,8 +147,8 @@ public class GetLocalBD {
 
             }
 
-            System.out.println("FAIL OFFSET OFFICES size " + failsOffset.size());
-            System.out.println("FAIL OFFSET OFFICES" + failsOffset);
+            System.out.println("FAIL OFFSET OFFICES size " + failsOffsetOffice.size());
+            System.out.println("FAIL OFFSET OFFICES" + failsOffsetOffice);
 
             if (officeList.size() > 0){
                 dbHelper.insertOfficeTransaction(officeList);
@@ -175,11 +170,9 @@ public class GetLocalBD {
             int count = 0;
             int offset = 0;
             DatabaseHelper dbHelper = new DatabaseHelper(context);
-            List<Integer> failsOffset = new ArrayList<>();
             List<Store> sucursalList = new ArrayList<>();
-            RequestQueue queue = Volley.newRequestQueue(context);
 
-            if (failsOffsetStore.size() > 0) {
+            if (failsOffsetStore.size() > 0 && !failsOffsetStore.contains(0)) {
 
                 System.out.println("SEARCH OFFSET FAIL SUCURSAL");
                 for (Integer off : failsOffsetStore) {
@@ -192,8 +185,6 @@ public class GetLocalBD {
 
                         if (response == null) {
                             System.out.println("Error en la respuesta de Sucursales con offset " + offset);
-                            failsOffset.add(off);
-                            //failsOffsetStore.add(offset);
                         }
                         else {
                             int status = response.getInt("code");
@@ -209,8 +200,6 @@ public class GetLocalBD {
                             }
                             else {
                                 System.out.println("Error en la respuesta de Sucursales con status" + status + " con offset " + offset);
-                                failsOffset.add(off);
-                                //failsOffsetStore.add(offset);
                             }
                         }
 
@@ -222,7 +211,7 @@ public class GetLocalBD {
 
             }
             else {
-
+                failsOffsetStore.remove(0);
                 System.out.println("SEARCH OFFSET NORMAL");
                 try {
                     //dbHelper = new DatabaseHelper(context);
@@ -235,7 +224,6 @@ public class GetLocalBD {
                         try {
                             if (response == null) {
                                 System.out.println("Error en la respuesta de sucursales con offset " + offset);
-                                failsOffset.add(offset);
                                 failsOffsetStore.add(offset);
                             }
                             else {
@@ -251,7 +239,6 @@ public class GetLocalBD {
                                 }
                                 else {
                                     System.out.println("Error en la respuesta de sucursal con status " + status + "con offset " + offset);
-                                    failsOffset.add(offset);
                                     failsOffsetStore.add(offset);
                                 }
                             }
@@ -274,8 +261,8 @@ public class GetLocalBD {
 
             }
 
-            System.out.println("FAIL OFFSET SUCURSALES size " + failsOffset.size());
-            System.out.println("FAIL OFFSET SUCURSALES " + failsOffset);
+            System.out.println("FAIL OFFSET SUCURSALES size " + failsOffsetStore.size());
+            System.out.println("FAIL OFFSET SUCURSALES " + failsOffsetStore);
 
             if (sucursalList.size() > 0){
                 dbHelper.insertSucursalTransaction(sucursalList);
@@ -298,11 +285,9 @@ public class GetLocalBD {
             int count = 0;
             int offset = 0;
             DatabaseHelper dbHelper = new DatabaseHelper(context);
-            List<Integer> failsOffset = new ArrayList<>();
             List<Active> activeList = new ArrayList<>();
-            RequestQueue queue = Volley.newRequestQueue(context);
 
-            if (failsOffsetActive.size() > 0) {
+            if (failsOffsetActive.size() > 0 && !failsOffsetActive.contains(0)) {
 
                 System.out.println("SEARCH OFFSET FAIL ACTIVE");
                 for (Integer off : failsOffsetActive) {
@@ -315,8 +300,6 @@ public class GetLocalBD {
 
                         if (response == null) {
                             System.out.println("Error en la respuesta de Activos con offset " + offset);
-                            failsOffset.add(off);
-                            //failsOffsetActive.add(offset);
                         }
                         else {
                             int status = response.getInt("code");
@@ -332,8 +315,6 @@ public class GetLocalBD {
                             }
                             else {
                                 System.out.println("Error en la respuesta de Actives con status" + status + " con offset " + offset);
-                                failsOffset.add(off);
-                                //failsOffsetActive.add(offset);
                             }
                         }
 
@@ -345,7 +326,7 @@ public class GetLocalBD {
 
             }
             else {
-
+                failsOffsetActive.remove(0);
                 System.out.println("SEARCH OFFSET NORMAL");
                 try {
                     //dbHelper = new DatabaseHelper(context);
@@ -358,7 +339,6 @@ public class GetLocalBD {
                         try {
                             if (response == null) {
                                 System.out.println("Error en la respuesta de actives con offset " + offset);
-                                failsOffset.add(offset);
                                 failsOffsetActive.add(offset);
                             }
                             else {
@@ -374,7 +354,6 @@ public class GetLocalBD {
                                 }
                                 else {
                                     System.out.println("Error en la respuesta de Activo con status " + status + "con offset " + offset);
-                                    failsOffset.add(offset);
                                     failsOffsetActive.add(offset);
                                 }
                             }
@@ -397,8 +376,8 @@ public class GetLocalBD {
 
             }
 
-            System.out.println("FAIL OFFSET ACTIVES size " + failsOffset.size());
-            System.out.println("FAIL OFFSET ACTIVES " + failsOffset);
+            System.out.println("FAIL OFFSET ACTIVES size " + failsOffsetActive.size());
+            System.out.println("FAIL OFFSET ACTIVES " + failsOffsetActive);
             System.out.println("FAIL ACTIVES " + activeList);
 
             if (activeList.size() > 0){
@@ -422,11 +401,9 @@ public class GetLocalBD {
             int count = 0;
             int offset = 0;
             DatabaseHelper dbHelper = new DatabaseHelper(context);
-            List<Integer> failsOffset = new ArrayList<>();
             List<Article> articleList = new ArrayList<>();
-            RequestQueue queue = Volley.newRequestQueue(context);
 
-            if (failsOffsetArticle.size() > 0) {
+            if (failsOffsetArticle.size() > 0 && !failsOffsetArticle.contains(0)) {
 
                 System.out.println("SEARCH OFFSET FAIL ARTICULOS");
                 for (Integer off : failsOffsetArticle) {
@@ -439,8 +416,6 @@ public class GetLocalBD {
 
                         if (response == null) {
                             System.out.println("Error en la respuesta de Articles con offset " + offset);
-                            failsOffset.add(off);
-                            //failsOffsetArticle.add(offset);
                         }
                         else {
                             int status = response.getInt("code");
@@ -456,8 +431,6 @@ public class GetLocalBD {
                             }
                             else {
                                 System.out.println("Error en la respuesta de Articulos con status" + status + " con offset " + offset);
-                                failsOffset.add(off);
-                                //failsOffsetArticle.add(offset);
                             }
                         }
 
@@ -469,7 +442,7 @@ public class GetLocalBD {
 
             }
             else {
-
+                failsOffsetArticle.remove(0);
                 System.out.println("SEARCH OFFSET NORMAL");
                 try {
                     //dbHelper = new DatabaseHelper(context);
@@ -482,7 +455,6 @@ public class GetLocalBD {
                         try {
                             if (response == null) {
                                 System.out.println("Error en la respuesta de articulos con offset " + offset);
-                                failsOffset.add(offset);
                                 failsOffsetArticle.add(offset);
                             }
                             else {
@@ -498,7 +470,6 @@ public class GetLocalBD {
                                 }
                                 else {
                                     System.out.println("Error en la respuesta de articulos con status " + status + "con offset " + offset);
-                                    failsOffset.add(offset);
                                     failsOffsetArticle.add(offset);
                                 }
                             }
@@ -521,8 +492,8 @@ public class GetLocalBD {
 
             }
 
-            System.out.println("FAIL OFFSET ARTICULOS size " + failsOffset.size());
-            System.out.println("FAIL OFFSET ARTICULOS " + failsOffset);
+            System.out.println("FAIL OFFSET ARTICULOS size " + failsOffsetArticle.size());
+            System.out.println("FAIL OFFSET ARTICULOS " + failsOffsetArticle);
 
             if (articleList.size() > 0){
                 dbHelper.insertArticleTransaction(articleList);
@@ -545,11 +516,9 @@ public class GetLocalBD {
             int count = 0;
             int offset = 0;
             DatabaseHelper dbHelper = new DatabaseHelper(context);
-            List<Integer> failsOffset = new ArrayList<>();
             List<Category> categoryList = new ArrayList<>();
-            RequestQueue queue = Volley.newRequestQueue(context);
 
-            if (failsOffsetCategory.size() > 0) {
+            if (failsOffsetCategory.size() > 0 && !failsOffsetCategory.contains(0)) {
 
                 System.out.println("SEARCH OFFSET FAIL CATEGORIA");
                 for (Integer off : failsOffsetCategory) {
@@ -562,8 +531,6 @@ public class GetLocalBD {
 
                         if (response == null) {
                             System.out.println("Error en la respuesta de categorias con offset " + off);
-                            failsOffset.add(off);
-                            //failsOffsetCategory.add(offset);
                         }
                         else {
                             int status = response.getInt("code");
@@ -579,8 +546,6 @@ public class GetLocalBD {
                             }
                             else {
                                 System.out.println("Error en la respuesta de categorias con status" + status + " con offset " + offset);
-                                failsOffset.add(off);
-                                //failsOffsetCategory.add(offset);
                             }
                         }
 
@@ -592,7 +557,7 @@ public class GetLocalBD {
 
             }
             else {
-
+                failsOffsetCategory.remove(0);
                 System.out.println("SEARCH OFFSET NORMAL");
                 try {
                     //dbHelper = new DatabaseHelper(context);
@@ -605,7 +570,6 @@ public class GetLocalBD {
                         try {
                             if (response == null) {
                                 System.out.println("Error en la respuesta de catgories con offset " + offset);
-                                failsOffset.add(offset);
                                 failsOffsetCategory.add(offset);
                             }
                             else {
@@ -621,7 +585,6 @@ public class GetLocalBD {
                                 }
                                 else {
                                     System.out.println("Error en la respuesta de categorias con status " + status + "con offset " + offset);
-                                    failsOffset.add(offset);
                                     failsOffsetCategory.add(offset);
                                 }
                             }
@@ -644,8 +607,8 @@ public class GetLocalBD {
 
             }
 
-            System.out.println("FAIL OFFSET CATEGORIAS size " + failsOffset.size());
-            System.out.println("FAIL OFFSET CATEGORIAS " + failsOffset);
+            System.out.println("FAIL OFFSET CATEGORIAS size " + failsOffsetCategory.size());
+            System.out.println("FAIL OFFSET CATEGORIAS " + failsOffsetCategory);
 
             if (categoryList.size() > 0){
                 dbHelper.insertCategoryTransaction(categoryList);

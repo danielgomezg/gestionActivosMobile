@@ -42,7 +42,8 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences sharedPreferences = this.getSharedPreferences("session", MODE_PRIVATE);
         String accessToken = sharedPreferences.getString("accessToken", null);
         int companyId = sharedPreferences.getInt("companyId", 0);
-        System.out.println("ON CREATE SP -->> " + accessToken);
+        System.out.println("ON CREATE AT -->> " + accessToken);
+        System.out.println("ON CREATE CID -->> " + companyId);
         if (accessToken != null && companyId != 0) {
             Intent intent = new Intent(MainActivity.this, HomeActivity.class);
             startActivity(intent);

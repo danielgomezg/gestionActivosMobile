@@ -118,20 +118,6 @@ public class LoadData extends AppCompatActivity {
             }
         });
 
-        // ExecutorService executor = Executors.newSingleThreadExecutor();
-        // executor.submit(() -> {
-        //     GetLocalBD.getAllDB(LoadData.this, token, companyId).thenRun(() -> {
-        //         System.out.println("End query 1");
-        //         layoutLoading.setVisibility(View.INVISIBLE);
-        //         Intent intent = new Intent(LoadData.this, HomeActivity.class);
-        //         startActivity(intent);
-        //     });
-
-        //     runOnUiThread(() -> {
-        //         System.out.println("End query 0");
-        //         // binding.getRoot().removeView(progressView);
-        //     });
-        // });
     }
 
     private void getCompanyList() {

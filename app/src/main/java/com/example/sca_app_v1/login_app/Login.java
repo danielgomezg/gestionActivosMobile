@@ -68,11 +68,7 @@ package com.example.sca_app_v1.login_app;
                                 editor.putString("accessToken", (String) result.get("access_token"));
                                 editor.putString("user", info_user);
                                 editor.putInt("profile_id", (Integer) user.get("profile_id"));
-                                //editor.putInt("company_id", (Integer) result.get("company_id"));
-
-                                /*if((Integer) user.get("profile_id") == 2){
-                                    editor.putInt("company_id", (Integer) user.get("company_id"));
-                                }*/
+                                
 
                                 editor.apply();
                                 callback.onSuccess(response.toString()); 

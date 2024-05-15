@@ -9,6 +9,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -22,12 +24,17 @@ import com.example.sca_app_v1.home_app.bdLocal.LoadData;
 import com.example.sca_app_v1.models.Active;
 import com.example.sca_app_v1.models.Article;
 
+import org.w3c.dom.Text;
+
 public class SyncFragment extends Fragment {
 
     private Button btnSyncUpload;
     private Button btnSyncDownload;
     private String token;
     private Integer companyId;
+    private LinearLayout loadingSync;
+    private TextView errorUpload;
+    private TextView errorDownload;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -36,6 +43,9 @@ public class SyncFragment extends Fragment {
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences("session", MODE_PRIVATE);
         token = sharedPreferences.getString("accessToken", null);
         companyId = sharedPreferences.getInt("company_id", 0);
+        loadingSync = view.findViewById(R.id.loadingSync);
+        errorDownload = view.findViewById(R.id.downloadErrorMsg);
+        errorUpload = view.findViewById(R.id.uploadErrorMsg);
 
         setUploadAction(view);
         setDownloadAction(view);
@@ -50,7 +60,7 @@ public class SyncFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 System.out.println("UPLOAD!!!");
-
+                loadingSync.setVisibility(View.VISIBLE);
                 boolean UnsyncedArticles = Article.hasUnsyncedArticles(getContext());
                 //boolean UnsyncedActives = Active.hasUnsyncedActive(getContext());
                 //System.out.println("UnsyncedActives --> " + UnsyncedActives);
@@ -67,15 +77,14 @@ public class SyncFragment extends Fragment {
                         @Override
                         public void onError(Exception e) {
                             System.err.println("Error sincronizando artículos: " + e.getMessage());
+                            Toast.makeText(getContext(), "Error al sincronizar artículos", Toast.LENGTH_SHORT).show();
+                            loadingSync.setVisibility(View.INVISIBLE);
                         }
                     });
 
-                }else {
+                } else {
                     syncActives(UnsyncedArticles);
                 }
-                //if (UnsyncedActives) {
-                  //  Active.syncUploadActives(getContext(), token, companyId);
-                //}
 
             }
 
@@ -88,21 +97,40 @@ public class SyncFragment extends Fragment {
                     Active.syncUploadActives(getContext(), token, companyId, new Active.syncCallback(){
                         @Override
                         public void onSuccess() {
-                            Toast.makeText(getContext(),"Se han sincronizado los datos exitosamente.", Toast.LENGTH_SHORT).show();
+                            // Toast.makeText(getContext(),"Se han sincronizado los datos exitosamente.", Toast.LENGTH_SHORT).show();
+                            if (getActivity() != null) {
+                                getActivity().runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Toast.makeText(getContext(), "Se han sincronizado los datos exitosamente.", Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                            }
+                            loadingSync.setVisibility(View.INVISIBLE);
                         }
 
                         @Override
                         public void onError(Exception e) {
                             System.err.println("Error sincronizando artículos: " + e.getMessage());
-                            Toast.makeText(getContext(),"ha ocurrido un error sincronizando los datos.", Toast.LENGTH_SHORT).show();
+                            // Toast.makeText(getContext(),"ha ocurrido un error sincronizando los datos.", Toast.LENGTH_SHORT).show();
+                            if (getActivity() != null) {
+                                getActivity().runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Toast.makeText(getContext(), "Ha ocurrido un error sincronizando los datos.", Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                            }
+                            loadingSync.setVisibility(View.INVISIBLE);
                         }
                     });
                 }else {
                     if (syncArticles){
                         Toast.makeText(getContext(),"Se han sincronizado los datos exitosamente.", Toast.LENGTH_SHORT).show();
-                    }else {
+                    } else {
                         Toast.makeText(getContext(),"Los datos están sincronizados.", Toast.LENGTH_SHORT).show();
                     }
+                    loadingSync.setVisibility(View.INVISIBLE);
                 }
             }
         });
@@ -111,10 +139,10 @@ public class SyncFragment extends Fragment {
 
     public void setDownloadAction(View view) {
         btnSyncDownload = view.findViewById(R.id.btnSyncDownload);
-
         btnSyncDownload.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 boolean UnsyncedArticles = Article.hasUnsyncedArticles(getContext());
                 boolean UnsyncedActives = Active.hasUnsyncedActive(getContext());
                 System.out.println("UnsyncedActives --> " + UnsyncedActives);
@@ -128,26 +156,39 @@ public class SyncFragment extends Fragment {
                 }
 
                 if (!UnsyncedArticles && !UnsyncedActives) {
+                    loadingSync.setVisibility(View.VISIBLE);
                     Toast.makeText(getContext(), "Inicio descarga", Toast.LENGTH_SHORT).show();
                     GetLocalBD.syncProductionDB(getContext(), token, companyId, new GetLocalBD.GetLocalBDCallback(){
                         @Override
                         public void onSuccess(String response) {
                             System.out.println("SUCCESS SYNC");
-                            Toast.makeText(getContext(), "Descarga completada", Toast.LENGTH_SHORT).show();
-
-//                            layoutLoading.setVisibility(View.INVISIBLE);
-//                            Intent intent = new Intent(getContext(), HomeActivity.class);
-//                            startActivity(intent);
+                            //Toast.makeText(getContext(), "Descarga completada", Toast.LENGTH_SHORT).show();
+                            if (getActivity() != null) {
+                                getActivity().runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Toast.makeText(getContext(), "Descarga completada", Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                            }
+                            loadingSync.setVisibility(View.INVISIBLE);
                         }
 
                         @Override
                         public void onError(String error) {
                             System.out.println("ERROR SYNC");
-                            Toast.makeText(getContext(), "Error al descargar", Toast.LENGTH_SHORT).show();
-
-//                            layoutLoading.setVisibility(View.INVISIBLE);
-//                            Toast.makeText(getContext(), "Error al sincronizar.", Toast.LENGTH_SHORT).show();
-
+                            //Toast.makeText(getContext(), "Error al descargar", Toast.LENGTH_SHORT).show();
+                            if (getActivity() != null) {
+                                getActivity().runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Toast.makeText(getContext(), "Error al descargar", Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                            }
+                            loadingSync.setVisibility(View.INVISIBLE);
+                            errorDownload.setText("Descarga incompleta.");
+                            errorDownload.setVisibility(View.VISIBLE);
                         }
                     });
                 }
