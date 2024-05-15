@@ -424,6 +424,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void insertActiveTransaction(List<Active> actives) {
         SQLiteDatabase db = this.getWritableDatabase();
         db.beginTransaction();
+        System.out.println("INSERT ACTIVE DB");
 
         try {
 
@@ -440,7 +441,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 if (exists) {
                     continue;
                 }
-
+                System.out.println(active.printData());
                 ContentValues values = new ContentValues();
                 values.put("id", active.getId());
                 values.put("bar_code", active.getBar_code());

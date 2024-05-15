@@ -52,7 +52,7 @@ public class GetLocalBD {
             String url = "";
             int count = 0;
             int offset = 0;
-            DatabaseHelper dbHelper = null;
+            DatabaseHelper dbHelper = new DatabaseHelper(context);
             List<Integer> failsOffset = new ArrayList<>();
             List<Office> officeList = new ArrayList<>();
             RequestQueue queue = Volley.newRequestQueue(context);
@@ -61,7 +61,7 @@ public class GetLocalBD {
 
                 System.out.println("SEARCH OFFSET FAIL");
                 for (Integer off : failsOffsetOffice) {
-                    url = "http://10.0.2.2:9000/offices?limit=" + limit + "&offset=" + offset;
+                    url = "http://10.0.2.2:9000/offices?limit=" + limit + "&offset=" + off;
                     try {
     
                         CompletableFuture<JSONObject> futureOffice = LoadData.requestGet(context, url, token, companyId);
@@ -70,12 +70,13 @@ public class GetLocalBD {
                 
                         if (response == null) {
                             System.out.println("Error en la respuesta de oficinas A");
-                            failsOffset.add(offset);
-                            failsOffsetOffice.add(offset);
+                            failsOffset.add(off);
+                            //failsOffsetOffice.add(offset);
                         }
                         else {
                             int status = response.getInt("code");
                             if (status == 200) {
+                                failsOffsetOffice.remove(off);
                                 count = response.getInt("count");
                                 // GET CATEGORIAS
                                 JSONArray offices = response.getJSONArray("result");
@@ -86,8 +87,8 @@ public class GetLocalBD {
                             }
                             else {
                                 System.out.println("Error en la respuesta de oficinas B");
-                                failsOffset.add(offset);
-                                failsOffsetOffice.add(offset);
+                                failsOffset.add(off);
+                                //failsOffsetOffice.add(offset);
                             }
                         }
 
@@ -102,7 +103,7 @@ public class GetLocalBD {
 
                 System.out.println("SEARCH OFFSET NORMAL");
                 try {
-                    dbHelper = new DatabaseHelper(context);
+                    //dbHelper = new DatabaseHelper(context);
                     do {
     
                         url = "http://10.0.2.2:9000/offices?limit=" + limit + "&offset=" + offset;
@@ -154,15 +155,16 @@ public class GetLocalBD {
             System.out.println("FAIL OFFSET OFFICES size " + failsOffset.size());
             System.out.println("FAIL OFFSET OFFICES" + failsOffset);
 
-            dbHelper.insertOfficeTransaction(officeList);
-            String selectSql = "SELECT * FROM oficina";
-            List<Map<String, String>> results_cat = dbHelper.executeSqlQuery(selectSql);
-            System.out.println(results_cat.size());
-            for (Map<String, String> row : results_cat) {
-                System.out.println("---");
-                System.out.println(row);
+            if (officeList.size() > 0){
+                dbHelper.insertOfficeTransaction(officeList);
+                String selectSql = "SELECT * FROM oficina";
+                List<Map<String, String>> results_cat = dbHelper.executeSqlQuery(selectSql);
+                System.out.println(results_cat.size());
+                for (Map<String, String> row : results_cat) {
+                    System.out.println("---");
+                    System.out.println(row);
+                }
             }
-
         });
     }
 
@@ -170,86 +172,113 @@ public class GetLocalBD {
         return CompletableFuture.runAsync(() -> {
             int limit = 5;
             String url = "";
-            int[] count = {0};
-            int[] offset = {0};
-            DatabaseHelper dbHelper = null;
+            int count = 0;
+            int offset = 0;
+            DatabaseHelper dbHelper = new DatabaseHelper(context);
             List<Integer> failsOffset = new ArrayList<>();
-            List<Store> sucursalesList = new ArrayList<>();
+            List<Store> sucursalList = new ArrayList<>();
             RequestQueue queue = Volley.newRequestQueue(context);
 
-            try {
-                dbHelper = new DatabaseHelper(context);
-                do {
-                    CountDownLatch latch = new CountDownLatch(1);
+            if (failsOffsetStore.size() > 0) {
 
-                    url = "http://10.0.2.2:9000/sucursales?limit=" + limit + "&offset=" + offset[0];
-                    System.out.println("url --> " + url);
-                    JsonObjectRequest jsonRequest = new JsonObjectRequest(Request.Method.GET, url, null,
-                            new Response.Listener<JSONObject>() {
-                                @Override
-                                public void onResponse(JSONObject response) {
+                System.out.println("SEARCH OFFSET FAIL SUCURSAL");
+                for (Integer off : failsOffsetStore) {
+                    url = "http://10.0.2.2:9000/sucursales?limit=" + limit + "&offset=" + off;
+                    try {
 
-                                    System.out.println("RESPONSE GET SUCURSALES");
-                                    System.out.println(response.toString());
-                                    try {
-                                        int status = response.getInt("code");
-                                        if (status == 200) {
+                        CompletableFuture<JSONObject> futureSucursal = LoadData.requestGet(context, url, token, companyId);
+                        JSONObject response = null;
+                        response = futureSucursal.get();
 
-                                            count[0] = response.getInt("count");
-
-                                            // GET SUCURSALES
-                                            JSONArray sucursales = response.getJSONArray("result");
-
-                                            for (int i = 0; i < sucursales.length(); i++){
-                                                Store sucursal = new Store(sucursales.getJSONObject(i));
-                                                sucursalesList.add(sucursal);
-                                            }
-
-                                        }
-                                        else {
-
-                                        }
-
-                                    } catch (JSONException e) {
-                                        throw new RuntimeException(e);
-                                    }
-
-                                    latch.countDown(); // Decrementa el contador del latch
-
+                        if (response == null) {
+                            System.out.println("Error en la respuesta de Sucursales con offset " + offset);
+                            failsOffset.add(off);
+                            //failsOffsetStore.add(offset);
+                        }
+                        else {
+                            int status = response.getInt("code");
+                            if (status == 200) {
+                                count = response.getInt("count");
+                                failsOffsetStore.remove(off);
+                                // GET SUCURSALES
+                                JSONArray sucursales = response.getJSONArray("result");
+                                for (int i = 0; i < sucursales.length(); i++){
+                                    Store sucursal = new Store(sucursales.getJSONObject(i));
+                                    sucursalList.add(sucursal);
                                 }
-                            }, new Response.ErrorListener() {
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-                            error.printStackTrace();
-                            System.out.println("Error: "+error);
-                            failsOffset.add(offset[0]);
-
-                            latch.countDown(); // Decrementa el contador del latch
+                            }
+                            else {
+                                System.out.println("Error en la respuesta de Sucursales con status" + status + " con offset " + offset);
+                                failsOffset.add(off);
+                                //failsOffsetStore.add(offset);
+                            }
                         }
+
+                    } catch (JSONException | InterruptedException | ExecutionException e) {
+                        throw new RuntimeException(e);
                     }
-                    )
-                    {
-                        @Override
-                        public Map<String, String> getHeaders() throws AuthFailureError {
-                            Map<String, String> headers = new HashMap<>();
-                            headers.put("Content-Type", "application/json");
-                            headers.put("Authorization", "Bearer " + token); // Reemplaza 'token' con tu token de autenticación
-                            headers.put("companyId", String.valueOf(companyId));
-                            return headers;
+
+                }
+
+            }
+            else {
+
+                System.out.println("SEARCH OFFSET NORMAL");
+                try {
+                    //dbHelper = new DatabaseHelper(context);
+                    do {
+
+                        url = "http://10.0.2.2:9000/sucursales?limit=" + limit + "&offset=" + offset;
+                        CompletableFuture<JSONObject> futureSucursal = LoadData.requestGet(context, url, token, companyId);
+                        JSONObject response = futureSucursal.get();
+
+                        try {
+                            if (response == null) {
+                                System.out.println("Error en la respuesta de sucursales con offset " + offset);
+                                failsOffset.add(offset);
+                                failsOffsetStore.add(offset);
+                            }
+                            else {
+                                int status = response.getInt("code");
+                                if (status == 200) {
+                                    count = response.getInt("count");
+                                    // GET CATEGORIAS
+                                    JSONArray sucursales = response.getJSONArray("result");
+                                    for (int i = 0; i < sucursales.length(); i++){
+                                        Store sucursal = new Store(sucursales.getJSONObject(i));
+                                        sucursalList.add(sucursal);
+                                    }
+                                }
+                                else {
+                                    System.out.println("Error en la respuesta de sucursal con status " + status + "con offset " + offset);
+                                    failsOffset.add(offset);
+                                    failsOffsetStore.add(offset);
+                                }
+                            }
+
+                        } catch (JSONException e) {
+                            throw new RuntimeException(e);
                         }
-                    };
 
-                    queue.add(jsonRequest);
-
-                    latch.await();
-
-                    offset[0] += limit;
-                    System.out.println("offset: " + offset);
+                        offset += limit;
+                        System.out.println("offset sucursales: " + offset);
 
 
-                } while (offset[0] < count[0]);
+                    } while (offset < count);
 
-                dbHelper.insertSucursalTransaction(sucursalesList);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } catch (ExecutionException e) {
+                    throw new RuntimeException(e);
+                }
+
+            }
+
+            System.out.println("FAIL OFFSET SUCURSALES size " + failsOffset.size());
+            System.out.println("FAIL OFFSET SUCURSALES " + failsOffset);
+
+            if (sucursalList.size() > 0){
+                dbHelper.insertSucursalTransaction(sucursalList);
                 String selectSql = "SELECT * FROM sucursal";
                 List<Map<String, String>> results_cat = dbHelper.executeSqlQuery(selectSql);
                 System.out.println(results_cat.size());
@@ -257,10 +286,8 @@ public class GetLocalBD {
                     System.out.println("---");
                     System.out.println(row);
                 }
-
-            } catch (InterruptedException e) {
-                e.printStackTrace();
             }
+
         });
     }
 
@@ -268,85 +295,113 @@ public class GetLocalBD {
         return CompletableFuture.runAsync(() -> {
             int limit = 5;
             String url = "";
-            int[] count = {0};
-            int[] offset = {0};
-            DatabaseHelper dbHelper = null;
+            int count = 0;
+            int offset = 0;
+            DatabaseHelper dbHelper = new DatabaseHelper(context);
             List<Integer> failsOffset = new ArrayList<>();
             List<Active> activeList = new ArrayList<>();
             RequestQueue queue = Volley.newRequestQueue(context);
 
-            try {
-                dbHelper = new DatabaseHelper(context);
-                do {
-                    CountDownLatch latch = new CountDownLatch(1);
+            if (failsOffsetActive.size() > 0) {
 
-                    url = "http://10.0.2.2:9000/actives?limit=" + limit + "&offset=" + offset[0];
-                    System.out.println("url --> " + url);
-                    JsonObjectRequest jsonRequest = new JsonObjectRequest(Request.Method.GET, url, null,
-                            new Response.Listener<JSONObject>() {
-                                @Override
-                                public void onResponse(JSONObject response) {
+                System.out.println("SEARCH OFFSET FAIL ACTIVE");
+                for (Integer off : failsOffsetActive) {
+                    url = "http://10.0.2.2:9000/actives?limit=" + limit + "&offset=" + off;
+                    try {
 
-                                    System.out.println("RESPONSE GET ACTIVES");
-                                    System.out.println(response.toString());
-                                    try {
-                                        int status = response.getInt("code");
-                                        if (status == 200) {
+                        CompletableFuture<JSONObject> futureActive = LoadData.requestGet(context, url, token, companyId);
+                        JSONObject response = null;
+                        response = futureActive.get();
 
-                                            count[0] = response.getInt("count");
-
-                                            // GET CATEGORIAS
-                                            JSONArray actives = response.getJSONArray("result");
-
-                                            for (int i = 0; i < actives.length(); i++){
-                                                Active active = new Active(actives.getJSONObject(i));
-                                                activeList.add(active);
-                                            }
-
-                                        }
-                                        else {
-
-                                        }
-
-                                    } catch (JSONException e) {
-                                        throw new RuntimeException(e);
-                                    }
-
-                                    latch.countDown(); // Decrementa el contador del latch
-
+                        if (response == null) {
+                            System.out.println("Error en la respuesta de Activos con offset " + offset);
+                            failsOffset.add(off);
+                            //failsOffsetActive.add(offset);
+                        }
+                        else {
+                            int status = response.getInt("code");
+                            if (status == 200) {
+                                count = response.getInt("count");
+                                failsOffsetActive.remove(off);
+                                // GET ACTIVOS
+                                JSONArray actives = response.getJSONArray("result");
+                                for (int i = 0; i < actives.length(); i++){
+                                    Active active = new Active(actives.getJSONObject(i));
+                                    activeList.add(active);
                                 }
-                            }, new Response.ErrorListener() {
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-                            error.printStackTrace();
-                            System.out.println("Error: "+error);
-                            failsOffset.add(offset[0]);
-
-                            latch.countDown(); // Decrementa el contador del latch
+                            }
+                            else {
+                                System.out.println("Error en la respuesta de Actives con status" + status + " con offset " + offset);
+                                failsOffset.add(off);
+                                //failsOffsetActive.add(offset);
+                            }
                         }
+
+                    } catch (JSONException | InterruptedException | ExecutionException e) {
+                        throw new RuntimeException(e);
                     }
-                    )
-                    {
-                        @Override
-                        public Map<String, String> getHeaders() throws AuthFailureError {
-                            Map<String, String> headers = new HashMap<>();
-                            headers.put("Content-Type", "application/json");
-                            headers.put("Authorization", "Bearer " + token); // Reemplaza 'token' con tu token de autenticación
-                            headers.put("companyId", String.valueOf(companyId));
-                            return headers;
+
+                }
+
+            }
+            else {
+
+                System.out.println("SEARCH OFFSET NORMAL");
+                try {
+                    //dbHelper = new DatabaseHelper(context);
+                    do {
+
+                        url = "http://10.0.2.2:9000/actives?limit=" + limit + "&offset=" + offset;
+                        CompletableFuture<JSONObject> futureActive= LoadData.requestGet(context, url, token, companyId);
+                        JSONObject response = futureActive.get();
+
+                        try {
+                            if (response == null) {
+                                System.out.println("Error en la respuesta de actives con offset " + offset);
+                                failsOffset.add(offset);
+                                failsOffsetActive.add(offset);
+                            }
+                            else {
+                                int status = response.getInt("code");
+                                if (status == 200) {
+                                    count = response.getInt("count");
+                                    // GET ACTIVES
+                                    JSONArray actives = response.getJSONArray("result");
+                                    for (int i = 0; i < actives.length(); i++){
+                                        Active active = new Active(actives.getJSONObject(i));
+                                        activeList.add(active);
+                                    }
+                                }
+                                else {
+                                    System.out.println("Error en la respuesta de Activo con status " + status + "con offset " + offset);
+                                    failsOffset.add(offset);
+                                    failsOffsetActive.add(offset);
+                                }
+                            }
+
+                        } catch (JSONException e) {
+                            throw new RuntimeException(e);
                         }
-                    };
 
-                    queue.add(jsonRequest);
-
-                    latch.await();
-
-                    offset[0] += limit;
-                    System.out.println("offset: " + offset);
+                        offset += limit;
+                        System.out.println("offset actives: " + offset);
 
 
-                } while (offset[0] < count[0]);
+                    } while (offset < count);
 
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } catch (ExecutionException e) {
+                    throw new RuntimeException(e);
+                }
+
+            }
+
+            System.out.println("FAIL OFFSET ACTIVES size " + failsOffset.size());
+            System.out.println("FAIL OFFSET ACTIVES " + failsOffset);
+            System.out.println("FAIL ACTIVES " + activeList);
+
+            if (activeList.size() > 0){
                 dbHelper.insertActiveTransaction(activeList);
                 String selectSql = "SELECT * FROM activo";
                 List<Map<String, String>> results_cat = dbHelper.executeSqlQuery(selectSql);
@@ -355,107 +410,129 @@ public class GetLocalBD {
                     System.out.println("---");
                     System.out.println(row);
                 }
-
-            } catch (InterruptedException e) {
-                e.printStackTrace();
             }
+
         });
     }
 
     private static CompletableFuture<Void> fetchArticulos(Context context, String token, Integer companyId) {
         return CompletableFuture.runAsync(() -> {
-
             int limit = 5;
             String url = "";
-            int[] count = {0};
-            int[] offset = {0};
-            DatabaseHelper dbHelper = null;
+            int count = 0;
+            int offset = 0;
+            DatabaseHelper dbHelper = new DatabaseHelper(context);
             List<Integer> failsOffset = new ArrayList<>();
-            List<Article> articlesList = new ArrayList<>();
+            List<Article> articleList = new ArrayList<>();
             RequestQueue queue = Volley.newRequestQueue(context);
 
-            try {
-                dbHelper = new DatabaseHelper(context);
-                do {
-                    CountDownLatch latch = new CountDownLatch(1);
-    
-                    url = "http://10.0.2.2:9000/articles?limit=" + limit + "&offset=" + offset[0];
-                    System.out.println("url --> " + url);
-                    JsonObjectRequest jsonRequest = new JsonObjectRequest(Request.Method.GET, url, null,
-                        new Response.Listener<JSONObject>() {
-                            @Override
-                            public void onResponse(JSONObject response) {
-    
-                                System.out.println("RESPONSE GET ARTICLES");
-                                System.out.println(response.toString());
-                                try {
-                                    int status = response.getInt("code");
-                                    if (status == 200) {
-                                        
-                                        count[0] = response.getInt("count");
+            if (failsOffsetArticle.size() > 0) {
 
-                                        // GET ARTICULOS
-                                        JSONArray articles = response.getJSONArray("result");
-                                        for (int i = 0; i < articles.length(); i++) {
-                                            Article article = new Article(articles.getJSONObject(i));
-                                            articlesList.add(article);
-                                        }
+                System.out.println("SEARCH OFFSET FAIL ARTICULOS");
+                for (Integer off : failsOffsetArticle) {
+                    url = "http://10.0.2.2:9000/articles?limit=" + limit + "&offset=" + off;
+                    try {
 
-                                    }
-                                    else {
-                                        
-                                    }
+                        CompletableFuture<JSONObject> futureArticle = LoadData.requestGet(context, url, token, companyId);
+                        JSONObject response = null;
+                        response = futureArticle.get();
 
-                                } catch (JSONException e) {
-                                    throw new RuntimeException(e);
+                        if (response == null) {
+                            System.out.println("Error en la respuesta de Articles con offset " + offset);
+                            failsOffset.add(off);
+                            //failsOffsetArticle.add(offset);
+                        }
+                        else {
+                            int status = response.getInt("code");
+                            if (status == 200) {
+                                count = response.getInt("count");
+                                failsOffsetArticle.remove(off);
+                                // GET ARTICULOS
+                                JSONArray articles = response.getJSONArray("result");
+                                for (int i = 0; i < articles.length(); i++){
+                                    Article article = new Article(articles.getJSONObject(i));
+                                    articleList.add(article);
                                 }
-
-                                latch.countDown(); // Decrementa el contador del latch
-    
                             }
-                        }, new Response.ErrorListener() {
-                            @Override
-                            public void onErrorResponse(VolleyError error) {
-                                error.printStackTrace();
-                                System.out.println("Error: "+error);
-                                failsOffset.add(offset[0]);
-    
-                                latch.countDown(); // Decrementa el contador del latch
+                            else {
+                                System.out.println("Error en la respuesta de Articulos con status" + status + " con offset " + offset);
+                                failsOffset.add(off);
+                                //failsOffsetArticle.add(offset);
                             }
                         }
-                    )
-                    {
-                        @Override
-                        public Map<String, String> getHeaders() throws AuthFailureError {
-                            Map<String, String> headers = new HashMap<>();
-                            headers.put("Content-Type", "application/json");
-                            headers.put("Authorization", "Bearer " + token); // Reemplaza 'token' con tu token de autenticación
-                            headers.put("companyId", String.valueOf(companyId));
-                            return headers;
-                        }
-                    };
-    
-                    queue.add(jsonRequest);
-    
-                    latch.await();
-    
-                    offset[0] += limit;
-                    System.out.println("offset: " + offset);
-    
-    
-                } while (offset[0] < count[0]);
 
-                dbHelper.insertArticleTransaction(articlesList);
+                    } catch (JSONException | InterruptedException | ExecutionException e) {
+                        throw new RuntimeException(e);
+                    }
+
+                }
+
+            }
+            else {
+
+                System.out.println("SEARCH OFFSET NORMAL");
+                try {
+                    //dbHelper = new DatabaseHelper(context);
+                    do {
+
+                        url = "http://10.0.2.2:9000/articles?limit=" + limit + "&offset=" + offset;
+                        CompletableFuture<JSONObject> futureArticle = LoadData.requestGet(context, url, token, companyId);
+                        JSONObject response = futureArticle.get();
+
+                        try {
+                            if (response == null) {
+                                System.out.println("Error en la respuesta de articulos con offset " + offset);
+                                failsOffset.add(offset);
+                                failsOffsetArticle.add(offset);
+                            }
+                            else {
+                                int status = response.getInt("code");
+                                if (status == 200) {
+                                    count = response.getInt("count");
+                                    // GET CATEGORIAS
+                                    JSONArray articles = response.getJSONArray("result");
+                                    for (int i = 0; i < articles.length(); i++){
+                                        Article article = new Article(articles.getJSONObject(i));
+                                        articleList.add(article);
+                                    }
+                                }
+                                else {
+                                    System.out.println("Error en la respuesta de articulos con status " + status + "con offset " + offset);
+                                    failsOffset.add(offset);
+                                    failsOffsetArticle.add(offset);
+                                }
+                            }
+
+                        } catch (JSONException e) {
+                            throw new RuntimeException(e);
+                        }
+
+                        offset += limit;
+                        System.out.println("offset articulos: " + offset);
+
+
+                    } while (offset < count);
+
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } catch (ExecutionException e) {
+                    throw new RuntimeException(e);
+                }
+
+            }
+
+            System.out.println("FAIL OFFSET ARTICULOS size " + failsOffset.size());
+            System.out.println("FAIL OFFSET ARTICULOS " + failsOffset);
+
+            if (articleList.size() > 0){
+                dbHelper.insertArticleTransaction(articleList);
                 String selectSql = "SELECT * FROM articulo";
-                List<Map<String, String>> results_art = dbHelper.executeSqlQuery(selectSql);
-                System.out.println(results_art.size());
-                for (Map<String, String> row : results_art) {
+                List<Map<String, String>> results_cat = dbHelper.executeSqlQuery(selectSql);
+                System.out.println(results_cat.size());
+                for (Map<String, String> row : results_cat) {
                     System.out.println("---");
                     System.out.println(row);
                 }
-
-            } catch (InterruptedException e) {
-                e.printStackTrace();
             }
 
         });
@@ -463,88 +540,114 @@ public class GetLocalBD {
 
     private static CompletableFuture<Void> fetchCategories(Context context, String token, Integer companyId) {
         return CompletableFuture.runAsync(() -> {
-
             int limit = 5;
             String url = "";
-            int[] count = {0};
-            int[] offset = {0};
-            DatabaseHelper dbHelper = null;
+            int count = 0;
+            int offset = 0;
+            DatabaseHelper dbHelper = new DatabaseHelper(context);
             List<Integer> failsOffset = new ArrayList<>();
             List<Category> categoryList = new ArrayList<>();
             RequestQueue queue = Volley.newRequestQueue(context);
 
-            try {
-                dbHelper = new DatabaseHelper(context);
-                do {
-                    CountDownLatch latch = new CountDownLatch(1);
-    
-                    url = "http://10.0.2.2:9000/categories?limit=" + limit + "&offset=" + offset[0];
-                    System.out.println("url --> " + url);
-                    JsonObjectRequest jsonRequest = new JsonObjectRequest(Request.Method.GET, url, null,
-                        new Response.Listener<JSONObject>() {
-                            @Override
-                            public void onResponse(JSONObject response) {
-    
-                                System.out.println("RESPONSE GET CATEGORIES");
-                                System.out.println(response.toString());
-                                try {
-                                    int status = response.getInt("code");
-                                    if (status == 200) {
-                                        
-                                        count[0] = response.getInt("count");
+            if (failsOffsetCategory.size() > 0) {
 
-                                        // GET CATEGORIAS
-                                        JSONArray categories = response.getJSONArray("result");
-                                        
-                                        for (int i = 0; i < categories.length(); i++){
-                                            Category category = new Category(categories.getJSONObject(i));
-                                            categoryList.add(category);
-                                        }
+                System.out.println("SEARCH OFFSET FAIL CATEGORIA");
+                for (Integer off : failsOffsetCategory) {
+                    url = "http://10.0.2.2:9000/categories?limit=" + limit + "&offset=" + offset;
+                    try {
 
-                                    }
-                                    else {
-                                        
-                                    }
+                        CompletableFuture<JSONObject> futureCategory = LoadData.requestGet(context, url, token, companyId);
+                        JSONObject response = null;
+                        response = futureCategory.get();
 
-                                } catch (JSONException e) {
-                                    throw new RuntimeException(e);
+                        if (response == null) {
+                            System.out.println("Error en la respuesta de categorias con offset " + off);
+                            failsOffset.add(off);
+                            //failsOffsetCategory.add(offset);
+                        }
+                        else {
+                            int status = response.getInt("code");
+                            if (status == 200) {
+                                count = response.getInt("count");
+                                failsOffsetCategory.remove(off);
+                                // GET CATEGORIAS
+                                JSONArray categories = response.getJSONArray("result");
+                                for (int i = 0; i < categories.length(); i++){
+                                    Category category = new Category(categories.getJSONObject(i));
+                                    categoryList.add(category);
                                 }
-
-                                latch.countDown(); // Decrementa el contador del latch
-    
                             }
-                        }, new Response.ErrorListener() {
-                            @Override
-                            public void onErrorResponse(VolleyError error) {
-                                error.printStackTrace();
-                                System.out.println("Error: "+error);
-                                failsOffset.add(offset[0]);
-    
-                                latch.countDown(); // Decrementa el contador del latch
+                            else {
+                                System.out.println("Error en la respuesta de categorias con status" + status + " con offset " + offset);
+                                failsOffset.add(off);
+                                //failsOffsetCategory.add(offset);
                             }
                         }
-                    )
-                    {
-                        @Override
-                        public Map<String, String> getHeaders() throws AuthFailureError {
-                            Map<String, String> headers = new HashMap<>();
-                            headers.put("Content-Type", "application/json");
-                            headers.put("Authorization", "Bearer " + token); // Reemplaza 'token' con tu token de autenticación
-                            headers.put("companyId", String.valueOf(companyId));
-                            return headers;
-                        }
-                    };
-    
-                    queue.add(jsonRequest);
-    
-                    latch.await();
-    
-                    offset[0] += limit;
-                    System.out.println("offset: " + offset);
-    
-    
-                } while (offset[0] < count[0]);
 
+                    } catch (JSONException | InterruptedException | ExecutionException e) {
+                        throw new RuntimeException(e);
+                    }
+
+                }
+
+            }
+            else {
+
+                System.out.println("SEARCH OFFSET NORMAL");
+                try {
+                    //dbHelper = new DatabaseHelper(context);
+                    do {
+
+                        url = "http://10.0.2.2:9000/categories?limit=" + limit + "&offset=" + offset;
+                        CompletableFuture<JSONObject> futureCategory = LoadData.requestGet(context, url, token, companyId);
+                        JSONObject response = futureCategory.get();
+
+                        try {
+                            if (response == null) {
+                                System.out.println("Error en la respuesta de catgories con offset " + offset);
+                                failsOffset.add(offset);
+                                failsOffsetCategory.add(offset);
+                            }
+                            else {
+                                int status = response.getInt("code");
+                                if (status == 200) {
+                                    count = response.getInt("count");
+                                    // GET CATEGORIES
+                                    JSONArray categories = response.getJSONArray("result");
+                                    for (int i = 0; i < categories.length(); i++){
+                                        Category category = new Category(categories.getJSONObject(i));
+                                        categoryList.add(category);
+                                    }
+                                }
+                                else {
+                                    System.out.println("Error en la respuesta de categorias con status " + status + "con offset " + offset);
+                                    failsOffset.add(offset);
+                                    failsOffsetCategory.add(offset);
+                                }
+                            }
+
+                        } catch (JSONException e) {
+                            throw new RuntimeException(e);
+                        }
+
+                        offset += limit;
+                        System.out.println("offset categorias: " + offset);
+
+
+                    } while (offset < count);
+
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } catch (ExecutionException e) {
+                    throw new RuntimeException(e);
+                }
+
+            }
+
+            System.out.println("FAIL OFFSET CATEGORIAS size " + failsOffset.size());
+            System.out.println("FAIL OFFSET CATEGORIAS " + failsOffset);
+
+            if (categoryList.size() > 0){
                 dbHelper.insertCategoryTransaction(categoryList);
                 String selectSql = "SELECT * FROM categoria";
                 List<Map<String, String>> results_cat = dbHelper.executeSqlQuery(selectSql);
@@ -553,11 +656,8 @@ public class GetLocalBD {
                     System.out.println("---");
                     System.out.println(row);
                 }
-
-            } catch (InterruptedException e) {
-                e.printStackTrace();
             }
-            
+
         });
     }
 
@@ -583,23 +683,28 @@ public class GetLocalBD {
                     futureActivos, futureOficinas, futureArticulos, futureCategories, futureSucursales
             );
 
+            System.out.println("++++++++++++++++++++");
+
             // Encadena el callback después de que todas las operaciones se completen
             allFutures.thenRun(() -> {
                 System.out.println("Todas las operaciones se han completado");
-                System.out.println("FAIL OFFSET STORE size " + failsOffsetOffice.size());
+                System.out.println("FAIL OFFSET ARTICLE size " + failsOffsetArticle.size());
+                System.out.println("FAIL OFFSET ARTICLE size " + failsOffsetArticle);
+                System.out.println("FAIL OFFSET CATEGORY size " + failsOffsetCategory);
+                System.out.println("FAIL OFFSET ACTVE size " + failsOffsetActive);
+                System.out.println("FAIL OFFSET STORE size " + failsOffsetStore);
+                System.out.println("FAIL OFFSET OFFICE size " + failsOffsetOffice);
                 boolean allSuccess = failsOffsetStore.size() == 0 && failsOffsetOffice.size() == 0 && failsOffsetActive.size() == 0 && failsOffsetArticle.size() == 0 && failsOffsetCategory.size() == 0;
                 
                 if (allSuccess) {
                     callback.onSuccess("Datos descargados con éxito");
                 } else {
                     callback.onError("Error durante la sincronización");
+                    System.out.println("Error durante la sincronización " + allSuccess);
                 }
-                // callback.onSuccess("Datos descargados con éxito");
-
-
 
             }).exceptionally(ex -> {
-                System.out.println("Error durante la sincronización: " + ex.getMessage());
+                System.out.println("Error durante la sincronización::: " + ex.getMessage());
                 callback.onError("Error durante la sincronización: " + ex.getMessage());
                 return null;
             });
