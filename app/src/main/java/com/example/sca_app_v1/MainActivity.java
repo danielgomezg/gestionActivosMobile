@@ -41,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
 
         SharedPreferences sharedPreferences = this.getSharedPreferences("session", MODE_PRIVATE);
         String accessToken = sharedPreferences.getString("accessToken", null);
-        int companyId = sharedPreferences.getInt("companyId", 0);
+        int companyId = sharedPreferences.getInt("company_id", 0);
         System.out.println("ON CREATE AT -->> " + accessToken);
         System.out.println("ON CREATE CID -->> " + companyId);
         if (accessToken != null && companyId != 0) {

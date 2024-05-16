@@ -90,7 +90,7 @@ public class LoadData extends AppCompatActivity {
         SharedPreferences sharedPreferences = getSharedPreferences("session", MODE_PRIVATE);
         String token = sharedPreferences.getString("accessToken", null);
         //Integer company_id = sharedPreferences.getInt("company_id", 0);
-
+        System.out.println("Company_id " + companyId);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putInt("company_id", companyId);
         editor.apply();

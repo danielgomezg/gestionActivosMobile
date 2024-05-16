@@ -563,6 +563,40 @@ public class Active implements Serializable {
         }
     }
 
+    public boolean updateActiveSync(Context context, String virtual_code){
+        SQLiteDatabase db = null;
+        try {
+            DatabaseHelper dbHelper = new DatabaseHelper(context);
+            db = dbHelper.getWritableDatabase();
+
+            db.beginTransaction();
+
+            // Crear un ContentValues con los nuevos valores del artículo
+            ContentValues values = new ContentValues();
+            values.put("sync", 0);
+            if (!virtual_code.equals("")) values.put("virtual_code", virtual_code);
+
+            // Definir la condición WHERE para la actualización (basado en el ID del artículo)
+            String whereClause = "id = ?";
+            String[] whereArgs = {String.valueOf(this.id)};
+
+            // Actualizar el registro en la base de datos
+            int rowsAffected = db.update("activo", values, whereClause, whereArgs);
+
+            db.setTransactionSuccessful();
+
+            return rowsAffected > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        } finally {
+            if (db != null) {
+                db.endTransaction();
+                db.close();
+            }
+        }
+    }
+
     public boolean deleteActive (Context context) {
 
         SQLiteDatabase db = null;
@@ -968,7 +1002,8 @@ public class Active implements Serializable {
                                 System.out.println("RESULT " + result);
                                 String virtual_code = result.getString("virtual_code");
                                 System.out.println("VC " + virtual_code);
-                                boolean successful = updateActiveSync(context);
+
+                                boolean successful = updateActiveSync(context, virtual_code);
                             }
                         } catch (JSONException e) {
                             throw new RuntimeException(e);

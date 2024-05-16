@@ -1,6 +1,7 @@
 package com.example.sca_app_v1.home_app.bdLocal;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Looper;
 import android.widget.AutoCompleteTextView;
@@ -40,13 +41,20 @@ public class GetLocalBD {
     private static Set<Integer> failsOffsetActive = new HashSet<>();
     private static Set<Integer> failsOffsetArticle = new HashSet<>();
     private static Set<Integer> failsOffsetCategory = new HashSet<>();
+    private static int company_id = -1;
 
     public static void deleteLocalTables(Context context) {
         DatabaseHelper dbHelper = new DatabaseHelper(context);
         dbHelper.deleteAllTables();
     }
 
-
+    private static void clearFailsOffsets() {
+        failsOffsetStore.clear();
+        failsOffsetOffice.clear();
+        failsOffsetActive.clear();
+        failsOffsetArticle.clear();
+        failsOffsetCategory.clear();
+    }
 
     private static CompletableFuture<Void> fetchOficinas(Context context, String token, Integer companyId) {
         return CompletableFuture.runAsync(() -> {
@@ -629,7 +637,14 @@ public class GetLocalBD {
 
         // Borrar todas las tablas de la base de datos local
         DatabaseHelper dbHelper = null;
+
         try {
+            System.out.println("IDC GETLOCALDB " + company_id);
+            System.out.println("PARAMETRO " + companyId);
+            if (companyId != company_id){
+                clearFailsOffsets();
+                company_id = companyId;
+            }
 
             dbHelper = new DatabaseHelper(context);
             SQLiteDatabase db = dbHelper.getWritableDatabase();
@@ -645,8 +660,6 @@ public class GetLocalBD {
             CompletableFuture<Void> allFutures = CompletableFuture.allOf(
                     futureActivos, futureOficinas, futureArticulos, futureCategories, futureSucursales
             );
-
-            System.out.println("++++++++++++++++++++");
 
             // Encadena el callback después de que todas las operaciones se completen
             allFutures.thenRun(() -> {
@@ -678,13 +691,6 @@ public class GetLocalBD {
                 dbHelper.close();
             }
         }
-
-
-        //
-        // Funcion actual para sync de la base de datos
-        //fetchAll(context, token, companyId, callback);
-
-        
     }
 
     private static void fetchAll(Context context, String token, Integer companyId, GetLocalBDCallback callback) {
