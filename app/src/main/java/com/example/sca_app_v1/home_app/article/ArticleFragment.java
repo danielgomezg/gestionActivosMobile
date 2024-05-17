@@ -38,7 +38,7 @@ public class ArticleFragment extends Fragment {
     private AdapterArticle adapterArticle;
 
     private Integer offset = 0;
-    private Integer limit  = 50;
+    private Integer limit  = 10;
     private Integer count = 0;
 
     // Referencia al ArticleFragment
@@ -52,7 +52,7 @@ public class ArticleFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_article, container, false);
         articleList = view.findViewById(R.id.list_articles);
         count = Article.getArticlesCount(getContext());
-        System.out.println("count: " + count);
+        offset = 0;
 
         articleList.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -68,20 +68,22 @@ public class ArticleFragment extends Fragment {
                     System.out.println("visibleItemCount > " + visibleItemCount);
                     System.out.println("totalItemCount > " + totalItemCount);
                     System.out.println("firstVisibleItemPosition > " + firstVisibleItemPosition);
+                    System.out.println("COUNT " + count);
+                    System.out.println("offset " + offset);
 
-                    if ((visibleItemCount + firstVisibleItemPosition) >= count
-                            && firstVisibleItemPosition >= 0) {
+                    if ((visibleItemCount + firstVisibleItemPosition) >= totalItemCount
+                            && firstVisibleItemPosition >= 0 && totalItemCount < count) {
                         // Llegamos al final del RecyclerView, cargar más datos aquí
                         System.out.println("Se llega al final del scroll");
-//                        offset += limit;
-                        System.out.println("offset " + offset);
+                        offset += limit;
+
                     //    showArticles(getContext());
-                        // recyclerView.post(new Runnable() {
-                        //     @Override
-                        //     public void run() {
-                        //         showArticles(getContext());
-                        //     }
-                        // });
+                         recyclerView.post(new Runnable() {
+                             @Override
+                             public void run() {
+                                 showArticlesScroll(getContext());
+                             }
+                         });
                     }
                     else {
                         System.out.println("scrolling...");
@@ -124,12 +126,23 @@ public class ArticleFragment extends Fragment {
         Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show();
     }
 
+    //AÑADIR A ARTICULOS A LA LISTA ARTICLES CUANDO SE LLEGA AL FIN DEL SCROLL
+    public void showArticlesScroll(Context context) {
+        System.out.println("IN SHOW ARTICLES");
+        Article article = new Article();
+        List<Article> newArticles = article.getArticles(context, offset, limit);
+        System.out.println("articles size: " + articles.size());
+        if (newArticles != null && !newArticles.isEmpty()) {
+            articles.addAll(newArticles);
+            adapterArticle.notifyDataSetChanged();
+        }
+    }
+
     public void showArticles(Context context) {
         System.out.println("IN SHOW ARTICLES");
         Article article = new Article();
         articles = article.getArticles(context, offset, limit);
         System.out.println("articles size: " + articles.size());
-
         adapterArticle.notifyDataSetChanged();
     }
 

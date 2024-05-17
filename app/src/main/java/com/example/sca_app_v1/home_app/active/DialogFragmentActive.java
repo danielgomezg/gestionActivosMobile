@@ -835,7 +835,7 @@ public class DialogFragmentActive extends DialogFragment {
 
             // Desactivar temporalmente el filtrado automático
             autoCompleteTextViewArticles.setThreshold(Integer.MAX_VALUE);
-
+            System.out.println("selected article " +  selectedArticleName);
             // Si se encontró la descripción de la categoría, establecerla como texto en el AutoCompleteTextView
             if (selectedArticleName != null) {
                 autoCompleteTextViewArticles.setText(selectedArticleName);

@@ -394,9 +394,9 @@ public class Active implements Serializable {
                 '}';
     }
 
-    public List<Active> getActives(Context context) {
+    public List<Active> getActives(Context context, Integer offset, Integer limit) {
         System.out.println("IN GET ALL ACTIVES");
-        String sql = "SELECT * FROM activo WHERE removed = 0 ORDER BY id DESC";
+        String sql = "SELECT * FROM activo WHERE removed = 0 ORDER BY id DESC LIMIT  " + offset + ", " + limit;
 
         try {
 
@@ -412,7 +412,33 @@ public class Active implements Serializable {
             }
 
             cursor.close();
+            System.out.println(actives);
             return actives;
+
+        } catch (Exception e) {
+            System.out.println("null");
+            e.printStackTrace();
+            return  null;
+        }
+    }
+
+    public static Integer getActivesCount(Context context) {
+        System.out.println("IN GET ALL ACTIVES COUNT");
+        String sql = "SELECT COUNT(*) FROM activo WHERE removed = 0";
+
+        try {
+
+            DatabaseHelper dbHelper = new DatabaseHelper(context);
+            Cursor cursor = dbHelper.executeQuery(sql);
+
+            Integer count = 0;
+
+            if (cursor.moveToFirst()) {
+                count = cursor.getInt(0);
+            }
+
+            cursor.close();
+            return count;
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -762,6 +788,7 @@ public class Active implements Serializable {
             private void checkCompletion() {
                 System.out.println("Verificando si todas las imágenes se han procesado");
                 if (handledCount.get() == totalPhotos) {
+                    handledCount.incrementAndGet();
                     System.out.println("Todas las imágenes procesadas");
 
                     System.out.println("photoUrls " +photoUrls);
@@ -772,9 +799,9 @@ public class Active implements Serializable {
             }
         };
 
-        if (this.getPhoto1().equals("") && this.getPhoto2().equals("") && this.getPhoto3().equals("") && this.getPhoto4().equals("")) {
+        /*if (this.getPhoto1().equals("") && this.getPhoto2().equals("") && this.getPhoto3().equals("") && this.getPhoto4().equals("")) {
             updateActiveAPI(context, token, companyId, queue, url, photoUrls);
-        }
+        }*/
 
         // Subir solo las imágenes que contienen "mobile_local"
         for (int index = 0; index < photosActive.length; index++) {
@@ -796,6 +823,12 @@ public class Active implements Serializable {
                 handledCount.incrementAndGet();
 
             }
+        }
+        // Llamar a updateActiveAPI() si ninguna imagen requirió subida
+        if (handledCount.get() == totalPhotos) {
+            System.out.println("Ninguna imagen requería subida. Actualizando el activo.");
+            handledCount.incrementAndGet();
+            updateActiveAPI(context, token, companyId, queue, url, photoUrls);
         }
     }
 

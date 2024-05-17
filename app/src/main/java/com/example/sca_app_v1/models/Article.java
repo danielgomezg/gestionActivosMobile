@@ -645,15 +645,16 @@ public class Article implements Serializable {
                     }
                     System.out.println("URLS combinadas: " + photoUrlsString.toString());
 
+                    handledCount.incrementAndGet();
                     // Actualizar el artículo
                     updateArticleAPI(context, token, companyId, queue, url, photoUrlsString.toString(), operationCounter, callback);
                 }
             }
         };
 
-        if (this.getPhoto().equals("")){
+        /*if (this.getPhoto().equals("")){
             updateArticleAPI(context, token, companyId, queue, url, "", operationCounter, callback);
-        }
+        }*/
 
         // Subir solo las imágenes que contienen "mobile_local"
         for (String photo : photosArticle) {
@@ -668,12 +669,17 @@ public class Article implements Serializable {
             } else {
                 // Si la imagen ya está subida, agregarla a la lista de URLs
                 System.out.println("Imagen ya subida o no requiere subida: " + photo);
-
                 uploadedPhotos.add(photo);
                 photoUrls.add(photo);
                 handledCount.incrementAndGet();
-
             }
+        }
+
+        // Llamar a updateArticleAPI() si ninguna imagen requirió subida
+        if (handledCount.get() == totalPhotos) {
+            System.out.println("Ninguna imagen requería subida. Actualizando el artículo.");
+            handledCount.incrementAndGet();
+            updateArticleAPI(context, token, companyId, queue, url, this.getPhoto(), operationCounter, callback);
         }
     }
 

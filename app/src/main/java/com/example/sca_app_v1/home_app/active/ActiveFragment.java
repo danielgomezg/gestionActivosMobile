@@ -36,6 +36,9 @@ public class ActiveFragment  extends Fragment {
     private AdapterActive adapterActive;
     // Referencia al ArticleFragment
     ActiveFragment activeFragment = ActiveFragment.this;
+    private Integer offset = 0;
+    private Integer limit  = 8;
+    private Integer count = 0;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -44,6 +47,47 @@ public class ActiveFragment  extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_active, container, false);
         activeList = view.findViewById(R.id.list_actives);
+
+        count = Active.getActivesCount(getContext()); //Article.getArticlesCount(getContext());
+        offset = 0;
+        activeList.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+
+                LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+
+                if (layoutManager != null) {
+                    int visibleItemCount = layoutManager.getChildCount();
+                    int totalItemCount = layoutManager.getItemCount();
+                    int firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition();
+                    System.out.println("visibleItemCount > " + visibleItemCount);
+                    System.out.println("totalItemCount > " + totalItemCount);
+                    System.out.println("firstVisibleItemPosition > " + firstVisibleItemPosition);
+                    System.out.println("COUNT " + count);
+                    System.out.println("offset " + offset);
+
+                    if ((visibleItemCount + firstVisibleItemPosition) >= totalItemCount
+                            && firstVisibleItemPosition >= 0 && totalItemCount < count) {
+                        // Llegamos al final del RecyclerView, cargar más datos aquí
+                        System.out.println("Se llega al final del scroll");
+                        offset += limit;
+
+                        //    showArticles(getContext());
+                        recyclerView.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                showArticlesScroll(getContext());
+                            }
+                        });
+                    }
+                    else {
+                        System.out.println("scrolling...");
+                    }
+                }
+            }
+        });
+
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
         activeList.setLayoutManager(linearLayoutManager);
         adapterActive = new AdapterActive();
@@ -67,10 +111,22 @@ public class ActiveFragment  extends Fragment {
         showActives(getContext());
     }
 
+    //AÑADIR A ACTIVOS A LA LISTA ACTIVES CUANDO SE LLEGA AL FIN DEL SCROLL
+    public void showArticlesScroll(Context context) {
+        System.out.println("IN SHOW ACTIVES");
+        Active active = new Active();
+        List<Active> newActives = active.getActives(context, offset, limit);
+        System.out.println("actives size: " + actives.size());
+        if (newActives != null && !newActives.isEmpty()) {
+            actives.addAll(newActives);
+            adapterActive.notifyDataSetChanged();
+        }
+    }
+
     public void showActives(Context context) {
         System.out.println("IN SHOW ACTIVES");
         Active active = new Active();
-        actives = active.getActives(context);
+        actives = active.getActives(context, offset, limit);
         System.out.println("articles size: " + actives.size());
         adapterActive.notifyDataSetChanged();
     }
@@ -78,7 +134,7 @@ public class ActiveFragment  extends Fragment {
     public void updateActives(Context context, int position) {
         System.out.println("IN UPDATE SHOW ACTIVES");
         Active active = new Active();
-        actives = active.getActives(context);
+        actives = active.getActives(context, offset, limit);
         adapterActive.notifyItemChanged(position);
     }
 
@@ -207,9 +263,10 @@ public class ActiveFragment  extends Fragment {
                             editDialog.show(requireActivity().getSupportFragmentManager(), "edit_active_dialog");
                             return true;
                         } else if (id == R.id.delete_option_active) {
+                            String codigo = active.getBar_code().equals("") ? active.getVirtual_code() : active.getBar_code();
                             // Acción para eliminar el activo
                             AlertDialog.Builder builder = new AlertDialog.Builder(itemView.getContext());
-                            builder.setMessage("¿Está seguro que desea eliminar el activo " + active.getBar_code() +"?")
+                            builder.setMessage("¿Está seguro que desea eliminar el activo " + codigo +"?")
                                     .setPositiveButton("Sí", new DialogInterface.OnClickListener() {
                                         public void onClick(DialogInterface dialog, int id) {
                                             // Si el usuario confirma la eliminación
