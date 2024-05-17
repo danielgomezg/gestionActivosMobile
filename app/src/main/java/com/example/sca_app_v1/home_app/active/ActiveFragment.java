@@ -232,7 +232,13 @@ public class ActiveFragment  extends Fragment {
                 tvActiveComment.setText(active.getComment());
                 Article article = new Article();
                 article = article.getArticleById(itemView.getContext(), active.getArticle_id());
-                tvActiveArticle.setText(article.getName());
+                if (article != null) {
+                    tvActiveArticle.setText(article.getName());
+                }
+                else {
+                    tvActiveArticle.setText("");
+                }
+
                 tvActiveBrand.setText(active.getBrand());
                 tvActiveNameCharge.setText(active.getName_in_charge_active());
                 tvActiveRutCharge.setText(active.getRut_in_charge_active());
