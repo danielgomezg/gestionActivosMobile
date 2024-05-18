@@ -13,6 +13,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.example.sca_app_v1.R;
 import com.example.sca_app_v1.databinding.ActivityMainBinding;
 
 import com.example.sca_app_v1.home_app.bdLocal.DatabaseHelper;
@@ -69,7 +70,8 @@ public class GetLocalBD {
 
                 System.out.println("SEARCH OFFSET FAIL");
                 for (Integer off : failsOffsetOffice) {
-                    url = "http://10.0.2.2:9000/offices?limit=" + limit + "&offset=" + off;
+                    
+                    url = context.getString(R.string.BASE_URL) + "/offices?limit=" + limit + "&offset=" + off;
                     try {
     
                         CompletableFuture<JSONObject> futureOffice = LoadData.requestGet(context, url, token, companyId);
@@ -110,7 +112,8 @@ public class GetLocalBD {
                     //dbHelper = new DatabaseHelper(context);
                     do {
     
-                        url = "http://10.0.2.2:9000/offices?limit=" + limit + "&offset=" + offset;
+                       
+                        url = context.getString(R.string.BASE_URL) + "/offices?limit=" + limit + "&offset=" + offset;
                         CompletableFuture<JSONObject> futureOffice = LoadData.requestGet(context, url, token, companyId);
                         JSONObject response = futureOffice.get();
     
@@ -184,7 +187,7 @@ public class GetLocalBD {
 
                 System.out.println("SEARCH OFFSET FAIL SUCURSAL");
                 for (Integer off : failsOffsetStore) {
-                    url = "http://10.0.2.2:9000/sucursales?limit=" + limit + "&offset=" + off;
+                    url = context.getString(R.string.BASE_URL) + "/sucursales?limit=" + limit + "&offset=" + off;
                     try {
 
                         CompletableFuture<JSONObject> futureSucursal = LoadData.requestGet(context, url, token, companyId);
@@ -225,7 +228,7 @@ public class GetLocalBD {
                     //dbHelper = new DatabaseHelper(context);
                     do {
 
-                        url = "http://10.0.2.2:9000/sucursales?limit=" + limit + "&offset=" + offset;
+                        url = context.getString(R.string.BASE_URL) + "/sucursales?limit=" + limit + "&offset=" + offset;
                         CompletableFuture<JSONObject> futureSucursal = LoadData.requestGet(context, url, token, companyId);
                         JSONObject response = futureSucursal.get();
 
@@ -299,7 +302,7 @@ public class GetLocalBD {
 
                 System.out.println("SEARCH OFFSET FAIL ACTIVE");
                 for (Integer off : failsOffsetActive) {
-                    url = "http://10.0.2.2:9000/actives?limit=" + limit + "&offset=" + off;
+                    url = context.getString(R.string.BASE_URL) + "/actives?limit=" + limit + "&offset=" + off;
                     try {
 
                         CompletableFuture<JSONObject> futureActive = LoadData.requestGet(context, url, token, companyId);
@@ -340,7 +343,7 @@ public class GetLocalBD {
                     //dbHelper = new DatabaseHelper(context);
                     do {
 
-                        url = "http://10.0.2.2:9000/actives?limit=" + limit + "&offset=" + offset;
+                        url = context.getString(R.string.BASE_URL) + "/actives?limit=" + limit + "&offset=" + offset;
                         CompletableFuture<JSONObject> futureActive= LoadData.requestGet(context, url, token, companyId);
                         JSONObject response = futureActive.get();
 
@@ -415,7 +418,7 @@ public class GetLocalBD {
 
                 System.out.println("SEARCH OFFSET FAIL ARTICULOS");
                 for (Integer off : failsOffsetArticle) {
-                    url = "http://10.0.2.2:9000/articles?limit=" + limit + "&offset=" + off;
+                    url = context.getString(R.string.BASE_URL) + "/articles?limit=" + limit + "&offset=" + off;
                     try {
 
                         CompletableFuture<JSONObject> futureArticle = LoadData.requestGet(context, url, token, companyId);
@@ -456,7 +459,7 @@ public class GetLocalBD {
                     //dbHelper = new DatabaseHelper(context);
                     do {
 
-                        url = "http://10.0.2.2:9000/articles?limit=" + limit + "&offset=" + offset;
+                        url = context.getString(R.string.BASE_URL) + "/articles?limit=" + limit + "&offset=" + offset;
                         CompletableFuture<JSONObject> futureArticle = LoadData.requestGet(context, url, token, companyId);
                         JSONObject response = futureArticle.get();
 
@@ -530,7 +533,7 @@ public class GetLocalBD {
 
                 System.out.println("SEARCH OFFSET FAIL CATEGORIA");
                 for (Integer off : failsOffsetCategory) {
-                    url = "http://10.0.2.2:9000/categories?limit=" + limit + "&offset=" + offset;
+                    url = context.getString(R.string.BASE_URL) + "/categories?limit=" + limit + "&offset=" + offset;
                     try {
 
                         CompletableFuture<JSONObject> futureCategory = LoadData.requestGet(context, url, token, companyId);
@@ -571,7 +574,7 @@ public class GetLocalBD {
                     //dbHelper = new DatabaseHelper(context);
                     do {
 
-                        url = "http://10.0.2.2:9000/categories?limit=" + limit + "&offset=" + offset;
+                        url = context.getString(R.string.BASE_URL) + "/categories?limit=" + limit + "&offset=" + offset;
                         CompletableFuture<JSONObject> futureCategory = LoadData.requestGet(context, url, token, companyId);
                         JSONObject response = futureCategory.get();
 
@@ -696,7 +699,7 @@ public class GetLocalBD {
     private static void fetchAll(Context context, String token, Integer companyId, GetLocalBDCallback callback) {
 
         //String url = "http://192.168.100.8:9000/all/data";
-        String url = "http://10.0.2.2:9000/all/data";
+        String url = context.getString(R.string.BASE_URL) + "/all/data";
         RequestQueue queue = Volley.newRequestQueue(context);
 
         // Crear el objeto JSON para enviar en el cuerpo de la solicitud
@@ -881,7 +884,7 @@ public class GetLocalBD {
 //        SharedPreferences sharedPreferences = getSharedPreferences("session", MODE_PRIVATE);
 //        String token = sharedPreferences.getString("accessToken", null);
         //String url = "http://192.168.100.8:9000/all/data";
-        String url = "http://10.0.2.2:9000/all/data";
+        String url = context.getString(R.string.BASE_URL) + "/all/data";
         System.out.println("token: " + token);
         RequestQueue queue = Volley.newRequestQueue(context);
         JsonObjectRequest jsonRequest = new JsonObjectRequest(Request.Method.GET, url, null,

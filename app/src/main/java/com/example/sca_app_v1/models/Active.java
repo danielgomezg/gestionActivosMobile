@@ -15,6 +15,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.example.sca_app_v1.R;
 import com.example.sca_app_v1.home_app.bdLocal.DatabaseHelper;
 
 import org.json.JSONException;
@@ -786,7 +787,7 @@ public class Active implements Serializable {
     public void syncUpdate(Context context, String token, Integer companyId) {
         //PETICION A LA API PARA ACTUALIZAR EL ACTIVO
         //String url = "http://192.168.100.8:9000/active/" + this.getId();
-        String url = "http://10.0.2.2:9000/active/" + this.getId();
+        String url = context.getString(R.string.BASE_URL) + "/active/" + this.getId();
         RequestQueue queue = Volley.newRequestQueue(context);
 
         // Lista para almacenar las URLs de las imágenes subidas correctamente
@@ -859,7 +860,7 @@ public class Active implements Serializable {
                 if (!uploadedPhotos.contains(photo)) {
                     uploadedPhotos.add(photo);
                     System.out.println("Subiendo imagen: " + photo);
-                    uploadImage(token, companyId, photo, index, uploadCallback);
+                    uploadImage(token, companyId, photo, index, uploadCallback, context);
                 }
             } else {
                 // Si la imagen ya está subida, agregarla a la lista de URLs
@@ -956,7 +957,7 @@ public class Active implements Serializable {
     public void syncCreate(Context context, String token, Integer companyId){
         //PETICION A LA API PARA CREAR EL ACTIVE
         //String url = "http://192.168.100.8:9000/active";
-        String url = "http://10.0.2.2:9000/active";
+        String url = context.getString(R.string.BASE_URL) + "/active";
         RequestQueue queue = Volley.newRequestQueue(context);
 
         // Lista para almacenar las URLs de las imágenes subidas correctamente
@@ -1029,7 +1030,7 @@ public class Active implements Serializable {
                 if (!uploadedPhotos.contains(photo)) {
                     uploadedPhotos.add(photo);
                     System.out.println("Subiendo imagen: " + photo);
-                    uploadImage(token, companyId, photo, index, callback);
+                    uploadImage(token, companyId, photo, index, callback, context);
                 }
             } else {
                 // Si la imagen ya está subida, agregarla a la lista de URLs
@@ -1113,7 +1114,7 @@ public class Active implements Serializable {
     public void syncDelete(Context context, String token, Integer companyId){
         //PETICION A LA API PARA ELIMINAR EL ARTICULO
         //String url = "http://192.168.100.8:9000/active/" + this.getId();
-        String url = "http://10.0.2.2:9000/active/" + this.getId();
+        String url = context.getString(R.string.BASE_URL) + "/active/" + this.getId();
         RequestQueue queue = Volley.newRequestQueue(context);
 
         JsonObjectRequest jsonRequest = new JsonObjectRequest(Request.Method.DELETE, url, null,
@@ -1213,10 +1214,10 @@ public class Active implements Serializable {
         }
     }
 
-    public void uploadImage(String token, Integer companyId, String imagePath, int index, Active.UploadImageCallback callback) {
+    public void uploadImage(String token, Integer companyId, String imagePath, int index, Active.UploadImageCallback callback, Context context) {
         // URL del endpoint
         //String url = "http://192.168.100.8:9000/image_active";
-        String url = "http://10.0.2.2:9000/image_active";
+        String url = context.getString(R.string.BASE_URL) + "/image_active";
 
         // Crear un objeto File para la imagen
         File imageFile = new File(imagePath);

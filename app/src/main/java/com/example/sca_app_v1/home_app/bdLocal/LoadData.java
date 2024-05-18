@@ -126,7 +126,7 @@ public class LoadData extends AppCompatActivity {
         SharedPreferences sharedPreferences = getSharedPreferences("session", MODE_PRIVATE);
         String token = sharedPreferences.getString("accessToken", null);
         //String url = "http://192.168.100.8:9000/companiesIdName?limit=200";
-        String url = "http://10.0.2.2:9000/companiesIdName?limit=200";
+        String url = LoadData.this.getString(R.string.BASE_URL) + "/companiesIdName?limit=200";
 
         JsonObjectRequest jsonRequest = new JsonObjectRequest(Request.Method.GET, url, null,
 
@@ -210,7 +210,7 @@ public class LoadData extends AppCompatActivity {
 
         CompletableFuture<JSONObject> futureResponse = new CompletableFuture<>();
         RequestQueue queue = Volley.newRequestQueue(context);
-        String url = "http://10.0.2.2:9000/offices?limit=" + limit + "&offset=" + offset;
+        String url = context.getString(R.string.BASE_URL) + "/offices?limit=" + limit + "&offset=" + offset;
         System.out.println("URL GET OFFICE " + url);
         JsonObjectRequest jsonRequest = new JsonObjectRequest(Request.Method.GET, url, null,
             new Response.Listener<JSONObject>() {

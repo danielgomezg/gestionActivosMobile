@@ -12,6 +12,7 @@ package com.example.sca_app_v1.login_app;
  import com.android.volley.toolbox.JsonObjectRequest;
  import com.android.volley.toolbox.StringRequest;
  import com.android.volley.toolbox.Volley;
+ import com.example.sca_app_v1.R;
 
  import org.json.JSONException;
  import org.json.JSONObject;
@@ -22,9 +23,9 @@ package com.example.sca_app_v1.login_app;
  public class Login {
 
      public static void signIn(Context context, String email, String password, final LoginCallback callback) {
-        //String url = "http://192.168.100.8:9000/login/app/android"; // Reemplaza con la URL de tu servidor
-         String url = "http://10.0.2.2:9000/login/app/android";
-         RequestQueue queue = Volley.newRequestQueue(context);
+
+        String url = context.getString(R.string.BASE_URL) + "/login/app/android";
+        RequestQueue queue = Volley.newRequestQueue(context);
          
         // Crear el objeto JSON para enviar en el cuerpo de la solicitud
         JSONObject jsonBody = new JSONObject();
