@@ -652,7 +652,54 @@ public class Active implements Serializable {
                 db.close();
             }
         }
+    }
 
+    public boolean deleteActiveLocal(Context context, String photo1, String photo2, String photo3, String photo4) {
+        SQLiteDatabase db = null;
+        try {
+            DatabaseHelper dbHelper = new DatabaseHelper(context);
+            db = dbHelper.getWritableDatabase();
+
+            db.beginTransaction();
+
+            // Definir la condición WHERE para la actualización (basado en el ID del activo)
+            String whereClause = "id = ?";
+            String[] whereArgs = {String.valueOf(this.id)}; // El ID del activo a actualizar
+
+            // Actualizar el registro en la base de datos
+            int rowsAffected = db.delete("activo", whereClause, whereArgs);
+            System.out.println("Número de filas afectadas: " + rowsAffected);
+
+            if (rowsAffected > 0) {
+                // Lista de fotos
+                String[] photoPaths = {photo1, photo2, photo3, photo4};
+
+                // Eliminar cada archivo de foto si existe y no está vacío
+                for (String photoPath : photoPaths) {
+                    if (photoPath != null && !photoPath.isEmpty()) {
+                        File photoFile = new File(photoPath);
+                        if (photoFile.exists()) {
+                            boolean deleted = photoFile.delete();
+                            System.out.println("Foto en " + photoPath + " eliminada: " + deleted);
+                        } else {
+                            System.out.println("Foto en " + photoPath + " no encontrada.");
+                        }
+                    }
+                }
+            }
+
+            db.setTransactionSuccessful();
+
+            return rowsAffected > 0; // Devolver true si se actualizó al menos un registro
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        } finally {
+            if (db != null) {
+                db.endTransaction();
+                db.close();
+            }
+        }
     }
 
     // Metodo que detecta si hay activos sin sincronizar

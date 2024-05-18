@@ -248,6 +248,7 @@ public class ArticleFragment extends Fragment {
                         int id = item.getItemId();
                         System.out.println("id");
                         System.out.println(id);
+                        System.out.println(article.getPhoto());
                         if (id == R.id.edit_option_article) {
                             // Acción para editar el artículo
                             Toast.makeText(itemView.getContext(), "Editar artículo seleccionado " + article.getName(), Toast.LENGTH_SHORT).show();
@@ -264,7 +265,7 @@ public class ArticleFragment extends Fragment {
                                             // Si el usuario confirma la eliminación
                                             boolean success;
                                             if (article.getSync().equals(1)) {
-                                                success = article.deleteArticleLocal(getContext());
+                                                success = article.deleteArticleLocal(getContext(), article.getPhoto());
                                             } else {
                                                 success = article.deleteArticle(getContext());
                                             }

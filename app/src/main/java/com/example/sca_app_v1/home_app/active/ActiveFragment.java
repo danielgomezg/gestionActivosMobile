@@ -193,7 +193,6 @@ public class ActiveFragment  extends Fragment {
 
 
                 btnOptions = itemView.findViewById(R.id.btnOptions);
-//                ivPhoto = itemView.findViewById(R.id.ivPhoto);
 
                 btnOptions.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -227,18 +226,20 @@ public class ActiveFragment  extends Fragment {
                 tvActiveDate.setText(active.getAcquisition_date());
                 Office office = new Office();
                 office = office.getOfficeId(itemView.getContext(), active.getOffice_id());
-                tvActiveOffice.setText(office.getFullName());
+                if (office != null){
+                    tvActiveOffice.setText(office.getFullName());
+                } else {
+                    tvActiveOffice.setText("");
+                }
                 activeState.setText(active.getState());
                 tvActiveComment.setText(active.getComment());
                 Article article = new Article();
                 article = article.getArticleById(itemView.getContext(), active.getArticle_id());
                 if (article != null) {
                     tvActiveArticle.setText(article.getName());
-                }
-                else {
+                } else {
                     tvActiveArticle.setText("");
                 }
-
                 tvActiveBrand.setText(active.getBrand());
                 tvActiveNameCharge.setText(active.getName_in_charge_active());
                 tvActiveRutCharge.setText(active.getRut_in_charge_active());
@@ -276,9 +277,20 @@ public class ActiveFragment  extends Fragment {
                                     .setPositiveButton("Sí", new DialogInterface.OnClickListener() {
                                         public void onClick(DialogInterface dialog, int id) {
                                             // Si el usuario confirma la eliminación
-                                            active.deleteActive(getContext());
+                                            boolean success;
+                                            if (active.getSync().equals(1)) {
+                                                success = active.deleteActiveLocal(getContext(), active.getPhoto1(), active.getPhoto2(), active.getPhoto3(), active.getPhoto4());
+                                            } else {
+                                                success = active.deleteActive(getContext());
+                                            }
                                             showActives(getContext());
-                                            Toast.makeText(itemView.getContext(), "Activo eliminado correctamente", Toast.LENGTH_SHORT).show();
+                                            if (success) {
+                                                Toast.makeText(itemView.getContext(), "Activo eliminado correctamente", Toast.LENGTH_SHORT).show();
+                                            }
+                                            else {
+                                                Toast.makeText(itemView.getContext(), "Error al eliminar activo", Toast.LENGTH_SHORT).show();
+
+                                            }
                                         }
                                     })
                                     .setNegativeButton("No", new DialogInterface.OnClickListener() {

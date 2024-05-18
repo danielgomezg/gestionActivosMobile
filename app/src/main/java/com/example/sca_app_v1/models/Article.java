@@ -426,7 +426,7 @@ public class Article implements Serializable {
         }
     }
 
-    public boolean deleteArticleLocal(Context context) {
+    public boolean deleteArticleLocal(Context context, String photo) {
         SQLiteDatabase db = null;
         try {
             DatabaseHelper dbHelper = new DatabaseHelper(context);
@@ -440,6 +440,23 @@ public class Article implements Serializable {
 
             // Actualizar el registro en la base de datos
             int rowsAffected = db.delete("articulo", whereClause, whereArgs);
+            System.out.println("Número de filas afectadas: " + rowsAffected);
+
+            if (rowsAffected > 0 && photo != null && !photo.isEmpty()) {
+                // Dividir la cadena de fotos en rutas individuales
+                String[] photoPaths = photo.split(",");
+
+                // Eliminar cada archivo de foto
+                for (String photoPath : photoPaths) {
+                    File photoFile = new File(photoPath);
+                    if (photoFile.exists()) {
+                        boolean deleted = photoFile.delete();
+                        System.out.println("Foto en " + photoPath + " eliminada: " + deleted);
+                    } else {
+                        System.out.println("Foto en " + photoPath + " no encontrada.");
+                    }
+                }
+            }
 
             db.setTransactionSuccessful();
 

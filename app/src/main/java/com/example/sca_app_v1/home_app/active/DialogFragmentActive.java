@@ -63,18 +63,13 @@ public class DialogFragmentActive extends DialogFragment {
     public static final String ARG_POSITION = "";
 
     private static final String ARG_ACTIVE = "active";
-
     private ActiveFragment parentFragment;
-
     private int mode;
-
     private int position;
     private ArrayAdapter<String> adapterArticles;
     private ArrayAdapter<String> adapterStores;
     private ArrayAdapter<String> adapterOffices;
-
     private Active active;
-    //private Article article;
     private EditText editTextBarcode;
     private EditText editTextModel;
     private EditText editTextSerie;
@@ -424,7 +419,6 @@ public class DialogFragmentActive extends DialogFragment {
             officeId = active.getOffice_id();
             stateActive = active.getState();
 
-            //photosActiveEdit = active.getPhoto1();
             photosActiveEdit = (active.getPhoto1() == null) ? "" : active.getPhoto1();
             System.out.println("images articulos " + photosActiveEdit);
             if(!photosActiveEdit.isEmpty() && photosActiveEdit != null){
@@ -454,7 +448,6 @@ public class DialogFragmentActive extends DialogFragment {
                     }
                     else {
                         photoActive.setImageResource(R.drawable.sca_logo_2);
-                        // photosGallery.set(0, photoUri);
                         photosServer.set(0, "photoLoad");
                         btnDeleteImg1.setEnabled(false);
                     }
@@ -468,7 +461,6 @@ public class DialogFragmentActive extends DialogFragment {
                     }
                     else {
                         photoActive2.setImageResource(R.drawable.sca_logo_2);
-                        // photosGallery.set(1, photoUri);
                         photosServer.set(1, "photoLoad");
                         btnDeleteImg2.setEnabled(false);
                     }
@@ -482,7 +474,6 @@ public class DialogFragmentActive extends DialogFragment {
                     }
                     else {
                         photoActive3.setImageResource(R.drawable.sca_logo_2);
-                        // photosGallery.set(2, photoUri);
                         photosServer.set(2, "photoLoad");
                         btnDeleteImg3.setEnabled(false);
                     }
@@ -496,7 +487,6 @@ public class DialogFragmentActive extends DialogFragment {
                     }
                     else {
                         photoActive4.setImageResource(R.drawable.sca_logo_2);
-                        // photosGallery.set(3, photoUri);
                         photosServer.set(3, "photoLoad");
                         btnDeleteImg4.setEnabled(false);
                     }
@@ -532,7 +522,6 @@ public class DialogFragmentActive extends DialogFragment {
 
                         // Creacion del activo
                         String newBarcode = editTextBarcode.getText().toString();
-                        //String newVirtualcode = editTextBarcode.getText().toString();
                         String newModel = editTextModel.getText().toString();
                         String newSerie = editTextSerie.getText().toString();
                         String newcomment = editTextcomment.getText().toString();
@@ -841,7 +830,6 @@ public class DialogFragmentActive extends DialogFragment {
                 autoCompleteTextViewArticles.setText(selectedArticleName);
                 System.out.println("selected article " +  selectedArticleName);
             }
-
             // Volver a activar el filtrado automático
             autoCompleteTextViewArticles.setThreshold(1);
         }
