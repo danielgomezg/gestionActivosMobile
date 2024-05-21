@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
+import android.content.ClipData;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -153,11 +154,17 @@ public class DialogFragmentActive extends DialogFragment {
                     @Override
                     public void onActivityResult(ActivityResult result) {
                         if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
-                            selectedImageUri = result.getData().getData();
-
+                            //selectedImageUri = result.getData().getData();
                             photoCam = null;
+                            ClipData clipData = result.getData().getClipData();
+                            if (clipData != null){
+                                for (int i = 0; i < clipData.getItemCount(); i++){
+                                    selectedImageUri = clipData.getItemAt(i).getUri();
+                                    addPhoto(selectedImageUri, null);
+                                }
+                            }
 
-                            if (photosGallery.get(0) == null && photosCam.get(0) == null && photosServer.get(0) == null){
+                            /*if (photosGallery.get(0) == null && photosCam.get(0) == null && photosServer.get(0) == null){
                                 photoActive.setImageURI(selectedImageUri);
                                 photosGallery.set(0, selectedImageUri);
                                 countAddImage++;
@@ -185,10 +192,7 @@ public class DialogFragmentActive extends DialogFragment {
                             if (countAddImage == 4) {
                                 // Desabilitar buttonAddPhoto
                                 buttonAddPhoto.setEnabled(false);
-                            }
-
-                            //
-
+                            }*/
                         }
                     }
                 }
@@ -201,10 +205,13 @@ public class DialogFragmentActive extends DialogFragment {
                         if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
                             Bundle extras = result.getData().getExtras();
                             photoCam = (Bitmap) extras.get("data");
-
                             selectedImageUri = null;
+                            addPhoto(null, photoCam);
+                            if (countAddImage < 4){
+                                openCamera();
+                            }
 
-                            if (photosGallery.get(0) == null && photosCam.get(0) == null && photosServer.get(0) == null){
+                            /*if (photosGallery.get(0) == null && photosCam.get(0) == null && photosServer.get(0) == null){
                                 photoActive.setImageBitmap(photoCam);
                                 photosCam.set(0, photoCam);
                                 countAddImage++;
@@ -232,7 +239,7 @@ public class DialogFragmentActive extends DialogFragment {
                             if (countAddImage == 4) {
                                 // Desabilitar buttonAddPhoto
                                 buttonAddPhoto.setEnabled(false);
-                            }
+                            }*/
 
                         }
                     }
@@ -780,6 +787,7 @@ public class DialogFragmentActive extends DialogFragment {
                             case 0:
                                 // Abrir la galería
                                 Intent galleryIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                                galleryIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
                                 galleryLauncher.launch(galleryIntent);
                                 break;
                             case 1:
@@ -802,6 +810,64 @@ public class DialogFragmentActive extends DialogFragment {
     private void openCamera() {
         Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         cameraLauncher.launch(cameraIntent);
+    }
+
+    private void addPhoto(Uri galleryUri, Bitmap cameraBitmap) {
+        if (countAddImage < 4) {
+            if (photosGallery.get(0) == null && photosCam.get(0) == null) {
+                System.out.println("0");
+                if (galleryUri != null) {
+                    System.out.println("URI 0");
+                    photoActive.setImageURI(galleryUri);
+                    photosGallery.set(0, galleryUri);
+                } else if (cameraBitmap != null) {
+                    System.out.println("BIT 0");
+                    photoActive.setImageBitmap(cameraBitmap);
+                    photosCam.set(0, cameraBitmap);
+                }
+            } else if (photosGallery.get(1) == null && photosCam.get(1) == null) {
+                System.out.println("1");
+                if (galleryUri != null) {
+                    System.out.println("URI 1");
+                    photoActive2.setImageURI(galleryUri);
+                    photosGallery.set(1, galleryUri);
+                } else if (cameraBitmap != null) {
+                    System.out.println("BIT 1");
+                    photoActive2.setImageBitmap(cameraBitmap);
+                    photosCam.set(1, cameraBitmap);
+                }
+            } else if (photosGallery.get(2) == null && photosCam.get(2) == null) {
+                System.out.println("2");
+                if (galleryUri != null) {
+                    System.out.println("URI 2");
+                    photoActive3.setImageURI(galleryUri);
+                    photosGallery.set(2, galleryUri);
+                } else if (cameraBitmap != null) {
+                    System.out.println("BIT 2");
+                    photoActive3.setImageBitmap(cameraBitmap);
+                    photosCam.set(2, cameraBitmap);
+                }
+            } else if (photosGallery.get(3) == null && photosCam.get(3) == null) {
+                System.out.println("3");
+                if (galleryUri != null) {
+                    System.out.println("URI 3");
+                    photoActive4.setImageURI(galleryUri);
+                    photosGallery.set(3, galleryUri);
+                } else if (cameraBitmap != null) {
+                    System.out.println("BIT 3");
+                    photoActive4.setImageBitmap(cameraBitmap);
+                    photosCam.set(3, cameraBitmap);
+                }
+            }
+            countAddImage++;
+
+            if (countAddImage == 4) {
+                buttonAddPhoto.setEnabled(false);
+            }
+        } else {
+            System.out.println("Solo se pueden agregar hasta 4 imagenes");
+            Toast.makeText(getContext(), "Solo se pueden agregar hasta 4 imagenes", Toast.LENGTH_SHORT).show();
+        }
     }
 
     public void initializeArticle(View view) {

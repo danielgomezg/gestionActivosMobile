@@ -3,6 +3,7 @@ package com.example.sca_app_v1.home_app.article;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.ClipData;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -12,6 +13,7 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
@@ -46,17 +48,11 @@ public class DialogFragmentArticle extends DialogFragment {
     private static final String ARG_MODE = "mode";
     public static final int MODE_EDIT = 1;
     public static final int MODE_CREATE = 2;
-
     public static final String ARG_POSITION = "";
-
     private static final String ARG_ARTICLE = "article";
-
     private ArticleFragment parentFragment;
-
     private int mode;
-
     private int position;
-
     private Article article;
     private EditText editTextName;
     private EditText editTextDescription;
@@ -96,7 +92,6 @@ public class DialogFragmentArticle extends DialogFragment {
         fragment.setArguments(args);
         // Guardar una referencia al fragmento padre (ArticleFragment)
         fragment.setParentFragment(parentFragment);
-
         return fragment;
     }
 
@@ -108,7 +103,6 @@ public class DialogFragmentArticle extends DialogFragment {
         fragment.setArguments(args);
         // Guardar una referencia al fragmento padre (ArticleFragment)
         fragment.setParentFragment(parentFragment);
-
         return fragment;
     }
 
@@ -130,8 +124,15 @@ public class DialogFragmentArticle extends DialogFragment {
                     @Override
                     public void onActivityResult(ActivityResult result) {
                         if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
-                            selectedImageUri = result.getData().getData();
-
+                            photoCam = null;
+                            ClipData clipData = result.getData().getClipData();
+                            if (clipData != null){
+                                for (int i = 0; i < clipData.getItemCount(); i++){
+                                    selectedImageUri = clipData.getItemAt(i).getUri();
+                                    addPhoto(selectedImageUri, null);
+                                }
+                            }
+                            /*selectedImageUri = result.getData().getData();
                             photoCam = null;
 
                             if (photosGallery.get(0) == null && photosCam.get(0) == null) {
@@ -156,17 +157,13 @@ public class DialogFragmentArticle extends DialogFragment {
                                 countAddImage++;
                             }
                             else {
-                                System.out.println("No hay espacio para más fotos");
                                 Toast.makeText(getContext(), "Solo se pueden agregar hasta 4 imagenes", Toast.LENGTH_SHORT).show();
                             }
 
                             if (countAddImage == 4) {
                                 // Desabilitar buttonAddPhoto
                                 buttonAddPhoto.setEnabled(false);
-                            }
-
-                            // 
-
+                            }*/
                         }
                     }
                 }
@@ -180,9 +177,13 @@ public class DialogFragmentArticle extends DialogFragment {
                         if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
                             Bundle extras = result.getData().getExtras();
                             photoCam = (Bitmap) extras.get("data");
-
                             selectedImageUri = null;
+                            addPhoto(null, photoCam);
+                            if (countAddImage < 4){
+                                openCamera();
+                            }
 
+                            /*
                             if (photosGallery.get(0) == null && photosCam.get(0) == null) {
                                 photoArticle.setImageBitmap(photoCam);
                                 photosCam.set(0, photoCam);
@@ -204,15 +205,13 @@ public class DialogFragmentArticle extends DialogFragment {
                                 countAddImage++;
                             }
                             else {
-                                System.out.println("No hay espacio para más fotos");
                                 Toast.makeText(getContext(), "Solo se pueden agregar hasta 4 imagenes", Toast.LENGTH_SHORT).show();
                             }
 
                             if (countAddImage == 4) {
                                 // Desabilitar buttonAddPhoto
                                 buttonAddPhoto.setEnabled(false);
-                            }
-
+                            }*/
                         }
                     }
                 }
@@ -343,7 +342,6 @@ public class DialogFragmentArticle extends DialogFragment {
         //obtener la company
         SharedPreferences sharedPreferences = requireContext().getSharedPreferences("session", Context.MODE_PRIVATE);
         Integer company_id = sharedPreferences.getInt("company_id", 0);
-
         System.out.println("PRE SETEO " + photoPath);
 
         // Verificar si el artículo está presente y establecer los valores de los campos
@@ -352,8 +350,6 @@ public class DialogFragmentArticle extends DialogFragment {
             editTextCode.setText(article.getCode());
             editTextDescription.setText(article.getDescription());
             photoPath = article.getPhoto();
-            System.out.println("SETEO " + photoPath);
-            System.out.println("category " + article.getCategory_id());
 
             // Verificar si la ruta de la foto no es nula
             if (photoPath == null || photoPath.isEmpty()) {
@@ -361,8 +357,6 @@ public class DialogFragmentArticle extends DialogFragment {
                 System.out.println("photoPath está vacío o es nulo. Mostrando imagen por defecto.");
             } else {
                 try {
-                    System.out.println("PHOTO PATH ARTICULO");
-                    System.out.println(photoPath);
                     String[] photos = photoPath.split(",");
                     if (photos.length == 4) {
                         buttonAddPhoto.setEnabled(false);
@@ -474,7 +468,6 @@ public class DialogFragmentArticle extends DialogFragment {
                         }
 
                         if (idCategory == 0) {
-                            System.out.println("falta categoria");
                             categorySelect.setError("Seleccione categoria");
                             textInputLayoutCategory.setError("Categoria requerido");
                             continueExecution = false;
@@ -531,13 +524,7 @@ public class DialogFragmentArticle extends DialogFragment {
                             System.out.println("GUARDANDO PHOTO " + photoPath);
 
                             if (mode == MODE_EDIT) {
-                                System.out.println("newName " + newName);
-                                System.out.println("newDescription " + newDescription);
-                                System.out.println("newCode " + newCode);
-                                System.out.println("selectedCategory " + selectedCategory);
-                                System.out.println("selectedCategory " + idCategory);
-                                System.out.println("position " + position);
-
+                                System.out.println("new article " + newArticle.printData());
                                 newArticle.setId(article.getId());
                                 newArticle.setSync(article.getSync());
                                 if (photosArticleEdit.isEmpty()){
@@ -548,12 +535,10 @@ public class DialogFragmentArticle extends DialogFragment {
 
                                 // Actualizar el artículo en la base de datos
                                 boolean updateSuccessful = newArticle.updateArticle(getContext());
-                                System.out.println(updateSuccessful);
 
                                 if (updateSuccessful && parentFragment != null) {
                                     // La actualización fue exitosa
                                     Toast.makeText(getContext(), "Artículo actualizado correctamente", Toast.LENGTH_SHORT).show();
-
                                     // Actualizar la lista de artículos en el fragmento padre (ArticleFragment)
                                     parentFragment.updateArticles(getContext(), position);
                                 } else {
@@ -569,11 +554,9 @@ public class DialogFragmentArticle extends DialogFragment {
                                 newArticle.setCompany_id(company_id);
                                 newArticle.setPhoto(photoPath);
                                 boolean createSuccessful = newArticle.createArticle(getContext());
-                                System.out.println(createSuccessful);
 
                                 if (createSuccessful && parentFragment != null) {
                                     dialog.dismiss();
-
                                     // Actualizar la lista de artículos en el fragmento padre (ArticleFragment)
                                     parentFragment.showAlert("Artículo creado correctamente");
                                     parentFragment.showArticles(getContext());
@@ -603,6 +586,7 @@ public class DialogFragmentArticle extends DialogFragment {
                             case 0:
                                 // Abrir la galería
                                 Intent galleryIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                                galleryIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
                                 galleryLauncher.launch(galleryIntent);
                                 break;
                             case 1:
@@ -627,4 +611,61 @@ public class DialogFragmentArticle extends DialogFragment {
         cameraLauncher.launch(cameraIntent);
     }
 
+    private void addPhoto(Uri galleryUri, Bitmap cameraBitmap) {
+        if (countAddImage < 4) {
+            if (photosGallery.get(0) == null && photosCam.get(0) == null) {
+                System.out.println("0");
+                if (galleryUri != null) {
+                    System.out.println("URI 0");
+                    photoArticle.setImageURI(galleryUri);
+                    photosGallery.set(0, galleryUri);
+                } else if (cameraBitmap != null) {
+                    System.out.println("BIT 0");
+                    photoArticle.setImageBitmap(cameraBitmap);
+                    photosCam.set(0, cameraBitmap);
+                }
+            } else if (photosGallery.get(1) == null && photosCam.get(1) == null) {
+                System.out.println("1");
+                if (galleryUri != null) {
+                    System.out.println("URI 1");
+                    photoArticle2.setImageURI(galleryUri);
+                    photosGallery.set(1, galleryUri);
+                } else if (cameraBitmap != null) {
+                    System.out.println("BIT 1");
+                    photoArticle2.setImageBitmap(cameraBitmap);
+                    photosCam.set(1, cameraBitmap);
+                }
+            } else if (photosGallery.get(2) == null && photosCam.get(2) == null) {
+                System.out.println("2");
+                if (galleryUri != null) {
+                    System.out.println("URI 2");
+                    photoArticle3.setImageURI(galleryUri);
+                    photosGallery.set(2, galleryUri);
+                } else if (cameraBitmap != null) {
+                    System.out.println("BIT 2");
+                    photoArticle3.setImageBitmap(cameraBitmap);
+                    photosCam.set(2, cameraBitmap);
+                }
+            } else if (photosGallery.get(3) == null && photosCam.get(3) == null) {
+                System.out.println("3");
+                if (galleryUri != null) {
+                    System.out.println("URI 3");
+                    photoArticle4.setImageURI(galleryUri);
+                    photosGallery.set(3, galleryUri);
+                } else if (cameraBitmap != null) {
+                    System.out.println("BIT 3");
+                    photoArticle4.setImageBitmap(cameraBitmap);
+                    photosCam.set(3, cameraBitmap);
+                }
+            }
+            countAddImage++;
+
+            if (countAddImage == 4) {
+                buttonAddPhoto.setEnabled(false);
+            }
+        } else {
+            System.out.println("Solo se pueden agregar hasta 4 imagenes");
+            Toast.makeText(getContext(), "Solo se pueden agregar hasta 4 imagenes", Toast.LENGTH_SHORT).show();
+        }
+    }
 }
