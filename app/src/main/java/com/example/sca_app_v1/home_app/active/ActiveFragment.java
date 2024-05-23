@@ -134,7 +134,9 @@ public class ActiveFragment  extends Fragment {
     public void updateActives(Context context, int position) {
         System.out.println("IN UPDATE SHOW ACTIVES");
         Active active = new Active();
-        actives = active.getActives(context, offset, limit);
+        Active activeList = actives.get(position);
+        Active activeupdated = active.getActiveById(context, activeList.getId());
+        actives.set(position, activeupdated);
         adapterActive.notifyItemChanged(position);
     }
 

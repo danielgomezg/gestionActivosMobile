@@ -81,6 +81,7 @@ public class DialogFragmentArticle extends DialogFragment {
     private Button btnDeleteImg2;
     private Button btnDeleteImg3;
     private Button btnDeleteImg4;
+    private List<String> photosServer = new ArrayList<>(Arrays.asList(null, null, null, null));
 
     // Método estático para crear una instancia del DialogFragment en modo edicion
     public static DialogFragmentArticle newInstance(int mode, int position, Article article, ArticleFragment parentFragment) {
@@ -367,11 +368,12 @@ public class DialogFragmentArticle extends DialogFragment {
                         if (i == 0) {
                             if (photoUri.toString().contains("mobile_local")) {
                                 photoArticle.setImageURI(photoUri);
+                                photosGallery.set(0, photoUri);
                             }
                             else {
                                 //Caso donde el articulo tiene imagen desde el server, se muestra una por defecto.
                                 photoArticle.setImageResource(R.drawable.sca_logo_2);
-                                photosGallery.set(0, photoUri);
+                                photosServer.set(0, "photoLoad");
                                 btnDeleteImg1.setEnabled(false);
                             }
                         }
@@ -381,7 +383,7 @@ public class DialogFragmentArticle extends DialogFragment {
                             }
                             else {
                                 photoArticle2.setImageResource(R.drawable.sca_logo_2);
-                                photosGallery.set(1, photoUri);
+                                photosServer.set(1, "photoLoad");
                                 btnDeleteImg2.setEnabled(false);
                             }
                         }
@@ -391,7 +393,7 @@ public class DialogFragmentArticle extends DialogFragment {
                             }
                             else {
                                 photoArticle3.setImageResource(R.drawable.sca_logo_2);
-                                photosGallery.set(2, photoUri);
+                                photosServer.set(2, "photoLoad");
                                 btnDeleteImg3.setEnabled(false);
                             }
                         }
@@ -401,7 +403,7 @@ public class DialogFragmentArticle extends DialogFragment {
                             }
                             else {
                                 photoArticle4.setImageResource(R.drawable.sca_logo_2);
-                                photosGallery.set(3, photoUri);
+                                photosServer.set(3, "photoLoad");
                                 btnDeleteImg4.setEnabled(false);
                             }
                         }
@@ -503,7 +505,7 @@ public class DialogFragmentArticle extends DialogFragment {
                                 if (photosGallery.get(i) == null) {
                                     continue;
                                 }
-                                String url = article.savePhoto(requireContext(), photosGallery.get(i), String.valueOf(contNamePhoto) + newName);
+                                String url = Article.savePhoto(requireContext(), photosGallery.get(i), String.valueOf(contNamePhoto) + newName);
                                 if (url == null) {
                                     success = false;
                                 }
@@ -524,9 +526,10 @@ public class DialogFragmentArticle extends DialogFragment {
                             System.out.println("GUARDANDO PHOTO " + photoPath);
 
                             if (mode == MODE_EDIT) {
-                                System.out.println("new article " + newArticle.printData());
+
                                 newArticle.setId(article.getId());
                                 newArticle.setSync(article.getSync());
+                                System.out.println("new article " + newArticle.printData());
                                 if (photosArticleEdit.isEmpty()){
                                     newArticle.setPhoto(photoPath);
                                 }else {
@@ -537,6 +540,7 @@ public class DialogFragmentArticle extends DialogFragment {
                                 boolean updateSuccessful = newArticle.updateArticle(getContext());
 
                                 if (updateSuccessful && parentFragment != null) {
+                                    System.out.println("ARTICULO ACTUALIZADO.");
                                     // La actualización fue exitosa
                                     Toast.makeText(getContext(), "Artículo actualizado correctamente", Toast.LENGTH_SHORT).show();
                                     // Actualizar la lista de artículos en el fragmento padre (ArticleFragment)
@@ -613,7 +617,7 @@ public class DialogFragmentArticle extends DialogFragment {
 
     private void addPhoto(Uri galleryUri, Bitmap cameraBitmap) {
         if (countAddImage < 4) {
-            if (photosGallery.get(0) == null && photosCam.get(0) == null) {
+            if (photosGallery.get(0) == null && photosCam.get(0) == null && photosServer.get(0) == null) {
                 System.out.println("0");
                 if (galleryUri != null) {
                     System.out.println("URI 0");
@@ -624,7 +628,7 @@ public class DialogFragmentArticle extends DialogFragment {
                     photoArticle.setImageBitmap(cameraBitmap);
                     photosCam.set(0, cameraBitmap);
                 }
-            } else if (photosGallery.get(1) == null && photosCam.get(1) == null) {
+            } else if (photosGallery.get(1) == null && photosCam.get(1) == null && photosServer.get(1) == null) {
                 System.out.println("1");
                 if (galleryUri != null) {
                     System.out.println("URI 1");
@@ -635,7 +639,7 @@ public class DialogFragmentArticle extends DialogFragment {
                     photoArticle2.setImageBitmap(cameraBitmap);
                     photosCam.set(1, cameraBitmap);
                 }
-            } else if (photosGallery.get(2) == null && photosCam.get(2) == null) {
+            } else if (photosGallery.get(2) == null && photosCam.get(2) == null && photosServer.get(2) == null) {
                 System.out.println("2");
                 if (galleryUri != null) {
                     System.out.println("URI 2");
@@ -646,7 +650,7 @@ public class DialogFragmentArticle extends DialogFragment {
                     photoArticle3.setImageBitmap(cameraBitmap);
                     photosCam.set(2, cameraBitmap);
                 }
-            } else if (photosGallery.get(3) == null && photosCam.get(3) == null) {
+            } else if (photosGallery.get(3) == null && photosCam.get(3) == null && photosServer.get(3) == null) {
                 System.out.println("3");
                 if (galleryUri != null) {
                     System.out.println("URI 3");

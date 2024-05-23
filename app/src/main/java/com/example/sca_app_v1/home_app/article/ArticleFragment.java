@@ -149,7 +149,9 @@ public class ArticleFragment extends Fragment {
     public void updateArticles(Context context, int position) {
         System.out.println("IN UPDATE SHOW ARTICLES");
         Article article = new Article();
-        articles = article.getArticles(context, offset, limit);
+        Article art = articles.get(position);
+        Article artUpdated = article.getArticleById(context, art.getId());
+        articles.set(position, artUpdated);
         adapterArticle.notifyItemChanged(position);
     }
 

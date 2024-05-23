@@ -814,7 +814,7 @@ public class DialogFragmentActive extends DialogFragment {
 
     private void addPhoto(Uri galleryUri, Bitmap cameraBitmap) {
         if (countAddImage < 4) {
-            if (photosGallery.get(0) == null && photosCam.get(0) == null) {
+            if (photosGallery.get(0) == null && photosCam.get(0) == null && photosServer.get(0) == null) {
                 System.out.println("0");
                 if (galleryUri != null) {
                     System.out.println("URI 0");
@@ -825,7 +825,7 @@ public class DialogFragmentActive extends DialogFragment {
                     photoActive.setImageBitmap(cameraBitmap);
                     photosCam.set(0, cameraBitmap);
                 }
-            } else if (photosGallery.get(1) == null && photosCam.get(1) == null) {
+            } else if (photosGallery.get(1) == null && photosCam.get(1) == null && photosServer.get(1) == null) {
                 System.out.println("1");
                 if (galleryUri != null) {
                     System.out.println("URI 1");
@@ -836,7 +836,7 @@ public class DialogFragmentActive extends DialogFragment {
                     photoActive2.setImageBitmap(cameraBitmap);
                     photosCam.set(1, cameraBitmap);
                 }
-            } else if (photosGallery.get(2) == null && photosCam.get(2) == null) {
+            } else if (photosGallery.get(2) == null && photosCam.get(2) == null && photosServer.get(2) == null) {
                 System.out.println("2");
                 if (galleryUri != null) {
                     System.out.println("URI 2");
@@ -847,7 +847,7 @@ public class DialogFragmentActive extends DialogFragment {
                     photoActive3.setImageBitmap(cameraBitmap);
                     photosCam.set(2, cameraBitmap);
                 }
-            } else if (photosGallery.get(3) == null && photosCam.get(3) == null) {
+            } else if (photosGallery.get(3) == null && photosCam.get(3) == null && photosServer.get(3) == null) {
                 System.out.println("3");
                 if (galleryUri != null) {
                     System.out.println("URI 3");
