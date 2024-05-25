@@ -9,7 +9,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.sca_app_v1"
-        minSdk = 30
+        minSdk = 28
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -18,7 +18,7 @@ android {
     }
 
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.1.1"
+        kotlinCompilerExtensionVersion = "1.5.10"
     }
 
 

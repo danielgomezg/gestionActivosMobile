@@ -1323,4 +1323,23 @@ public class Active implements Serializable {
         }
 
     }
+
+    public Active getActiveById(Context context, Integer activeId) {
+        String sql = "SELECT * FROM activo WHERE id = ?";
+
+        try {
+            DatabaseHelper dbHelper = new DatabaseHelper(context);
+            Cursor cursor = dbHelper.executeQuery(sql, new String[]{activeId.toString()});
+
+            if (cursor.moveToFirst()) {
+                return new Active(cursor);
+            }
+
+            cursor.close();
+            return null;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 }
