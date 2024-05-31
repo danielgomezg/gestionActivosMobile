@@ -79,7 +79,7 @@ public class HomeActivity extends AppCompatActivity {
         correoTextView.setText(emailUser);
 
         mAppBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.nav_active, R.id.nav_article)
+                R.id.nav_active, R.id.nav_article, R.id.nav_sync)
                 .setOpenableLayout(drawer)
                 .build();
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
@@ -105,8 +105,6 @@ public class HomeActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 
         if (item.getItemId() == R.id.action_logout) {
-            System.out.println("IN LOGOUT ACTION");
-            System.out.println("IN LOGOUT ACTION");
             System.out.println("IN LOGOUT ACTION");
 
             boolean UnsyncedArticles = Article.hasUnsyncedArticles(HomeActivity.this);

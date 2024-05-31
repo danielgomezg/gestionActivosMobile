@@ -16,12 +16,14 @@ import android.provider.MediaStore;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.Manifest;
 
@@ -133,38 +135,6 @@ public class DialogFragmentArticle extends DialogFragment {
                                     addPhoto(selectedImageUri, null);
                                 }
                             }
-                            /*selectedImageUri = result.getData().getData();
-                            photoCam = null;
-
-                            if (photosGallery.get(0) == null && photosCam.get(0) == null) {
-                                photoArticle.setImageURI(selectedImageUri);
-                                photosGallery.set(0, selectedImageUri);
-                                
-                                countAddImage++;
-                            }
-                            else if (photosGallery.get(1) == null && photosCam.get(1) == null) {
-                                photoArticle2.setImageURI(selectedImageUri);
-                                photosGallery.set(1, selectedImageUri);
-                                countAddImage++;
-                            }
-                            else if (photosGallery.get(2) == null && photosCam.get(2) == null) {
-                                photoArticle3.setImageURI(selectedImageUri);
-                                photosGallery.set(2, selectedImageUri);
-                                countAddImage++;
-                            }
-                            else if (photosGallery.get(3) == null && photosCam.get(3) == null) {
-                                photoArticle4.setImageURI(selectedImageUri);
-                                photosGallery.set(3, selectedImageUri);
-                                countAddImage++;
-                            }
-                            else {
-                                Toast.makeText(getContext(), "Solo se pueden agregar hasta 4 imagenes", Toast.LENGTH_SHORT).show();
-                            }
-
-                            if (countAddImage == 4) {
-                                // Desabilitar buttonAddPhoto
-                                buttonAddPhoto.setEnabled(false);
-                            }*/
                         }
                     }
                 }
@@ -183,36 +153,6 @@ public class DialogFragmentArticle extends DialogFragment {
                             if (countAddImage < 4){
                                 openCamera();
                             }
-
-                            /*
-                            if (photosGallery.get(0) == null && photosCam.get(0) == null) {
-                                photoArticle.setImageBitmap(photoCam);
-                                photosCam.set(0, photoCam);
-                                countAddImage++;
-                            }
-                            else if (photosGallery.get(1) == null && photosCam.get(1) == null) {
-                                photoArticle2.setImageBitmap(photoCam);
-                                photosCam.set(1, photoCam);
-                                countAddImage++;
-                            }
-                            else if (photosGallery.get(2) == null && photosCam.get(2) == null) {
-                                photoArticle3.setImageBitmap(photoCam);
-                                photosCam.set(2, photoCam);
-                                countAddImage++;
-                            }
-                            else if (photosGallery.get(3) == null && photosCam.get(3) == null) {
-                                photoArticle4.setImageBitmap(photoCam);
-                                photosCam.set(3, photoCam);
-                                countAddImage++;
-                            }
-                            else {
-                                Toast.makeText(getContext(), "Solo se pueden agregar hasta 4 imagenes", Toast.LENGTH_SHORT).show();
-                            }
-
-                            if (countAddImage == 4) {
-                                // Desabilitar buttonAddPhoto
-                                buttonAddPhoto.setEnabled(false);
-                            }*/
                         }
                     }
                 }
@@ -336,9 +276,13 @@ public class DialogFragmentArticle extends DialogFragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 String item = parent.getItemAtPosition(position).toString();
-                Toast.makeText(requireContext(), "Item: "+item, Toast.LENGTH_SHORT).show();
+                categorySelect.clearFocus();
+                //Toast.makeText(requireContext(), "Item: "+item, Toast.LENGTH_SHORT).show();
             }
         });
+
+        //Funcion para pasar al siguiente campo
+        next_field();
 
         //obtener la company
         SharedPreferences sharedPreferences = requireContext().getSharedPreferences("session", Context.MODE_PRIVATE);
@@ -671,5 +615,41 @@ public class DialogFragmentArticle extends DialogFragment {
             System.out.println("Solo se pueden agregar hasta 4 imagenes");
             Toast.makeText(getContext(), "Solo se pueden agregar hasta 4 imagenes", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    public void next_field(){
+        editTextName.setOnEditorActionListener(new EditText.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, android.view.KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_NEXT) {
+                    editTextCode.requestFocus();
+                    return true;
+                }
+                return false;
+            }
+        });
+
+        editTextCode.setOnEditorActionListener(new EditText.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, android.view.KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_NEXT) {
+                    editTextDescription.requestFocus();
+                    return true;
+                }
+                return false;
+            }
+        });
+
+        editTextDescription.setOnEditorActionListener(new EditText.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, android.view.KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_NEXT) {
+                    categorySelect.requestFocus();
+                    categorySelect.showDropDown();
+                    return true;
+                }
+                return false;
+            }
+        });
     }
 }

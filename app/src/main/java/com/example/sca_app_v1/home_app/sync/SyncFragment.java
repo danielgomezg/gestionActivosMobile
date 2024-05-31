@@ -148,14 +148,13 @@ public class SyncFragment extends Fragment {
                 System.out.println("UnsyncedActives --> " + UnsyncedActives);
                 System.out.println("UnsyncedArticles --> " + UnsyncedArticles);
 
-                if (UnsyncedArticles) {
+                if (UnsyncedArticles && UnsyncedActives) {
+                    Toast.makeText(getContext(), "Tienes articulos y activos sin subir", Toast.LENGTH_SHORT).show();
+                }else if (UnsyncedArticles) {
                     Toast.makeText(getContext(), "Tienes articulos sin subir", Toast.LENGTH_SHORT).show();
-                }
-                if (UnsyncedActives) {
+                } else if (UnsyncedActives) {
                     Toast.makeText(getContext(), "Tienes activos sin subir", Toast.LENGTH_SHORT).show();
-                }
-
-                if (!UnsyncedArticles && !UnsyncedActives) {
+                }else if (!UnsyncedArticles && !UnsyncedActives) {
                     loadingSync.setVisibility(View.VISIBLE);
                     Toast.makeText(getContext(), "Inicio descarga", Toast.LENGTH_SHORT).show();
                     GetLocalBD.syncProductionDB(getContext(), token, companyId, new GetLocalBD.GetLocalBDCallback(){

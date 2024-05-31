@@ -17,6 +17,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -26,6 +27,7 @@ import android.widget.CompoundButton;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResult;
@@ -163,36 +165,6 @@ public class DialogFragmentActive extends DialogFragment {
                                     addPhoto(selectedImageUri, null);
                                 }
                             }
-
-                            /*if (photosGallery.get(0) == null && photosCam.get(0) == null && photosServer.get(0) == null){
-                                photoActive.setImageURI(selectedImageUri);
-                                photosGallery.set(0, selectedImageUri);
-                                countAddImage++;
-                            }
-                            else if (photosGallery.get(1) == null && photosCam.get(1) == null && photosServer.get(1) == null){
-                                photoActive2.setImageURI(selectedImageUri);
-                                photosGallery.set(1, selectedImageUri);
-                                countAddImage++;
-                            }
-                            else if (photosGallery.get(2) == null && photosCam.get(2) == null && photosServer.get(2) == null){
-                                photoActive3.setImageURI(selectedImageUri);
-                                photosGallery.set(2, selectedImageUri);
-                                countAddImage++;
-                            }
-                            else if (photosGallery.get(3) == null && photosCam.get(3) == null && photosServer.get(3) == null){
-                                photoActive4.setImageURI(selectedImageUri);
-                                photosGallery.set(3, selectedImageUri);
-                                countAddImage++;
-                            }
-                            else {
-                                System.out.println("No hay espacio para más fotos");
-                                Toast.makeText(getContext(), "Solo se pueden agregar hasta 4 imagenes", Toast.LENGTH_SHORT).show();
-                            }
-
-                            if (countAddImage == 4) {
-                                // Desabilitar buttonAddPhoto
-                                buttonAddPhoto.setEnabled(false);
-                            }*/
                         }
                     }
                 }
@@ -210,37 +182,6 @@ public class DialogFragmentActive extends DialogFragment {
                             if (countAddImage < 4){
                                 openCamera();
                             }
-
-                            /*if (photosGallery.get(0) == null && photosCam.get(0) == null && photosServer.get(0) == null){
-                                photoActive.setImageBitmap(photoCam);
-                                photosCam.set(0, photoCam);
-                                countAddImage++;
-                            }
-                            else if (photosGallery.get(1) == null && photosCam.get(1) == null && photosServer.get(1) == null){
-                                photoActive2.setImageBitmap(photoCam);
-                                photosCam.set(1, photoCam);
-                                countAddImage++;
-                            }
-                            else if (photosGallery.get(2) == null && photosCam.get(2) == null && photosServer.get(2) == null){
-                                photoActive3.setImageBitmap(photoCam);
-                                photosCam.set(2, photoCam);
-                                countAddImage++;
-                            }
-                            else if (photosGallery.get(3) == null && photosCam.get(3) == null && photosServer.get(3) == null){
-                                photoActive4.setImageBitmap(photoCam);
-                                photosCam.set(3, photoCam);
-                                countAddImage++;
-                            }
-                            else {
-                                System.out.println("No hay espacio para más fotos");
-                                Toast.makeText(getContext(), "Solo se pueden agregar hasta 4 imagenes", Toast.LENGTH_SHORT).show();
-                            }
-
-                            if (countAddImage == 4) {
-                                // Desabilitar buttonAddPhoto
-                                buttonAddPhoto.setEnabled(false);
-                            }*/
-
                         }
                     }
                 }
@@ -401,6 +342,9 @@ public class DialogFragmentActive extends DialogFragment {
                 countAddImage--;
             }
         });
+
+        //Funcion para pasar al siguiente campo
+        next_field();
 
         // setea los campos de activo
         if(active != null){
@@ -912,6 +856,7 @@ public class DialogFragmentActive extends DialogFragment {
                         System.out.println(articleSelected.getName());
                         System.out.println(articleSelected.getId());
                         articleId = articleSelected.getId();
+                        editTextbrand.requestFocus();
                         break;
                     }
                 }
@@ -939,7 +884,6 @@ public class DialogFragmentActive extends DialogFragment {
 
             Office office = new Office();
             office = office.getOfficeId(requireContext() ,active.getOffice_id());
-            //office.getOfficeId(requireContext() ,active.getOffice_id());
 
             String selectedStore = (active != null && office != null) ? store.getStoreInfo(office.getSucursal_id(), storeList) : null;
 
@@ -973,7 +917,7 @@ public class DialogFragmentActive extends DialogFragment {
                         storeId = storeSelected.getId();
                         initializeOffice(view, storeId);
                         String item = parent.getItemAtPosition(position).toString();
-                        Toast.makeText(requireContext(), "Item: "+item, Toast.LENGTH_SHORT).show();
+                        //Toast.makeText(requireContext(), "Item: "+item, Toast.LENGTH_SHORT).show();
                         break;
                     }
                 }
@@ -985,6 +929,8 @@ public class DialogFragmentActive extends DialogFragment {
     public void initializeOffice(View view, Integer idSucursal) {
         textInputLayoutOffices = view.findViewById(R.id.office);
         autoCompleteTextViewOffices = textInputLayoutOffices.findViewById(R.id.office_select);
+        autoCompleteTextViewOffices.requestFocus();
+        autoCompleteTextViewOffices.showDropDown();
 
         if (adapterOffices != null) {
             adapterOffices.clear();
@@ -1030,6 +976,7 @@ public class DialogFragmentActive extends DialogFragment {
                         System.out.println(officeSelected.getFullName());
                         System.out.println(officeSelected.getId());
                         officeId = officeSelected.getId();
+                        editTextBarcode.requestFocus();
                         break;
                     }
                 }
@@ -1066,6 +1013,7 @@ public class DialogFragmentActive extends DialogFragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View _view, int position, long id) {
                 stateActive = (String) parent.getItemAtPosition(position);
+                editTextcomment.requestFocus();
             }
         });
     }
@@ -1086,6 +1034,8 @@ public class DialogFragmentActive extends DialogFragment {
                         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
                         selectedDate = dateFormat.format(calendar.getTime());
                         adquisitionDateEditText.setText(selectedDate);
+                        autoCompleteTextViewStates.requestFocus();
+                        autoCompleteTextViewStates.showDropDown();
                     }
                 },
                 year, month, dayOfMonth
@@ -1124,5 +1074,81 @@ public class DialogFragmentActive extends DialogFragment {
         formattedRut.append(dv);
 
         return formattedRut.toString();
+    }
+
+    public void next_field(){
+
+        editTextBarcode.setOnEditorActionListener(new EditText.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, android.view.KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_NEXT) {
+                    autoCompleteTextViewArticles.requestFocus();
+                    autoCompleteTextViewArticles.showDropDown();
+                    return true;
+                }
+                return false;
+            }
+        });
+        editTextbrand.setOnEditorActionListener(new EditText.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, android.view.KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_NEXT) {
+                    editTextModel.requestFocus();
+                    return true;
+                }
+                return false;
+            }
+        });
+        editTextModel.setOnEditorActionListener(new EditText.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, android.view.KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_NEXT) {
+                    editTextSerie.requestFocus();
+                    return true;
+                }
+                return false;
+            }
+        });
+        editTextSerie.setOnEditorActionListener(new EditText.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, android.view.KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_NEXT) {
+                    adquisitionDateEditText.requestFocus();
+                    showDatePickerDialog();
+                    return true;
+                }
+                return false;
+            }
+        });
+        editTextcomment.setOnEditorActionListener(new EditText.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, android.view.KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_NEXT) {
+                    editTextNamecharge.requestFocus();
+                    return true;
+                }
+                return false;
+            }
+        });
+        editTextNamecharge.setOnEditorActionListener(new EditText.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, android.view.KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_NEXT) {
+                    editTextRutcharge.requestFocus();
+                    return true;
+                }
+                return false;
+            }
+        });
+        editTextRutcharge.setOnEditorActionListener(new EditText.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, android.view.KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_NEXT) {
+                    editTextRecordnumber.requestFocus();
+                    return true;
+                }
+                return false;
+            }
+        });
     }
 }

@@ -31,18 +31,6 @@
         android:textFontWeight="10"
         android:textSize="24sp" />
 
-<!--    <EditText-->
-<!--        android:id="@+id/correo_user"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_marginTop="20dp"-->
-<!--        android:ems="10"-->
-<!--        android:hint="Correo..."-->
-<!--        android:paddingLeft="15dp"-->
-<!--        android:paddingTop="20dp"-->
-<!--        android:paddingRight="5dp"-->
-<!--        android:textColor="#000000" />-->
-
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/correo_user"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -55,22 +43,12 @@
 
         <com.google.android.material.textfield.TextInputEditText
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:imeOptions="actionNext"
+            android:singleLine="true"/>
 
     </com.google.android.material.textfield.TextInputLayout>
 
-
-<!--    <EditText-->
-<!--        android:id="@+id/pass_user"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_marginTop="20dp"-->
-<!--        android:ems="10"-->
-<!--        android:hint="Contraseña..."-->
-<!--        android:inputType="textPassword"-->
-<!--        android:paddingLeft="15dp"-->
-<!--        android:paddingTop="20dp"-->
-<!--        android:paddingRight="5dp"/>-->
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/pass_user"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -85,68 +63,11 @@
         <com.google.android.material.textfield.TextInputEditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="textPassword"/>
+            android:imeOptions="actionDone"
+            android:inputType="textPassword"
+            android:singleLine="true"/>
 
     </com.google.android.material.textfield.TextInputLayout>
-
-
-<!--    <EditText-->
-<!--        android:id="@+id/rut_company_select"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_marginTop="20dp"-->
-<!--        android:hint="Rut de la compañía..."-->
-<!--        android:paddingLeft="15dp"-->
-<!--        android:paddingTop="20dp"-->
-<!--        android:paddingRight="5dp"-->
-<!--        android:layout_marginBottom="4dp"/>-->
-
-<!--    <com.google.android.material.textfield.TextInputLayout-->
-<!--        android:id="@+id/tilCompanies"-->
-<!--        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_marginBottom="10dp"-->
-<!--        android:hint="Empresas">-->
-
-<!--        <AutoCompleteTextView-->
-<!--            android:id="@+id/company_select"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content" />-->
-
-<!--    </com.google.android.material.textfield.TextInputLayout>-->
-
-    <!--
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-
-        <EditText
-            android:id="@+id/rut_company_select"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:hint="Rut de la compañía..."
-            android:paddingLeft="15dp"
-            android:paddingTop="20dp"
-            android:paddingRight="5dp"
-            android:layout_marginBottom="4dp"/>
-
-        <TextView
-            android:id="@+id/rut_company_hint"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Ejemplo: 12.345.678-9"
-            android:textSize="12sp"
-            android:textColor="#888888"
-            android:textStyle="italic"
-            android:paddingLeft="15dp"
-            android:paddingRight="5dp"
-            android:layout_marginTop="-8dp"/>
-    </LinearLayout>
-    -->
-
 
     <Button
         android:id="@+id/buttonLogin"

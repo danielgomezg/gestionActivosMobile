@@ -123,7 +123,7 @@ public class ArticleFragment extends Fragment {
 
     public void showAlert(String msg) {
         System.out.println("SHOW ALERT FRANGEMENT ARTICLE");
-        Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show();
+        //Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show();
     }
 
     //AÑADIR A ARTICULOS A LA LISTA ARTICLES CUANDO SE LLEGA AL FIN DEL SCROLL
@@ -253,7 +253,7 @@ public class ArticleFragment extends Fragment {
                         System.out.println(article.getPhoto());
                         if (id == R.id.edit_option_article) {
                             // Acción para editar el artículo
-                            Toast.makeText(itemView.getContext(), "Editar artículo seleccionado " + article.getName(), Toast.LENGTH_SHORT).show();
+                            //Toast.makeText(itemView.getContext(), "Editar artículo seleccionado " + article.getName(), Toast.LENGTH_SHORT).show();
                             // Crear una instancia del DialogFragment y pasar una referencia al fragmento padre (ArticleFragment)
                             DialogFragmentArticle editDialog = DialogFragmentArticle.newInstance(DialogFragmentArticle.MODE_EDIT, position, article, articleFragment);
                             editDialog.show(requireActivity().getSupportFragmentManager(), "edit_article_dialog");

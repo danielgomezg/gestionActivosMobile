@@ -1203,13 +1203,13 @@ public class Active implements Serializable {
             outputStream.close();
 
             // Mostrar un mensaje indicando que la imagen ha sido guardada
-            Toast.makeText(context, "Imagen guardada exitosamente", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(context, "Imagen guardada exitosamente", Toast.LENGTH_SHORT).show();
 
             // Devolver la ruta absoluta del archivo
             return imageFile.getAbsolutePath();
         } catch (IOException e) {
             e.printStackTrace();
-            Toast.makeText(context, "Error al guardar la imagen", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(context, "Error al guardar la imagen", Toast.LENGTH_SHORT).show();
             return null;
         }
     }
@@ -1303,8 +1303,6 @@ public class Active implements Serializable {
             DatabaseHelper dbHelper = new DatabaseHelper(context);
             db = dbHelper.getWritableDatabase();
 
-            // db.beginTransaction();
-
             // Crear un ContentValues con los nuevos valores del artículo
             ContentValues values = new ContentValues();
             values.put("article_id_server", serverArticleId);
@@ -1315,8 +1313,6 @@ public class Active implements Serializable {
 
             // Actualizar el registro en la base de datos
             int rowsAffected = db.update("activo", values, whereClause, whereArgs);
-
-            // db.setTransactionSuccessful();
 
         } catch (Exception e) {
             e.printStackTrace();

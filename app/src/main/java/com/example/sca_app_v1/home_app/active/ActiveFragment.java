@@ -266,7 +266,7 @@ public class ActiveFragment  extends Fragment {
                         System.out.println("id " + id);
                         if (id == R.id.edit_option_active) {
                             // Acción para editar el artículo
-                            Toast.makeText(itemView.getContext(), "Editar activo seleccionado " + active.getBar_code(), Toast.LENGTH_SHORT).show();
+                            //Toast.makeText(itemView.getContext(), "Editar activo seleccionado " + active.getBar_code(), Toast.LENGTH_SHORT).show();
                             // Crear una instancia del DialogFragment y pasar una referencia al fragmento padre (ArticleFragment)
                             DialogFragmentActive editDialog = DialogFragmentActive.newInstance(DialogFragmentActive.MODE_EDIT ,position, active, activeFragment);
                             editDialog.show(requireActivity().getSupportFragmentManager(), "edit_active_dialog");

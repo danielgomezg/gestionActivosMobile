@@ -1079,13 +1079,13 @@ public class Article implements Serializable {
             outputStream.close();
 
             // Mostrar un mensaje indicando que la imagen ha sido guardada
-            Toast.makeText(context, "Imagen guardada exitosamente", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(context, "Imagen guardada exitosamente", Toast.LENGTH_SHORT).show();
 
             // Devolver la ruta absoluta del archivo
             return imageFile.getAbsolutePath();
         } catch (IOException e) {
             e.printStackTrace();
-            Toast.makeText(context, "Error al guardar la imagen", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(context, "Error al guardar la imagen", Toast.LENGTH_SHORT).show();
             return null;
         }
     }
